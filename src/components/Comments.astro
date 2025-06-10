@@ -1,0 +1,54 @@
+---
+// src/components/Comments.astro
+export interface Props {
+  pageUrl: string;
+  pageIdentifier: string;
+  pageTitle: string;
+}
+const { pageUrl, pageIdentifier, pageTitle } = Astro.props;
+
+// あなたのDisqusのshortnameに書き換えてください
+const disqusShortname = "shu-zhai-notetsukugia";
+---
+
+<div id="disqus_thread" class="mt-8"></div>
+
+<script define:vars={{ disqusShortname, pageUrl, pageIdentifier, pageTitle }}>
+  // ★★★ ここからが新しいスクリプトです ★★★
+
+  // Disqusの設定をグローバルスコープで定義
+  var disqus_config = function () {
+    this.page.url = pageUrl;
+    this.page.identifier = pageIdentifier;
+    this.page.title = pageTitle;
+  };
+
+  // ページ遷移のたびにDisqusをリロードする関数
+  const loadDisqus = () => {
+    // もし既にDisqusが読み込まれていれば、リセット処理を行う
+    if (window.DISQUS) {
+      window.DISQUS.reset({
+        reload: true,
+        config: function () {
+          this.page.url = pageUrl;
+          this.page.identifier = pageIdentifier;
+          this.page.title = pageTitle;
+        },
+      });
+    } else {
+      // 初回読み込みの場合は、通常のスクリプトを実行
+      const d = document,
+        s = d.createElement("script");
+      s.src = `https://${disqusShortname}.disqus.com/embed.js`;
+      s.setAttribute("data-timestamp", +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  };
+
+  // Astroのページ読み込みイベントを監視して、リロード関数を実行
+  document.addEventListener("astro:page-load", loadDisqus);
+</script>
+<noscript>
+  Please enable JavaScript to view the
+  <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+</noscript>

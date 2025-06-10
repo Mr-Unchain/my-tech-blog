@@ -1,14 +1,19 @@
 ---
 // src/pages/index.astro
-import BaseLayout from "../layouts/BaseLayout.astro";
-import Sidebar from "../components/Sidebar.astro";
 import ArticleCard from "../components/ArticleCard.astro";
+import HeroSlideshow from "../components/HeroSlideshow.astro"; // スライドショーをインポート
+import Sidebar from "../components/Sidebar.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 import { getBlogs } from "../lib/microcms";
 
-// microCMSからデータを取得
-const { contents: posts } = await getBlogs({ limit: 3 });
+// ヒーロー用の3記事 + リスト用の記事を取得
+const { contents: allPosts } = await getBlogs({ limit: 6 });
 
-// カテゴリー名に応じて色を返すヘルパー関数
+// 最初の3記事をヒーローセクション用にする
+const heroPosts = allPosts.slice(0, 3);
+// 4記事目以降をリスト表示用にする
+const listPosts = allPosts.slice(3);
+
 const getCategoryColor = (categoryName: string) => {
   switch (categoryName) {
     case "ガジェット":
@@ -25,44 +30,17 @@ const getCategoryColor = (categoryName: string) => {
 
 <BaseLayout>
   <main class="container mx-auto px-4 py-8 md:py-12">
-    <section class="mb-12 md:mb-16">
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden md:flex">
-        <div class="md:w-1/2">
-          <img
-            class="h-64 w-full object-cover md:h-full"
-            src="https://placehold.co/800x600/1e293b/ffffff?text=Featured"
-            alt="注目記事の画像"
-          />
-        </div>
-        <div class="p-8 md:p-12 md:w-1/2 flex flex-col justify-center">
-          <span
-            class="text-xs font-bold uppercase text-blue-600 tracking-widest"
-            >イチオシ記事！</span
-          >
-          <h1
-            class="font-bold text-3xl md:text-4xl mt-2 mb-4 text-slate-900 leading-tight"
-          >
-            未来のスマホ「Model-Z」をガチレビュー！もうこれ、未来じゃん。
-          </h1>
-          <p class="text-slate-600 mb-6">
-            見た目、速さ、カメラ、それにAI機能まで、ヤバすぎ！話題の「Model-Z」を1ヶ月使い倒してわかった、ホントのところを全部教えちゃいます。
-          </p>
-          <a
-            href="#"
-            class="self-start bg-slate-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 transition-colors"
-            >もっと詳しく見る！</a
-          >
-        </div>
-      </div>
-    </section>
+    {/* ★★★ ヒーローセクションをスライドショーに置き換え ★★★ */}
+    {heroPosts.length > 0 && <HeroSlideshow posts={heroPosts} />}
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
       <div class="lg:col-span-2">
-        <h2 class="text-2xl font-bold mb-6 text-slate-900">
+        <h2 class="text-3xl font-bold mb-6 text-slate-100">
           新しい記事はこちら！
         </h2>
         <div class="space-y-8">
           {
-            posts.map((post) => (
+            listPosts.map((post) => (
               <ArticleCard
                 id={post.id}
                 category={post.category[0]}
@@ -79,31 +57,40 @@ const getCategoryColor = (categoryName: string) => {
             ))
           }
         </div>
+        {/* ページネーション */}
         <div class="mt-12 flex justify-center">
-          <a
-            href="#"
-            class="bg-white border border-slate-300 text-slate-700 py-2 px-4 rounded-l-lg hover:bg-slate-100"
-            >＜ 前へ</a
-          >
-          <span
-            class="bg-slate-200 border-y border-slate-300 text-slate-800 py-2 px-4"
-            >1</span
-          >
-          <a
-            href="#"
-            class="bg-white border-y border-slate-300 text-slate-700 py-2 px-4 hover:bg-slate-100"
-            >2</a
-          >
-          <a
-            href="#"
-            class="bg-white border-y border-slate-300 text-slate-700 py-2 px-4 hover:bg-slate-100"
-            >3</a
-          >
-          <a
-            href="#"
-            class="bg-white border border-slate-300 text-slate-700 py-2 px-4 rounded-r-lg hover:bg-slate-100"
-            >次へ ＞</a
-          >
+          <nav class="flex items-center -space-x-px">
+            <a
+              href="#"
+              class="px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 rounded-l-lg hover:bg-slate-700 transition-colors"
+            >
+              ＜ 前へ
+            </a>
+            <span
+              aria-current="page"
+              class="px-4 py-2 bg-blue-600 border border-blue-500 text-white z-10"
+            >
+              1
+            </span>
+            <a
+              href="#"
+              class="px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-colors"
+            >
+              2
+            </a>
+            <a
+              href="#"
+              class="px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-colors"
+            >
+              3
+            </a>
+            <a
+              href="#"
+              class="px-4 py-2 bg-slate-800 border border-slate-700 text-slate-300 rounded-r-lg hover:bg-slate-700 transition-colors"
+            >
+              次へ ＞
+            </a>
+          </nav>
         </div>
       </div>
       <Sidebar />

@@ -2,7 +2,7 @@
 // src/components/ArticleCard.astro
 type ColorKey = "sky" | "purple" | "pink" | "slate";
 export interface Props {
-  id: string; // idをpropsとして受け取る
+  id: string;
   category: string;
   title: string;
   description: string;
@@ -10,41 +10,39 @@ export interface Props {
   imageUrl: string;
   categoryColor: ColorKey;
 }
-// idも受け取る
 const { id, category, title, description, date, imageUrl, categoryColor } =
   Astro.props;
-
-// colorMapにも 'slate' の定義を追加します
 const colorMap: Record<ColorKey, string> = {
-  sky: "text-sky-600 bg-sky-100",
-  purple: "text-purple-600 bg-purple-100",
-  pink: "text-pink-600 bg-pink-100",
-  slate: "text-slate-600 bg-slate-100",
+  sky: "text-sky-400 bg-sky-900/50 border-sky-400/30",
+  purple: "text-purple-400 bg-purple-900/50 border-purple-400/30",
+  pink: "text-pink-400 bg-pink-900/50 border-pink-400/30",
+  slate: "text-slate-400 bg-slate-700/50 border-slate-400/30",
 };
-
 const categoryClasses = colorMap[categoryColor];
 ---
 
-<!-- article全体をリンクにする -->
 <a
   href={`/blog/${id}/`}
-  class="block transition-shadow duration-300 hover:shadow-xl"
+  class="group block rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-900/50"
 >
-  <article class="bg-white rounded-xl shadow-md overflow-hidden h-full md:flex">
+  <article
+    class="bg-slate-800 border border-slate-700 group-hover:border-blue-500/50 h-full md:flex"
+  >
     <div class="md:w-1/3">
       <img
-        class="h-48 w-full object-cover md:h-full"
+        class="h-48 w-full object-cover md:h-full transition-transform duration-300 group-hover:scale-105"
         src={imageUrl}
         alt={`「${title}」の記事の画像`}
       />
     </div>
-    <div class="p-6 md:p-8 md:w-2/3">
-      <span class={`text-xs font-semibold py-1 px-3 rounded-full`}
+    <div class="p-6 md:p-8 md:w-2/3 flex flex-col">
+      <span
+        class={`text-xs font-medium py-1 px-3 rounded-full self-start border ${categoryClasses}`}
         >{category}</span
       >
-      <h3 class="font-bold text-xl mt-3 mb-3">{title}</h3>
-      <p class="text-slate-600 text-sm mb-4">{description}</p>
-      <time class="text-xs text-slate-500">{date}</time>
+      <h3 class="font-bold text-xl text-slate-100 mt-3 mb-3">{title}</h3>
+      <p class="text-slate-400 text-sm mb-4 flex-grow">{description}</p>
+      <time class="text-xs text-slate-500 mt-auto">{date}</time>
     </div>
   </article>
 </a>

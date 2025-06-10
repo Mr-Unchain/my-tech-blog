@@ -2,32 +2,31 @@
 // src/components/Header.astro
 ---
 
-<header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+{/* ★★★ ヘッダーの背景色を修正しました ★★★ */}
+<header class="bg-slate-800/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
   <div class="container mx-auto px-4">
     <div class="flex items-center justify-between h-20">
-      <a
-        href="/"
-        class="text-2xl font-black font-inter tracking-tighter text-slate-900"
-        >TechGadget Hub</a
+      <a href="/" class="text-xl font-bold font-inter tracking-tight text-white"
+        >書斎のテックギア</a
       >
       <nav class="hidden md:flex items-center space-x-8">
-        <a href="#" class="text-slate-600 hover:text-blue-600 transition-colors"
+        <a href="#" class="text-slate-300 hover:text-blue-400 transition-colors"
           >レビュー</a
         >
-        <a href="#" class="text-slate-600 hover:text-blue-600 transition-colors"
+        <a href="#" class="text-slate-300 hover:text-blue-400 transition-colors"
           >ニュース</a
         >
-        <a href="#" class="text-slate-600 hover:text-blue-600 transition-colors"
+        <a href="#" class="text-slate-300 hover:text-blue-400 transition-colors"
           >コラム</a
         >
-        <a href="#" class="text-slate-600 hover:text-blue-600 transition-colors"
+        <a href="#" class="text-slate-300 hover:text-blue-400 transition-colors"
           >プロフィール</a
         >
       </nav>
       <div class="md:hidden">
         <button
           id="mobile-menu-button"
-          class="text-slate-800 focus:outline-none"
+          class="text-slate-200 focus:outline-none"
         >
           <svg
             class="w-6 h-6"
@@ -45,31 +44,31 @@
       </div>
     </div>
   </div>
-  <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
+  <div id="mobile-menu" class="hidden md:hidden bg-slate-800 shadow-lg">
     <a
       href="#"
-      class="block py-3 px-4 text-sm text-slate-600 hover:bg-slate-100"
+      class="block py-3 px-4 text-sm text-slate-200 hover:bg-slate-700"
       >レビュー</a
     >
     <a
       href="#"
-      class="block py-3 px-4 text-sm text-slate-600 hover:bg-slate-100"
+      class="block py-3 px-4 text-sm text-slate-200 hover:bg-slate-700"
       >ニュース</a
     >
     <a
       href="#"
-      class="block py-3 px-4 text-sm text-slate-600 hover:bg-slate-100"
+      class="block py-3 px-4 text-sm text-slate-200 hover:bg-slate-700"
       >コラム</a
     >
     <a
       href="#"
-      class="block py-3 px-4 text-sm text-slate-600 hover:bg-slate-100"
+      class="block py-3 px-4 text-sm text-slate-200 hover:bg-slate-700"
       >プロフィール</a
     >
   </div>
 </header>
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("astro:page-load", () => {
     const mobileMenuButton = document.getElementById("mobile-menu-button");
     const mobileMenu = document.getElementById("mobile-menu");
     if (mobileMenuButton && mobileMenu) {

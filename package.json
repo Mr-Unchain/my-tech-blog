@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.8",
+    "firebase": "^11.9.0",
     "microcms-js-sdk": "^3.2.0"
   },
   "devDependencies": {

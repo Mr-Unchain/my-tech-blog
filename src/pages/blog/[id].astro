@@ -1,35 +1,38 @@
 ---
 // src/pages/blog/[id].astro
+import { doc, increment, setDoc } from "firebase/firestore";
+import Comments from "../../components/Comments.astro";
+import LikeButton from "../../components/LikeButton.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-// getBlogsもインポートする
-import { getBlogs, getBlogDetail } from "../../lib/microcms";
+import { db } from "../../lib/firebase";
+import { getBlogDetail, getBlogs } from "../../lib/microcms";
 
-// ★★★ この getStaticPaths 関数を追加しました ★★★
-// この関数は、ビルド時にどのページを生成すべきかをAstroに教えます。
 export async function getStaticPaths() {
-  // microCMSからすべての記事を取得します。
   const { contents: posts } = await getBlogs({ orders: "-publishedAt" });
-
-  // 各記事について、ページのパス（URL）を生成します。
   return posts.map((post) => ({
     params: { id: post.id },
   }));
 }
 
-// URLから記事のIDを取得
 const { id } = Astro.params;
 
-// 取得したIDを使って、microCMSから記事の詳細データを取得
+if (id) {
+  const viewRef = doc(db, "views", id);
+  await setDoc(viewRef, { count: increment(1) }, { merge: true });
+}
+
 const post = await getBlogDetail(id as string);
 ---
 
 <BaseLayout>
   <main class="container mx-auto px-4 py-8 md:py-12">
-    <article class="bg-white p-6 md:p-10 rounded-xl shadow-lg">
-      <h1 class="text-3xl md:text-4xl font-bold mb-4 text-slate-900">
+    <article
+      class="bg-slate-800 p-6 md:p-10 rounded-xl border border-slate-700"
+    >
+      <h1 class="text-3xl md:text-4xl font-bold mb-4 text-slate-100">
         {post.title}
       </h1>
-      <div class="flex items-center space-x-4 text-sm text-slate-500 mb-6">
+      <div class="flex items-center space-x-4 text-sm text-slate-400 mb-6">
         <time datetime={post.publishedAt}>
           公開日: {new Date(post.publishedAt || "").toLocaleDateString("ja-JP")}
         </time>
@@ -46,33 +49,25 @@ const post = await getBlogDetail(id as string);
         )
       }
 
-      <!-- 本文をHTMLとしてレンダリング -->
+      {/* 本文をHTMLとしてレンダリング */}
       <div class="prose prose-lg max-w-none">
         <Fragment set:html={post.content} />
+      </div>
+
+      {/* いいねボタン */}
+      <div class="mt-12 pt-8 border-t border-slate-700 flex justify-center">
+        <LikeButton postId={post.id} />
+      </div>
+
+      {/* コメント欄 */}
+      <div class="mt-12 pt-8 border-t border-slate-700">
+        <h2 class="text-2xl font-bold mb-6 text-slate-100">コメント</h2>
+        <Comments
+          pageUrl={Astro.url.href}
+          pageIdentifier={post.id}
+          pageTitle={post.title}
+        />
       </div>
     </article>
   </main>
 </BaseLayout>
-
-<style>
-  /* 本文のスタイル調整（お好みで） */
-  .prose {
-    color: #334155; /* slate-700 */
-  }
-  .prose h2 {
-    font-size: 1.75rem;
-    margin-top: 2em;
-    margin-bottom: 1em;
-    border-bottom: 2px solid #e2e8f0; /* slate-200 */
-    padding-bottom: 0.5em;
-  }
-  .prose p {
-    line-height: 1.8;
-  }
-  .prose a {
-    color: #2563eb; /* blue-600 */
-  }
-  .prose img {
-    border-radius: 0.5rem; /* rounded-lg */
-  }
-</style>

@@ -1,0 +1,133 @@
+---
+// src/components/LikeButton.astro
+export interface Props {
+  postId: string;
+}
+const { postId } = Astro.props;
+---
+
+<button
+  id="like-button"
+  data-post-id={postId}
+  class="flex items-center space-x-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors disabled:opacity-50"
+>
+  <svg
+    id="like-icon"
+    class="w-6 h-6 text-slate-500 transition-colors"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    ><path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.5l1.318-1.182a4.5 4.5 0 116.364 6.364L12 20.25l-7.682-7.682a4.5 4.5 0 010-6.364z"
+    ></path></svg
+  >
+  <span id="like-count" class="font-bold text-slate-700">0</span>
+</button>
+
+<script>
+  import { auth, db } from "../lib/firebase";
+  import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
+  import {
+    doc,
+    getDoc,
+    setDoc,
+    increment,
+    onSnapshot,
+    runTransaction,
+    type DocumentReference,
+  } from "firebase/firestore";
+
+  document.addEventListener("astro:page-load", () => {
+    const likeButton = document.getElementById(
+      "like-button"
+    ) as HTMLButtonElement;
+    const likeCountSpan = document.getElementById("like-count");
+    const likeIcon = document.getElementById("like-icon");
+
+    if (!likeButton || !likeCountSpan || !likeIcon) return;
+
+    const postId = likeButton.dataset.postId;
+    if (!postId) return;
+
+    const postLikesRef = doc(db, "likes", postId);
+    let userLikesRef: DocumentReference | null = null;
+    let liked = false;
+    let currentUserId: string | null = null;
+
+    const updateButtonUI = (isLiked: boolean) => {
+      if (isLiked) {
+        likeIcon.classList.remove("text-slate-500", "fill-none");
+        likeIcon.classList.add("text-pink-500", "fill-current");
+      } else {
+        likeIcon.classList.remove("text-pink-500", "fill-current");
+        likeIcon.classList.add("text-slate-500", "fill-none");
+      }
+      liked = isLiked;
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        userLikesRef = doc(db, `users/${currentUserId}/likes`, postId);
+
+        const userLikeDoc = await getDoc(userLikesRef);
+        updateButtonUI(userLikeDoc.exists());
+      } else {
+        signInAnonymously(auth);
+      }
+    });
+
+    const unsubscribe = onSnapshot(postLikesRef, (doc) => {
+      likeCountSpan.textContent = doc.exists()
+        ? doc.data().count.toString()
+        : "0";
+    });
+
+    const handleLike = async () => {
+      if (!currentUserId || !userLikesRef) return;
+      likeButton.disabled = true;
+
+      const newLikedState = !liked;
+      const incrementValue = newLikedState ? 1 : -1;
+
+      try {
+        await runTransaction(db, async (transaction) => {
+          if (!userLikesRef) return;
+
+          // ★★★ ここを修正しました ★★★
+          // 手動計算をやめ、Firebaseのincrement()命令を使います
+          transaction.set(
+            postLikesRef,
+            { count: increment(incrementValue) },
+            { merge: true }
+          );
+
+          if (newLikedState) {
+            transaction.set(userLikesRef, { likedAt: new Date() });
+          } else {
+            transaction.delete(userLikesRef);
+          }
+        });
+        updateButtonUI(newLikedState);
+      } catch (error) {
+        console.error("いいね処理中にエラー:", error);
+      } finally {
+        likeButton.disabled = false;
+      }
+    };
+
+    likeButton.addEventListener("click", handleLike);
+
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        unsubscribe();
+      },
+      { once: true }
+    );
+  });
+</script>

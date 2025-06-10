@@ -1,0 +1,170 @@
+---
+// src/components/HeroSlideshow.astro
+import type { Blog } from "../lib/microcms";
+
+export interface Props {
+  posts: Pick<
+    Blog,
+    "id" | "title" | "description" | "category" | "eyecatch" | "publishedAt"
+  >[];
+}
+const { posts } = Astro.props;
+---
+
+{/* スライドショー全体にIDを追加 */}
+<section
+  id="hero-slideshow"
+  class="relative w-full h-96 md:h-[450px] mb-12 md:mb-16 rounded-xl overflow-hidden border border-slate-700 shadow-2xl shadow-slate-900/50"
+>
+  <!-- Slides Container -->
+  <div class="relative w-full h-full">
+    {
+      posts.map((post, index) => (
+        <div
+          class={`slide absolute w-full h-full transition-opacity duration-700 ease-in-out ${index === 0 ? "opacity-100" : "opacity-0"}`}
+          data-slide-index={index}
+        >
+          <img
+            src={post.eyecatch.url + "?w=1200&h=800&fit=crop"}
+            alt={`「${post.title}」のアイキャッチ画像`}
+            class="w-full h-full object-cover"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          <div class="absolute bottom-0 left-0 p-8 md:p-12 max-w-2xl">
+            <span class="text-xs font-bold uppercase text-blue-400 tracking-widest">
+              {post.category[0]}
+            </span>
+            <h1 class="font-bold text-3xl md:text-4xl mt-2 mb-4 text-white leading-tight">
+              {post.title}
+            </h1>
+            <p class="text-slate-300 mb-6 hidden md:block">
+              {post.description}
+            </p>
+            <a
+              href={`/blog/${post.id}/`}
+              class="self-start bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-500 transition-colors"
+            >
+              もっと詳しく見る！
+            </a>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- Navigation Buttons -->
+  <button
+    class="prev-btn absolute top-1/2 left-4 -translate-y-1/2 bg-slate-900/50 hover:bg-slate-900/80 p-3 rounded-full text-white transition-colors z-10"
+  >
+    &#10094;
+  </button>
+  <button
+    class="next-btn absolute top-1/2 right-4 -translate-y-1/2 bg-slate-900/50 hover:bg-slate-900/80 p-3 rounded-full text-white transition-colors z-10"
+  >
+    &#10095;
+  </button>
+
+  <!-- Indicator Dots -->
+  <div
+    class="dots-container absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10"
+  >
+    {
+      posts.map((_, index) => (
+        <span
+          class={`dot h-3 w-3 bg-white/50 rounded-full cursor-pointer transition-colors ${index === 0 ? "bg-white" : ""}`}
+          data-dot-index={index}
+        />
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    // スライドショーのコンテナをIDで確実に取得
+    const slideshow = document.getElementById("hero-slideshow");
+    if (!slideshow) {
+      return;
+    }
+
+    // 型を明記して要素を取得
+    const slides = slideshow.querySelectorAll<HTMLElement>(".slide");
+    const prevButton = slideshow.querySelector<HTMLButtonElement>(".prev-btn");
+    const nextButton = slideshow.querySelector<HTMLButtonElement>(".next-btn");
+    const dots = slideshow.querySelectorAll<HTMLElement>(".dot");
+
+    // 必要な要素が揃っているか確認
+    if (
+      slides.length === 0 ||
+      !prevButton ||
+      !nextButton ||
+      dots.length === 0
+    ) {
+      return;
+    }
+
+    let currentSlide: number = 0;
+    // setIntervalの返り値の型を明記
+    let slideInterval: ReturnType<typeof setInterval> | undefined;
+
+    // 関数の引数に型を明記
+    const showSlide = (n: number): void => {
+      slides.forEach((slide, index) => {
+        slide.classList.toggle("opacity-100", index === n);
+        slide.classList.toggle("opacity-0", index !== n);
+      });
+      dots.forEach((dot, index) => {
+        dot.classList.toggle("bg-white", index === n);
+        dot.classList.toggle("bg-white/50", index !== n);
+      });
+      currentSlide = n;
+    };
+
+    const next = (): void => {
+      showSlide((currentSlide + 1) % slides.length);
+    };
+
+    const prev = (): void => {
+      showSlide((currentSlide - 1 + slides.length) % slides.length);
+    };
+
+    const resetInterval = (): void => {
+      clearInterval(slideInterval);
+      slideInterval = setInterval(next, 5000); // 5秒ごとにスライド
+    };
+
+    prevButton.addEventListener("click", () => {
+      prev();
+      resetInterval();
+    });
+
+    nextButton.addEventListener("click", () => {
+      next();
+      resetInterval();
+    });
+
+    dots.forEach((dot) => {
+      dot.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        const dotIndex = target.dataset.dotIndex;
+        if (dotIndex) {
+          showSlide(parseInt(dotIndex, 10));
+          resetInterval();
+        }
+      });
+    });
+
+    // 初期化
+    showSlide(0);
+    resetInterval();
+
+    // ページ遷移時にタイマーをクリア
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        clearInterval(slideInterval);
+      },
+      { once: true }
+    );
+  });
+</script>
