@@ -3,12 +3,12 @@
 type ColorKey = "sky" | "purple" | "pink" | "slate";
 export interface Props {
   id: string;
-  category: string;
+  category: string | string[];
   title: string;
   description: string;
   date: string;
   imageUrl: string;
-  categoryColor: ColorKey;
+  categoryColor: ColorKey | ColorKey[];
 }
 const { id, category, title, description, date, imageUrl, categoryColor } =
   Astro.props;
@@ -18,7 +18,11 @@ const colorMap: Record<ColorKey, string> = {
   pink: "text-pink-400 bg-pink-900/50 border-pink-400/30",
   slate: "text-slate-400 bg-slate-700/50 border-slate-400/30",
 };
-const categoryClasses = colorMap[categoryColor];
+// 配列で受け取るように変換
+const categories = Array.isArray(category) ? category : [category];
+const categoryColors = Array.isArray(categoryColor)
+  ? categoryColor
+  : [categoryColor];
 ---
 
 <a
@@ -36,10 +40,17 @@ const categoryClasses = colorMap[categoryColor];
       />
     </div>
     <div class="p-6 md:p-8 md:w-2/3 flex flex-col">
-      <span
-        class={`text-xs font-medium py-1 px-3 rounded-full self-start border ${categoryClasses}`}
-        >{category}</span
-      >
+      <div class="flex gap-2 mb-2">
+        {
+          categories.map((cat, idx) => (
+            <span
+              class={`text-xs font-medium py-1 px-3 rounded-full self-start border ${colorMap[categoryColors[idx] ?? categoryColors[0]]}`}
+            >
+              {cat}
+            </span>
+          ))
+        }
+      </div>
       <h3 class="font-bold text-xl text-slate-100 mt-3 mb-3">{title}</h3>
       <p class="text-slate-400 text-sm mb-4 flex-grow">{description}</p>
       <time class="text-xs text-slate-500 mt-auto">{date}</time>

@@ -16,6 +16,20 @@ export type Blog = {
   category: string[]; // セレクトフィールドは文字列の配列になります
 } & MicroCMSDate;
 
+// ★★★ プロフィールの型定義を拡張 ★★★
+export type Profile = {
+  name: string;
+  description: string;
+  avatar: MicroCMSImage;
+  xUrl?: string;
+  githubUrl?: string;
+  // ここから下を追加
+  portfolio_introduction?: string;
+  skills?: string;
+  work_history?: string;
+  contact_email?: string;
+} & MicroCMSDate;
+
 // API取得用のクライアントを作成
 export const client = createClient({
   serviceDomain: import.meta.env.MICROCMS_SERVICE_DOMAIN,
@@ -42,4 +56,10 @@ export const getBlogDetail = async (
   });
 };
 
-// getCategories関数は不要になったので削除します。
+// ★★★ プロフィール情報を取得する関数を追加 ★★★
+export const getProfile = async (queries?: MicroCMSQueries) => {
+  return await client.get<Profile>({
+    endpoint: "profile",
+    queries,
+  });
+};

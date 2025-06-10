@@ -1,10 +1,10 @@
 ---
 // src/pages/category/[categoryName].astro
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import Sidebar from "../../components/Sidebar.astro";
 import ArticleCard from "../../components/ArticleCard.astro";
-import { getBlogs } from "../../lib/microcms";
+import Sidebar from "../../components/Sidebar.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 import type { Blog } from "../../lib/microcms";
+import { getBlogs } from "../../lib/microcms";
 
 // どのカテゴリーページを生成するかをAstroに教える
 export async function getStaticPaths() {
@@ -52,7 +52,7 @@ const getCategoryColor = (name: string) => {
               posts.map((post: Blog) => (
                 <ArticleCard
                   id={post.id}
-                  category={post.category[0]}
+                  category={post.category}
                   title={post.title}
                   description={post.description}
                   date={
@@ -61,7 +61,7 @@ const getCategoryColor = (name: string) => {
                       : ""
                   }
                   imageUrl={post.eyecatch.url + "?w=400"}
-                  categoryColor={getCategoryColor(post.category[0])}
+                  categoryColor={post.category.map(getCategoryColor)}
                 />
               ))
             ) : (

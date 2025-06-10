@@ -6,21 +6,21 @@ import Sidebar from "../components/Sidebar.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getBlogs } from "../lib/microcms";
 
-// ヒーロー用の3記事 + リスト用の記事を取得
-const { contents: allPosts } = await getBlogs({ limit: 6 });
+// ★★★ 記事の取得ロジックを修正しました ★★★
+// 記事一覧とヒーローセクション用のデータを取得（例として最新5件）
+const { contents: listPosts } = await getBlogs({ limit: 5 });
 
-// 最初の3記事をヒーローセクション用にする
-const heroPosts = allPosts.slice(0, 3);
-// 4記事目以降をリスト表示用にする
-const listPosts = allPosts.slice(3);
+// その中から最新3件をヒーローセクション用にする
+const heroPosts = listPosts.slice(0, 3);
+// listPostsはそのまま記事一覧に使うことで、重複を許容します。
 
 const getCategoryColor = (categoryName: string) => {
   switch (categoryName) {
     case "ガジェット":
       return "sky";
-    case "ソフトウェア":
+    case "個人開発":
       return "purple";
-    case "レビュー":
+    case "IT":
       return "pink";
     default:
       return "slate";
@@ -43,7 +43,7 @@ const getCategoryColor = (categoryName: string) => {
             listPosts.map((post) => (
               <ArticleCard
                 id={post.id}
-                category={post.category[0]}
+                category={post.category}
                 title={post.title}
                 description={post.description}
                 date={
@@ -52,7 +52,7 @@ const getCategoryColor = (categoryName: string) => {
                     : ""
                 }
                 imageUrl={post.eyecatch.url + "?w=400"}
-                categoryColor={getCategoryColor(post.category[0])}
+                categoryColor={post.category.map(getCategoryColor)}
               />
             ))
           }
