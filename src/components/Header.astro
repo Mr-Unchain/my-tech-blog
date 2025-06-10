@@ -1,0 +1,81 @@
+---
+// src/components/Header.astro
+---
+
+<header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-20">
+      <a
+        href="/"
+        class="text-2xl font-black font-inter tracking-tighter text-slate-900"
+        >TechGadget Hub</a
+      >
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="#" class="text-slate-600 hover:text-blue-600 transition-colors"
+          >レビュー</a
+        >
+        <a href="#" class="text-slate-600 hover:text-blue-600 transition-colors"
+          >ニュース</a
+        >
+        <a href="#" class="text-slate-600 hover:text-blue-600 transition-colors"
+          >コラム</a
+        >
+        <a href="#" class="text-slate-600 hover:text-blue-600 transition-colors"
+          >プロフィール</a
+        >
+      </nav>
+      <div class="md:hidden">
+        <button
+          id="mobile-menu-button"
+          class="text-slate-800 focus:outline-none"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"></path></svg
+          >
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
+    <a
+      href="#"
+      class="block py-3 px-4 text-sm text-slate-600 hover:bg-slate-100"
+      >レビュー</a
+    >
+    <a
+      href="#"
+      class="block py-3 px-4 text-sm text-slate-600 hover:bg-slate-100"
+      >ニュース</a
+    >
+    <a
+      href="#"
+      class="block py-3 px-4 text-sm text-slate-600 hover:bg-slate-100"
+      >コラム</a
+    >
+    <a
+      href="#"
+      class="block py-3 px-4 text-sm text-slate-600 hover:bg-slate-100"
+      >プロフィール</a
+    >
+  </div>
+</header>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const mobileMenuButton = document.getElementById("mobile-menu-button");
+    const mobileMenu = document.getElementById("mobile-menu");
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
+    }
+  });
+</script>

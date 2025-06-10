@@ -1,11 +1,15 @@
-// @ts-check
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
-
-import tailwindcss from '@tailwindcss/vite';
+import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
-  vite: {
-    plugins: [tailwindcss()]
-  }
+  // このintegrationsにTailwindの設定を追加します。
+  integrations: [
+    tailwind({
+      // `global.css`へのパスを指定します。
+      // これにより、AstroがTailwindの基本スタイルを読み込めるようになります。
+      applyBaseStyles: false,
+    }),
+  ],
 });

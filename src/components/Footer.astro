@@ -1,0 +1,17 @@
+---
+// src/components/Footer.astro
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-slate-800 text-slate-400 mt-12">
+  <div class="container mx-auto px-4 py-8 text-center">
+    <div class="mb-4">
+      <a href="#" class="px-3 hover:text-white">ホーム</a>
+      <a href="#" class="px-3 hover:text-white">プライバシーポリシー</a>
+      <a href="#" class="px-3 hover:text-white">お問い合わせ</a>
+    </div>
+    <p class="text-sm">
+      &copy; {currentYear} TechGadget Hub. All Rights Reserved.
+    </p>
+  </div>
+</footer>
