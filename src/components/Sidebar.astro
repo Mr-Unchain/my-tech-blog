@@ -1,8 +1,14 @@
 ---
 // src/components/Sidebar.astro
+import { getBlogs } from "../lib/microcms";
+// カテゴリー情報だけを取得して効率化
+const { contents: posts } = await getBlogs({ fields: "id,category" });
+const allCategories = posts.flatMap((post) => post.category);
+const uniqueCategories = [...new Set(allCategories)];
 ---
 
 <aside class="space-y-8">
+  {/* プロフィール */}
   <div class="bg-white p-6 rounded-xl shadow-md text-center">
     <img
       class="w-24 h-24 rounded-full mx-auto mb-4"
@@ -19,11 +25,14 @@
       <a href="#" class="text-slate-500 hover:text-blue-600">Website</a>
     </div>
   </div>
+
+  {/* ★★★検索フォーム★★★ */}
   <div class="bg-white p-6 rounded-xl shadow-md">
     <h3 class="font-bold text-lg mb-4 text-slate-900">検索</h3>
-    <form class="flex">
+    <form class="flex" action="/search" method="GET">
       <input
         type="text"
+        name="q"
         placeholder="キーワード..."
         class="w-full border-slate-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500"
       />
@@ -46,50 +55,50 @@
       </button>
     </form>
   </div>
+
+  {/* 人気記事 */}
   <div class="bg-white p-6 rounded-xl shadow-md">
     <h3 class="font-bold text-lg mb-4 text-slate-900">人気記事</h3>
     <ul class="space-y-4">
       <li>
         <a href="#" class="text-slate-700 hover:text-blue-600 hover:underline"
-          >1. 次世代スマホ「Model-Z」徹底レビュー</a>
+          >1. 次世代スマホ「Model-Z」徹底レビュー</a
+        >
       </li>
       <li>
         <a href="#" class="text-slate-700 hover:text-blue-600 hover:underline"
-          >2. 2024年版QOL爆上がりデスク周りアイテム</a>
+          >2. 2024年版QOL爆上がりデスク周りアイテム</a
+        >
       </li>
       <li>
         <a href="#" class="text-slate-700 hover:text-blue-600 hover:underline"
-          >3. Notionをただのメモ帳で終わらせない</a>
+          >3. Notionをただのメモ帳で終わらせない</a
+        >
       </li>
       <li>
         <a href="#" class="text-slate-700 hover:text-blue-600 hover:underline"
-          >4. メカニカルキーボード沼へようこそ</a>
+          >4. メカニカルキーボード沼へようこそ</a
+        >
       </li>
     </ul>
   </div>
+
+  <!-- カテゴリーリストを動的に生成 -->
   <div class="bg-white p-6 rounded-xl shadow-md">
     <h3 class="font-bold text-lg mb-4 text-slate-900">カテゴリ</h3>
     <ul class="space-y-2">
-      <li>
-        <a href="#" class="text-slate-700 hover:text-blue-600 hover:underline"
-          >ガジェット (12)</a>
-      </li>
-      <li>
-        <a href="#" class="text-slate-700 hover:text-blue-600 hover:underline"
-          >ソフトウェア (8)</a>
-      </li>
-      <li>
-        <a href="#" class="text-slate-700 hover:text-blue-600 hover:underline"
-          >レビュー (15)</a>
-      </li>
-      <li>
-        <a href="#" class="text-slate-700 hover:text-blue-600 hover:underline"
-          >ニュース (5)</a>
-      </li>
-      <li>
-        <a href="#" class="text-slate-700 hover:text-blue-600 hover:underline"
-          >コラム (3)</a>
-      </li>
+      {
+        uniqueCategories.map((category) => (
+          <li>
+            <a
+              href={`/category/${category}/`}
+              class="text-slate-700 hover:text-blue-600 hover:underline"
+            >
+              {category}
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </div>
 </aside>

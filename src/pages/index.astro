@@ -3,35 +3,24 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Sidebar from "../components/Sidebar.astro";
 import ArticleCard from "../components/ArticleCard.astro";
-const posts = [
-  {
-    category: "ガジェット",
-    title: "2025年版QOL爆上がりデスク周りアイテム10選",
-    description:
-      "リモートワークの効率を最大限に高める、便利でスタイリッシュなデスク周りアイテムを紹介します。",
-    date: "2025年6月10日",
-    imageUrl: "https://placehold.co/400x300/38bdf8/ffffff?text=Gadget",
-    categoryColor: "sky",
-  },
-  {
-    category: "ソフトウェア",
-    title: "Notionをただのメモ帳で終わらせないための5つの活用術",
-    description:
-      "データベース、タスク管理、プロジェクト管理まで。Notionのポテンシャルを引き出す実践的なテクニック。",
-    date: "2025年6月8日",
-    imageUrl: "https://placehold.co/400x300/a78bfa/ffffff?text=Software",
-    categoryColor: "purple",
-  },
-  {
-    category: "レビュー",
-    title: "メカニカルキーボード沼へようこそ。Keychron Q1 Proレビュー",
-    description:
-      "最高の打鍵感を求めて。カスタマイズ性と静音性を両立したこのキーボードは、あなたの作業環境を激変させるかもしれない。",
-    date: "2025年6月5日",
-    imageUrl: "https://placehold.co/400x300/f472b6/ffffff?text=Review",
-    categoryColor: "pink",
-  },
-] as const;
+import { getBlogs } from "../lib/microcms";
+
+// microCMSからデータを取得
+const { contents: posts } = await getBlogs({ limit: 3 });
+
+// カテゴリー名に応じて色を返すヘルパー関数
+const getCategoryColor = (categoryName: string) => {
+  switch (categoryName) {
+    case "ガジェット":
+      return "sky";
+    case "ソフトウェア":
+      return "purple";
+    case "レビュー":
+      return "pink";
+    default:
+      return "slate";
+  }
+};
 ---
 
 <BaseLayout>
@@ -48,37 +37,44 @@ const posts = [
         <div class="p-8 md:p-12 md:w-1/2 flex flex-col justify-center">
           <span
             class="text-xs font-bold uppercase text-blue-600 tracking-widest"
-            >注目記事</span
+            >イチオシ記事！</span
           >
           <h1
             class="font-bold text-3xl md:text-4xl mt-2 mb-4 text-slate-900 leading-tight"
           >
-            次世代スマホ「Model-Z」徹底レビュー。未来はもうここにある。
+            未来のスマホ「Model-Z」をガチレビュー！もうこれ、未来じゃん。
           </h1>
           <p class="text-slate-600 mb-6">
-            デザイン、パフォーマンス、カメラ性能、そして革新的なAI機能まで。巷で話題の最新スマートフォン「Model-Z」を1ヶ月間使い倒して見えてきた真実とは。
+            見た目、速さ、カメラ、それにAI機能まで、ヤバすぎ！話題の「Model-Z」を1ヶ月使い倒してわかった、ホントのところを全部教えちゃいます。
           </p>
           <a
             href="#"
             class="self-start bg-slate-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 transition-colors"
-            >記事を読む</a
+            >もっと詳しく見る！</a
           >
         </div>
       </div>
     </section>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
       <div class="lg:col-span-2">
-        <h2 class="text-2xl font-bold mb-6 text-slate-900">最新記事</h2>
+        <h2 class="text-2xl font-bold mb-6 text-slate-900">
+          新しい記事はこちら！
+        </h2>
         <div class="space-y-8">
           {
             posts.map((post) => (
               <ArticleCard
-                category={post.category}
+                id={post.id}
+                category={post.category[0]}
                 title={post.title}
                 description={post.description}
-                date={post.date}
-                imageUrl={post.imageUrl}
-                categoryColor={post.categoryColor}
+                date={
+                  post.publishedAt
+                    ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
+                    : ""
+                }
+                imageUrl={post.eyecatch.url + "?w=400"}
+                categoryColor={getCategoryColor(post.category[0])}
               />
             ))
           }
@@ -87,7 +83,7 @@ const posts = [
           <a
             href="#"
             class="bg-white border border-slate-300 text-slate-700 py-2 px-4 rounded-l-lg hover:bg-slate-100"
-            >前へ</a
+            >＜ 前へ</a
           >
           <span
             class="bg-slate-200 border-y border-slate-300 text-slate-800 py-2 px-4"
@@ -106,7 +102,7 @@ const posts = [
           <a
             href="#"
             class="bg-white border border-slate-300 text-slate-700 py-2 px-4 rounded-r-lg hover:bg-slate-100"
-            >次へ</a
+            >次へ ＞</a
           >
         </div>
       </div>

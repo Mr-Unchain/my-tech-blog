@@ -1,0 +1,76 @@
+---
+// src/pages/category/[categoryName].astro
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import ArticleCard from "../../components/ArticleCard.astro";
+import { getBlogs } from "../../lib/microcms";
+import type { Blog } from "../../lib/microcms";
+
+// どのカテゴリーページを生成するかをAstroに教える
+export async function getStaticPaths() {
+  const { contents: posts } = await getBlogs({ fields: "category" });
+  // すべての記事からユニークなカテゴリー名を取得
+  const allCategories = posts.flatMap((post) => post.category);
+  const uniqueCategories = [...new Set(allCategories)];
+
+  return uniqueCategories.map((category) => ({
+    params: { categoryName: category },
+  }));
+}
+
+const { categoryName } = Astro.params;
+
+// 特定のカテゴリーに属するブログ記事のみを取得
+const { contents: posts } = await getBlogs({
+  filters: `category[contains]${categoryName}`,
+});
+
+const getCategoryColor = (name: string) => {
+  switch (name) {
+    case "ガジェット":
+      return "sky";
+    case "ソフトウェア":
+      return "purple";
+    case "レビュー":
+      return "pink";
+    default:
+      return "slate";
+  }
+};
+---
+
+<BaseLayout>
+  <main class="container mx-auto px-4 py-8 md:py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
+      <div class="lg:col-span-2">
+        <h1 class="text-3xl font-bold mb-6 text-slate-900">
+          「{categoryName}」の記事一覧
+        </h1>
+        <div class="space-y-8">
+          {
+            posts.length > 0 ? (
+              posts.map((post: Blog) => (
+                <ArticleCard
+                  id={post.id}
+                  category={post.category[0]}
+                  title={post.title}
+                  description={post.description}
+                  date={
+                    post.publishedAt
+                      ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
+                      : ""
+                  }
+                  imageUrl={post.eyecatch.url + "?w=400"}
+                  categoryColor={getCategoryColor(post.category[0])}
+                />
+              ))
+            ) : (
+              <p>このカテゴリーの記事はまだありません。</p>
+            )
+          }
+        </div>
+      </div>
+      <Sidebar />
+    </div>
+  </main>
+</BaseLayout>
