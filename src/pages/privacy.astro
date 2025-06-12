@@ -1,0 +1,57 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  pageTitle="プライバシーポリシー"
+  pageDescription="当サイトのプライバシーポリシーに関するページです。"
+>
+  <main class="container mx-auto px-4 py-12 md:py-16">
+    <div class="max-w-4xl mx-auto bg-slate-800/50 p-8 md:p-12 rounded-xl border border-slate-700/80 shadow-lg">
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-100 mb-8 pb-4 border-b border-slate-700">
+        プライバシーポリシー
+      </h1>
+
+      <div class="prose prose-lg max-w-none text-slate-300 prose-headings:text-slate-100 prose-strong:text-slate-100 prose-a:text-blue-400">
+        <p>
+          TechGadget Hub（以下、「当サイト」といいます。）は、当サイトの提供するサービス（以下、「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。
+        </p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">第1条（個人情報）</h2>
+        <p>
+          「個人情報」とは、個人情報保護法にいう「個人情報」を指すものとし、生存する個人に関する情報であって、当該情報に含まれる氏名、生年月日、住所、電話番号、連絡先その他の記述等により特定の個人を識別できる情報及び容貌、指紋、声紋にかかるデータ、及び健康保険証の保険者番号などの当該情報単体から特定の個人を識別できる情報（個人識別情報）を指します。
+        </p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">第2条（個人情報の収集方法）</h2>
+        <p>
+          当サイトでは、ユーザーがコメントを投稿する際やお問い合わせをする際に、氏名（ニックネーム）、メールアドレス等の個人情報をお尋ねすることがあります。また、当サイトでは、アクセス解析ツール「Googleアナリティクス」を利用しており、トラフィックデータ収集のためにCookieを使用していますが、これは匿名で収集されており、個人を特定するものではありません。
+        </p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">第3条（個人情報を収集・利用する目的）</h2>
+        <p>
+          当サイトが個人情報を収集・利用する目的は、以下のとおりです。
+        </p>
+        <ol>
+          <li>本サービスの提供・運営のため</li>
+          <li>ユーザーからのお問い合わせに回答するため（本人確認を行うことを含む）</li>
+          <li>メンテナンス、重要なお知らせなど必要に応じたご連絡のため</li>
+          <li>上記の利用目的に付随する目的</li>
+        </ol>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">第4条（プライバシーポリシーの変更）</h2>
+        <p>
+          本ポリシーの内容は、法令その他本ポリシーに別段の定めのある事項を除いて、ユーザーに通知することなく、変更することができるものとします。当サイトが別途定める場合を除いて、変更後のプライバシーポリシーは、本ウェブサイトに掲載したときから効力を生じるものとします。
+        </p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">第5条（お問い合わせ窓口）</h2>
+        <p>
+          本ポリシーに関するお問い合わせは、お問い合わせフォームよりお願いいたします。
+        </p>
+        
+        <p class="text-right mt-8">
+          最終更新日: {new Date().toLocaleDateString("ja-JP")}
+        </p>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

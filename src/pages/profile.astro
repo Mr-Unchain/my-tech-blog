@@ -2,37 +2,66 @@
 // src/pages/profile.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getProfile } from "../lib/microcms";
+import * as cheerio from "cheerio";
 
 const profile = await getProfile();
+
+// スキルをパースして配列に変換するヘルパー関数
+const parseSkills = (html: string | undefined): string[] => {
+  if (!html) return [];
+  const $ = cheerio.load(html);
+  // ul/li形式、またはpタグ内のカンマ区切りを想定
+  if ($("ul").length) {
+    return $("li")
+      .map((_, el) => $(el).text())
+      .get();
+  }
+  return ($("p").text() || "").split(/[,、\s]+/).filter(Boolean);
+};
+
+const skills = parseSkills(profile.skills);
 ---
 
-<BaseLayout>
-  <main class="container mx-auto px-4 py-8 md:py-12">
-    <div class="bg-slate-800 p-6 md:p-10 rounded-xl border border-slate-700">
+<BaseLayout
+  pageTitle={profile.name}
+  pageDescription={`${profile.name}のプロフィールページです。`}
+>
+  <main class="container mx-auto px-4 py-12 md:py-16">
+    <div
+      class="max-w-4xl mx-auto bg-slate-800/50 p-8 md:p-12 rounded-xl border border-slate-700/80 shadow-lg"
+    >
       <!-- ヘッダーセクション -->
-      <header class="flex flex-col md:flex-row items-center gap-8 mb-10">
+      <header class="flex flex-col md:flex-row items-center gap-8 mb-12">
         {
           profile.avatar && (
             <img
               src={profile.avatar.url}
               alt={profile.name}
-              class="w-32 h-32 rounded-full ring-4 ring-slate-700"
+              class="w-32 h-32 rounded-full ring-4 ring-slate-700/60 shadow-lg"
             />
           )
         }
-        <div class="text-center md:text-left">
+        <div class="text-center md:text-left flex-grow">
           <h1 class="text-4xl font-bold text-slate-100">{profile.name}</h1>
-          <p class="mt-2 text-slate-400">Software Engineer / Content Creator</p>
-          <div class="flex justify-center md:justify-start space-x-4 mt-4">
+          <p class="mt-2 text-slate-400 text-lg">
+            Software Engineer / Content Creator
+          </p>
+          <div class="flex justify-center md:justify-start space-x-5 mt-5">
             {
               profile.xUrl && (
                 <a
                   href={profile.xUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-slate-400 hover:text-blue-400"
+                  class="text-slate-400 hover:text-blue-400 transition-colors"
+                  aria-label="Xのプロフィールを見る"
                 >
-                  X
+                  <svg
+                    class="w-6 h-6"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  ><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg
+                  >
                 </a>
               )
             }
@@ -42,9 +71,16 @@ const profile = await getProfile();
                   href={profile.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-slate-400 hover:text-blue-400"
+                  class="text-slate-400 hover:text-blue-400 transition-colors"
+                  aria-label="GitHubのプロフィールを見る"
                 >
-                  GitHub
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"
+                    ><path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.378.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.942.359.308.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z"
+                    /></svg
+                  >
                 </a>
               )
             }
@@ -53,15 +89,19 @@ const profile = await getProfile();
       </header>
 
       <!-- 各セクション -->
-      <div class="space-y-12">
+      <div class="space-y-16">
         <!-- 自己紹介 -->
         {
           profile.portfolio_introduction && (
             <section>
-              <h2 class="text-2xl font-bold text-slate-100 border-b border-slate-700 pb-2 mb-4">
+              <h2
+                class="text-2xl font-bold text-slate-100 border-b-2 border-blue-500 pb-3 mb-6"
+              >
                 自己紹介
               </h2>
-              <div class="prose prose-lg max-w-none">
+              <div
+                class="prose prose-lg max-w-none text-slate-300 prose-p:leading-relaxed"
+              >
                 <Fragment set:html={profile.portfolio_introduction} />
               </div>
             </section>
@@ -70,13 +110,19 @@ const profile = await getProfile();
 
         <!-- スキル -->
         {
-          profile.skills && (
+          skills.length > 0 && (
             <section>
-              <h2 class="text-2xl font-bold text-slate-100 border-b border-slate-700 pb-2 mb-4">
+              <h2
+                class="text-2xl font-bold text-slate-100 border-b-2 border-blue-500 pb-3 mb-6"
+              >
                 スキル
               </h2>
-              <div class="prose prose-lg max-w-none">
-                <Fragment set:html={profile.skills} />
+              <div class="flex flex-wrap gap-3">
+                {skills.map((skill) => (
+                  <span class="bg-slate-700 text-slate-300 text-sm font-medium px-4 py-2 rounded-full">
+                    {skill}
+                  </span>
+                ))}
               </div>
             </section>
           )
@@ -86,10 +132,14 @@ const profile = await getProfile();
         {
           profile.work_history && (
             <section>
-              <h2 class="text-2xl font-bold text-slate-100 border-b border-slate-700 pb-2 mb-4">
+              <h2
+                class="text-2xl font-bold text-slate-100 border-b-2 border-blue-500 pb-3 mb-8"
+              >
                 経歴
               </h2>
-              <div class="prose prose-lg max-w-none">
+              <div
+                class="prose prose-lg max-w-none text-slate-300 prose-p:leading-relaxed"
+              >
                 <Fragment set:html={profile.work_history} />
               </div>
             </section>
@@ -100,18 +150,49 @@ const profile = await getProfile();
         {
           profile.contact_email && (
             <section>
-              <h2 class="text-2xl font-bold text-slate-100 border-b border-slate-700 pb-2 mb-4">
+              <h2
+                class="text-2xl font-bold text-slate-100 border-b-2 border-blue-500 pb-3 mb-6"
+              >
                 お問い合わせ
               </h2>
-              <p class="text-slate-400">
+              <p class="text-slate-400 mb-4">
                 お仕事のご依頼やご相談は、下記メールアドレスまでお気軽にご連絡ください。
               </p>
-              <a
-                href={`mailto:${profile.contact_email}`}
-                class="mt-2 inline-block text-blue-400 hover:underline"
+              <div
+                id="contact-email"
+                class="relative flex items-center bg-slate-900 border border-slate-700 rounded-lg p-4"
               >
-                {profile.contact_email}
-              </a>
+                <a
+                  href={`mailto:${profile.contact_email}`}
+                  class="text-blue-400 hover:underline flex-grow"
+                >
+                  {profile.contact_email}
+                </a>
+                <button
+                  id="copy-button"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md text-slate-400 hover:bg-slate-700 hover:text-white transition-all"
+                  aria-label="メールアドレスをコピー"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                </button>
+                <span
+                  id="copy-feedback"
+                  class="absolute right-12 text-sm bg-slate-600 text-white px-2 py-1 rounded-md opacity-0 transition-opacity"
+                  >コピーしました！</span
+                >
+              </div>
             </section>
           )
         }
@@ -119,3 +200,24 @@ const profile = await getProfile();
     </div>
   </main>
 </BaseLayout>
+
+<script>
+  const copyButton = document.getElementById("copy-button");
+  const contactEmail = document.getElementById("contact-email");
+  const copyFeedback = document.getElementById("copy-feedback");
+
+  if (copyButton && contactEmail && copyFeedback) {
+    const email = contactEmail.querySelector("a")?.innerText;
+
+    copyButton.addEventListener("click", () => {
+      if (!email) return;
+
+      navigator.clipboard.writeText(email).then(() => {
+        copyFeedback.classList.remove("opacity-0");
+        setTimeout(() => {
+          copyFeedback.classList.add("opacity-0");
+        }, 2000);
+      });
+    });
+  }
+</script>

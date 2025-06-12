@@ -1,0 +1,151 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+// TODO: Formspreeで取得したあなたのエンドポイントURLに書き換えてください
+const formspreeEndpoint = "https://formspree.io/f/xanjoprz";
+---
+
+<BaseLayout
+  pageTitle="お問い合わせ"
+  pageDescription="ご意見、ご感想、お仕事のご依頼などはこちらからお願いいたします。"
+>
+  <main class="container mx-auto px-4 py-12 md:py-20">
+    <div
+      class="max-w-xl mx-auto bg-slate-800/60 p-8 md:p-12 rounded-2xl border border-slate-700/80 shadow-2xl"
+    >
+      <header class="text-center mb-10">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-100 mb-2 tracking-tight">
+          お問い合わせ
+        </h1>
+        <p class="mt-2 text-slate-400 text-base md:text-lg">
+          ご意見、ご感想、お仕事のご依頼など、お気軽にご連絡ください。
+        </p>
+      </header>
+
+      <form action={formspreeEndpoint} method="POST" class="space-y-7">
+        <!-- 名前 -->
+        <div>
+          <label for="name" class="block text-base font-bold text-slate-200 mb-2 tracking-wide">
+            お名前
+          </label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            required
+            class="block w-full bg-slate-900 border border-slate-700 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+            placeholder="山田 太郎"
+          />
+        </div>
+        <!-- メールアドレス -->
+        <div>
+          <label for="email" class="block text-base font-bold text-slate-200 mb-2 tracking-wide">
+            メールアドレス
+          </label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            class="block w-full bg-slate-900 border border-slate-700 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+            placeholder="your.email@example.com"
+          />
+        </div>
+        <!-- 件名 -->
+        <div>
+          <label for="subject" class="block text-base font-bold text-slate-200 mb-2 tracking-wide">
+            件名
+          </label>
+          <input
+            type="text"
+            name="subject"
+            id="subject"
+            required
+            class="block w-full bg-slate-900 border border-slate-700 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+            placeholder="お仕事のご依頼について"
+          />
+        </div>
+        <!-- お問い合わせ内容 -->
+        <div>
+          <label for="message" class="block text-base font-bold text-slate-200 mb-2 tracking-wide">
+            お問い合わせ内容
+          </label>
+          <textarea
+            name="message"
+            id="message"
+            rows="6"
+            required
+            class="block w-full bg-slate-900 border border-slate-700 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+            placeholder="こちらに内容をご記入ください。"
+          ></textarea>
+        </div>
+        <div class="mt-8 text-center">
+          <button
+            type="submit"
+            id="submit-button"
+            class="inline-flex items-center justify-center py-3 px-10 border-none shadow-lg text-lg font-bold rounded-full text-white bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-slate-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span id="button-text">送信する</span>
+            <svg id="button-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </div>
+      </form>
+      <div id="form-feedback" class="mt-8 text-center text-base hidden"></div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script define:vars={{ formspreeEndpoint }}>
+  const form = document.querySelector("form");
+  const submitButton = document.getElementById("submit-button");
+  const buttonText = document.getElementById("button-text");
+  const buttonSpinner = document.getElementById("button-spinner");
+  const formFeedback = document.getElementById("form-feedback");
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const data = new FormData(form);
+
+    // ボタンの状態を「送信中」に変更
+    submitButton.disabled = true;
+    buttonText.textContent = "送信中...";
+    buttonSpinner.classList.remove("hidden");
+    formFeedback.classList.add("hidden");
+
+    try {
+      const response = await fetch(form.action, {
+        method: form.method,
+        body: data,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (response.ok) {
+        // 成功した場合
+        form.reset();
+        formFeedback.textContent = "ありがとうございます！メッセージは正常に送信されました。";
+        formFeedback.className = "mt-8 text-center text-base text-green-400";
+      } else {
+        // Formspree側でのバリデーションエラーなど
+        const errorData = await response.json();
+        const errorMessage = errorData.errors?.map((err) => err.message).join(", ") || "フォームの送信に失敗しました。";
+        formFeedback.textContent = `エラー: ${errorMessage}`;
+        formFeedback.className = "mt-8 text-center text-base text-red-400";
+      }
+    } catch (error) {
+      // ネットワークエラーなど
+      formFeedback.textContent = "エラー: ネットワーク接続に問題がある可能性があります。";
+      formFeedback.className = "mt-8 text-center text-base text-red-400";
+    } finally {
+      // ボタンの状態を元に戻す
+      submitButton.disabled = false;
+      buttonText.textContent = "送信する";
+      buttonSpinner.classList.add("hidden");
+      formFeedback.classList.remove("hidden");
+    }
+  });
+</script> 

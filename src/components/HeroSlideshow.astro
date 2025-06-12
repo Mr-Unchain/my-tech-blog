@@ -1,5 +1,6 @@
 ---
 // src/components/HeroSlideshow.astro
+import { Image } from "astro:assets";
 import type { Blog } from "../lib/microcms";
 
 export interface Props {
@@ -24,9 +25,11 @@ const { posts } = Astro.props;
           class={`slide absolute w-full h-full transition-opacity duration-700 ease-in-out ${index === 0 ? "opacity-100" : "opacity-0"}`}
           data-slide-index={index}
         >
-          <img
-            src={post.eyecatch.url + "?w=1200&h=800&fit=crop"}
+          <Image
+            src={post.eyecatch.url}
             alt={`「${post.title}」のアイキャッチ画像`}
+            width={1200}
+            height={800}
             class="w-full h-full object-cover"
           />
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
@@ -80,35 +83,27 @@ const { posts } = Astro.props;
 </section>
 
 <script>
-  document.addEventListener("astro:page-load", () => {
-    // スライドショーのコンテナをIDで確実に取得
+  // スライドショーのロジックをコンポーネントのスコープに限定する
     const slideshow = document.getElementById("hero-slideshow");
     if (!slideshow) {
-      return;
-    }
-
+    // スライドショー要素が見つからない場合は何もしない
+  } else {
     // 型を明記して要素を取得
     const slides = slideshow.querySelectorAll<HTMLElement>(".slide");
     const prevButton = slideshow.querySelector<HTMLButtonElement>(".prev-btn");
     const nextButton = slideshow.querySelector<HTMLButtonElement>(".next-btn");
     const dots = slideshow.querySelectorAll<HTMLElement>(".dot");
 
-    // 必要な要素が揃っているか確認
     if (
-      slides.length === 0 ||
-      !prevButton ||
-      !nextButton ||
-      dots.length === 0
+      slides.length > 1 && // スライドが1枚以下の場合は操作不要
+      prevButton &&
+      nextButton &&
+      dots.length > 0
     ) {
-      return;
-    }
-
-    let currentSlide: number = 0;
-    // setIntervalの返り値の型を明記
+      let currentSlide = 0;
     let slideInterval: ReturnType<typeof setInterval> | undefined;
 
-    // 関数の引数に型を明記
-    const showSlide = (n: number): void => {
+      const showSlide = (n: number) => {
       slides.forEach((slide, index) => {
         slide.classList.toggle("opacity-100", index === n);
         slide.classList.toggle("opacity-0", index !== n);
@@ -120,15 +115,15 @@ const { posts } = Astro.props;
       currentSlide = n;
     };
 
-    const next = (): void => {
+      const next = () => {
       showSlide((currentSlide + 1) % slides.length);
     };
 
-    const prev = (): void => {
+      const prev = () => {
       showSlide((currentSlide - 1 + slides.length) % slides.length);
     };
 
-    const resetInterval = (): void => {
+      const resetInterval = () => {
       clearInterval(slideInterval);
       slideInterval = setInterval(next, 5000); // 5秒ごとにスライド
     };
@@ -166,5 +161,6 @@ const { posts } = Astro.props;
       },
       { once: true }
     );
-  });
+    }
+  }
 </script>

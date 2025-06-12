@@ -9,7 +9,10 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.4.1",
     "@tailwindcss/vite": "^4.1.8",
+    "@types/cheerio": "^0.22.35",
+    "cheerio": "^1.1.0",
     "firebase": "^11.9.0",
     "microcms-js-sdk": "^3.2.0"
   },
