@@ -48,6 +48,7 @@ const ogpImageUrl = ogImageUrl || new URL('default-og-image.png', Astro.site).hr
       rel="stylesheet"
     />
     <ViewTransitions />
+    <link rel="sitemap" href="/sitemap-index.xml" />
 
     <style is:global>
       body {
@@ -64,21 +65,21 @@ const ogpImageUrl = ogImageUrl || new URL('default-og-image.png', Astro.site).hr
       }
       /* ★★★ 本文の文字色を修正しました ★★★ */
       .prose {
-        color: #94a3b8; /* slate-400 */
+        color: #374151; /* gray-700 */
       }
       .prose h2 {
-        color: #f3f4f6; /* gray-100 */
-        border-bottom-color: #374151; /* gray-700 */
+        color: #111827; /* gray-900 */
+        border-bottom-color: #e5e7eb; /* gray-200 */
       }
       .prose a {
-        color: #60a5fa; /* blue-400 */
+        color: #3b82f6; /* blue-500 */
       }
       .prose strong {
-        color: #f9fafb; /* gray-50 */
+        color: #111827; /* gray-900 */
       }
     </style>
   </head>
-  <body class="bg-slate-900 text-slate-300">
+  <body class="bg-custom-bg text-slate-800">
     <Header />
     <slot />
     <Footer />

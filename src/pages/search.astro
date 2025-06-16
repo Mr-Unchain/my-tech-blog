@@ -32,19 +32,19 @@ const getCategoryColor = (name: string) => {
 ---
 
 <BaseLayout>
-  <main class="container mx-auto px-4 py-8 md:py-12">
+  <main class="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
       <div class="lg:col-span-2">
-        <h1 class="text-3xl font-bold mb-6 text-slate-100">
+        <h1 class="text-3xl font-bold mb-6 text-custom-heading">
           {query ? `「${query}」の検索結果: ${posts.length}件` : "検索ページ"}
         </h1>
-        <div class="space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           {
             posts.length > 0
               ? posts.map((post: Blog) => (
                   <ArticleCard
                     id={post.id}
-                    category={post.category[0]}
+                    category={post.category}
                     title={post.title}
                     description={post.description}
                     date={
@@ -53,11 +53,13 @@ const getCategoryColor = (name: string) => {
                         : ""
                     }
                     imageUrl={post.eyecatch.url + "?w=400"}
-                    categoryColor={getCategoryColor(post.category[0])}
+                    categoryColor={post.category.map(getCategoryColor)}
                   />
                 ))
               : query && (
-                  <p>「{query}」に一致する記事は見つかりませんでした。</p>
+                  <p class="text-slate-500">
+                    「{query}」に一致する記事は見つかりませんでした。
+                  </p>
                 )
           }
         </div>

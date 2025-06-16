@@ -15,7 +15,7 @@ const { posts } = Astro.props;
 {/* スライドショー全体にIDを追加 */}
 <section
   id="hero-slideshow"
-  class="relative w-full h-96 md:h-[450px] mb-12 md:mb-16 rounded-xl overflow-hidden border border-slate-700 shadow-2xl shadow-slate-900/50"
+  class="relative w-full h-96 md:h-[450px] mb-12 md:mb-16 rounded-xl overflow-hidden border border-slate-200 shadow-lg"
 >
   <!-- Slides Container -->
   <div class="relative w-full h-full">
@@ -25,30 +25,34 @@ const { posts } = Astro.props;
           class={`slide absolute w-full h-full transition-opacity duration-700 ease-in-out ${index === 0 ? "opacity-100" : "opacity-0"}`}
           data-slide-index={index}
         >
+          {/* 背景画像 */}
+          <Image
+            src={post.eyecatch.url}
+            alt=""
+            width={1200}
+            height={800}
+            class="absolute inset-0 w-full h-full object-cover blur-md scale-110"
+            aria-hidden="true"
+          />
+          <div class="absolute inset-0 bg-black/50"></div>
+
+          {/* 前景画像 */}
           <Image
             src={post.eyecatch.url}
             alt={`「${post.title}」のアイキャッチ画像`}
             width={1200}
             height={800}
-            class="w-full h-full object-cover"
+            class="relative w-full h-full object-contain drop-shadow-lg"
           />
+
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-          <div class="absolute bottom-0 left-0 p-8 md:p-12 max-w-2xl">
-            <span class="text-xs font-bold uppercase text-blue-400 tracking-widest">
-              {post.category[0]}
-            </span>
-            <h1 class="font-bold text-3xl md:text-4xl mt-2 mb-4 text-white leading-tight">
-              {post.title}
-            </h1>
-            <p class="text-slate-300 mb-6 hidden md:block">
+          <div
+            class="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-custom-header/80 text-white"
+          >
+            <h2 class="text-xl md:text-2xl font-bold mb-1">{post.title}</h2>
+            <p class="text-sm md:text-base hidden md:block">
               {post.description}
             </p>
-            <a
-              href={`/blog/${post.id}/`}
-              class="self-start bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-500 transition-colors"
-            >
-              もっと詳しく見る！
-            </a>
           </div>
         </div>
       ))
@@ -57,12 +61,12 @@ const { posts } = Astro.props;
 
   <!-- Navigation Buttons -->
   <button
-    class="prev-btn absolute top-1/2 left-4 -translate-y-1/2 bg-slate-900/50 hover:bg-slate-900/80 p-3 rounded-full text-white transition-colors z-10"
+    class="prev-btn absolute top-1/2 left-4 -translate-y-1/2 bg-black/30 hover:bg-black/50 p-3 rounded-full text-white transition-colors z-10"
   >
     &#10094;
   </button>
   <button
-    class="next-btn absolute top-1/2 right-4 -translate-y-1/2 bg-slate-900/50 hover:bg-slate-900/80 p-3 rounded-full text-white transition-colors z-10"
+    class="next-btn absolute top-1/2 right-4 -translate-y-1/2 bg-black/30 hover:bg-black/50 p-3 rounded-full text-white transition-colors z-10"
   >
     &#10095;
   </button>
@@ -83,16 +87,24 @@ const { posts } = Astro.props;
 </section>
 
 <script>
-  // スライドショーのロジックをコンポーネントのスコープに限定する
+  document.addEventListener("astro:page-load", () => {
     const slideshow = document.getElementById("hero-slideshow");
     if (!slideshow) {
-    // スライドショー要素が見つからない場合は何もしない
-  } else {
+      // スライドショー要素が見つからない場合は何もしない
+      return;
+    }
+
     // 型を明記して要素を取得
     const slides = slideshow.querySelectorAll<HTMLElement>(".slide");
     const prevButton = slideshow.querySelector<HTMLButtonElement>(".prev-btn");
     const nextButton = slideshow.querySelector<HTMLButtonElement>(".next-btn");
     const dots = slideshow.querySelectorAll<HTMLElement>(".dot");
+
+    // イベントリスナーが二重に登録されるのを防ぐためのフラグ
+    if ((slideshow as any).dataset.initialized) {
+      return;
+    }
+    (slideshow as any).dataset.initialized = "true";
 
     if (
       slides.length > 1 && // スライドが1枚以下の場合は操作不要
@@ -101,66 +113,67 @@ const { posts } = Astro.props;
       dots.length > 0
     ) {
       let currentSlide = 0;
-    let slideInterval: ReturnType<typeof setInterval> | undefined;
+      let slideInterval: ReturnType<typeof setInterval> | undefined;
 
       const showSlide = (n: number) => {
-      slides.forEach((slide, index) => {
-        slide.classList.toggle("opacity-100", index === n);
-        slide.classList.toggle("opacity-0", index !== n);
-      });
-      dots.forEach((dot, index) => {
-        dot.classList.toggle("bg-white", index === n);
-        dot.classList.toggle("bg-white/50", index !== n);
-      });
-      currentSlide = n;
-    };
+        slides.forEach((slide, index) => {
+          slide.classList.toggle("opacity-100", index === n);
+          slide.classList.toggle("opacity-0", index !== n);
+        });
+        dots.forEach((dot, index) => {
+          dot.classList.toggle("bg-white", index === n);
+          dot.classList.toggle("bg-white/50", index !== n);
+        });
+        currentSlide = n;
+      };
 
       const next = () => {
-      showSlide((currentSlide + 1) % slides.length);
-    };
+        showSlide((currentSlide + 1) % slides.length);
+      };
 
       const prev = () => {
-      showSlide((currentSlide - 1 + slides.length) % slides.length);
-    };
+        showSlide((currentSlide - 1 + slides.length) % slides.length);
+      };
 
       const resetInterval = () => {
-      clearInterval(slideInterval);
-      slideInterval = setInterval(next, 5000); // 5秒ごとにスライド
-    };
-
-    prevButton.addEventListener("click", () => {
-      prev();
-      resetInterval();
-    });
-
-    nextButton.addEventListener("click", () => {
-      next();
-      resetInterval();
-    });
-
-    dots.forEach((dot) => {
-      dot.addEventListener("click", (e) => {
-        const target = e.target as HTMLElement;
-        const dotIndex = target.dataset.dotIndex;
-        if (dotIndex) {
-          showSlide(parseInt(dotIndex, 10));
-          resetInterval();
-        }
-      });
-    });
-
-    // 初期化
-    showSlide(0);
-    resetInterval();
-
-    // ページ遷移時にタイマーをクリア
-    document.addEventListener(
-      "astro:before-swap",
-      () => {
         clearInterval(slideInterval);
-      },
-      { once: true }
-    );
+        slideInterval = setInterval(next, 5000); // 5秒ごとにスライド
+      };
+
+      prevButton.addEventListener("click", () => {
+        prev();
+        resetInterval();
+      });
+
+      nextButton.addEventListener("click", () => {
+        next();
+        resetInterval();
+      });
+
+      dots.forEach((dot) => {
+        dot.addEventListener("click", (e) => {
+          const target = e.target as HTMLElement;
+          const dotIndex = target.dataset.dotIndex;
+          if (dotIndex) {
+            showSlide(parseInt(dotIndex, 10));
+            resetInterval();
+          }
+        });
+      });
+
+      // 初期化
+      showSlide(0);
+      resetInterval();
+
+      // ページ遷移時にタイマーをクリアし、初期化フラグをリセット
+      document.addEventListener(
+        "astro:before-swap",
+        () => {
+          clearInterval(slideInterval);
+          delete (slideshow as any).dataset.initialized;
+        },
+        { once: true }
+      );
     }
-  }
+  });
 </script>

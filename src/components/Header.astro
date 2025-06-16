@@ -1,40 +1,27 @@
 ---
 // src/components/Header.astro
+// import { SITE_TITLE } from "../consts.ts";
 ---
 
 {/* ★★★ ヘッダーの背景色を修正しました ★★★ */}
-<header class="bg-slate-800/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
-  <div class="container mx-auto px-4">
-    <div class="flex items-center justify-between h-20">
-      <a href="/" class="text-xl font-bold font-inter tracking-tight text-white"
+<header class="bg-custom-header text-white shadow-md sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-4 max-w-6xl">
+    <div class="flex justify-between items-center">
+      <a href="/" class="text-2xl font-bold hover:opacity-80 transition-opacity"
         >書斎のテックギア</a
       >
-      <nav class="hidden md:flex items-center space-x-8">
-        <a
-          href="/category/チュートリアル/"
-          class="text-slate-300 hover:text-blue-400 transition-colors"
-          >チュートリアル</a
-        >
-        <a
-          href="/category/ガジェット/"
-          class="text-slate-300 hover:text-blue-400 transition-colors"
-          >ガジェット</a
-        >
-        <a
-          href="/category/開発ログ/"
-          class="text-slate-300 hover:text-blue-400 transition-colors"
-          >開発ログ</a
-        >
-        <a
-          href="/profile/"
-          class="text-slate-300 hover:text-blue-400 transition-colors"
-          >プロフィール</a
-        >
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="/category/チュートリアル" class="hover:underline">チュートリアル</a></li>
+          <li><a href="/category/ガジェット" class="hover:underline">ガジェット</a></li>
+          <li><a href="/category/開発ログ" class="hover:underline">開発ログ</a></li>
+          <li><a href="/profile" class="hover:underline">プロフィール</a></li>
+        </ul>
       </nav>
       <div class="md:hidden">
         <button
           id="mobile-menu-button"
-          class="text-slate-200 focus:outline-none"
+          class="text-slate-800 focus:outline-none"
         >
           <svg
             class="w-6 h-6"
@@ -52,25 +39,25 @@
       </div>
     </div>
   </div>
-  <div id="mobile-menu" class="hidden md:hidden bg-slate-800 shadow-lg">
+  <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
     <a
       href="/category/チュートリアル/"
-      class="block py-3 px-4 text-sm text-slate-200 hover:bg-slate-700"
+      class="block py-3 px-4 text-sm text-slate-800 hover:bg-slate-100"
       >チュートリアル</a
     >
     <a
       href="/category/ガジェット/"
-      class="block py-3 px-4 text-sm text-slate-200 hover:bg-slate-700"
+      class="block py-3 px-4 text-sm text-slate-800 hover:bg-slate-100"
       >ガジェット</a
     >
     <a
       href="/category/開発ログ/"
-      class="block py-3 px-4 text-sm text-slate-200 hover:bg-slate-700"
+      class="block py-3 px-4 text-sm text-slate-800 hover:bg-slate-100"
       >開発ログ</a
     >
     <a
       href="/profile/"
-      class="block py-3 px-4 text-sm text-slate-200 hover:bg-slate-700"
+      class="block py-3 px-4 text-sm text-slate-800 hover:bg-slate-100"
       >プロフィール</a
     >
   </div>
