@@ -38,10 +38,37 @@ export const client = createClient({
 
 // ブログ一覧を取得
 export const getBlogs = async (queries?: MicroCMSQueries) => {
-  return await client.get<{ contents: Blog[] }>({
+  const data = await client.get({
     endpoint: "blogs",
     queries,
   });
+
+  // NOTE: microCMS SDKに起因する可能性のある、記事データ間での意図しない参照共有を
+  // 防ぐため、取得した記事コンテンツをディープコピーして、参照を完全に断ち切ります。
+  const contents = JSON.parse(JSON.stringify(data.contents));
+
+  // カテゴリフィールドを常に配列として扱うように正規化します。
+  // これにより、スキーマが単数選択か複数選択かに関わらず、コンポーネント側で安定して処理できます。
+  const shapedContents = contents.map((content: any) => {
+    const originalCategory = content.category;
+    let newCategory = [];
+
+    if (Array.isArray(originalCategory)) {
+      newCategory = originalCategory;
+    } else if (typeof originalCategory === "string" && originalCategory) {
+      newCategory = [originalCategory];
+    }
+
+    return {
+      ...content,
+      category: newCategory,
+    };
+  });
+
+  return {
+    ...data,
+    contents: shapedContents,
+  };
 };
 
 // ブログの詳細を取得

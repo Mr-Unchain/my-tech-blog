@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .article-card {
+    @apply flex flex-col h-full rounded-xl overflow-hidden bg-gray-800 border border-gray-700 transition-all duration-300 hover:border-blue-500/50 hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-900/60;
+
+    &__image-container {
+      @apply aspect-video overflow-hidden;
+    }
+
+    &__image {
+      @apply w-full h-full object-cover transition-transform duration-300 group-hover:scale-105;
+    }
+
+    &__content {
+      @apply p-6 flex flex-col flex-grow;
+    }
+
+    &__categories {
+      @apply flex flex-wrap items-center gap-2 mb-3;
+    }
+
+    &__category-badge {
+      @apply text-xs font-bold py-1 px-3 rounded-full self-start;
+    }
+
+    &__category-extra {
+      @apply text-xs font-bold py-1 px-2.5 rounded-full bg-gray-700 text-gray-300 self-start;
+    }
+
+    &__title {
+      @apply font-bold text-xl text-slate-100 mb-2 tracking-tight leading-tight group-hover:text-blue-400 transition-colors duration-300 line-clamp-2;
+    }
+
+    &__description {
+      @apply text-gray-400 text-sm mt-3 mb-4 line-clamp-3;
+    }
+
+    &__date {
+      @apply text-xs text-gray-500 mt-auto;
+    }
+  }
+
+  .hero-slideshow {
+    @apply relative w-full h-96 md:h-[450px] mb-12 md:mb-16 rounded-xl overflow-hidden border border-slate-200 shadow-lg;
+  }
+
+  .hero-slide {
+    @apply absolute w-full h-full transition-opacity duration-700 ease-in-out;
+  }
+
+  .hero-slide__bg {
+    @apply absolute inset-0 w-full h-full object-cover blur-md scale-110;
+  }
+
+  .hero-slide__fg {
+    @apply relative w-full h-full object-contain drop-shadow-lg;
+  }
+
+  .hero-slide__overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent;
+  }
+
+  .hero-slide__content {
+    @apply absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-custom-header/80 text-white;
+  }
+
+  .hero-slide__title {
+    @apply text-xl md:text-2xl font-bold mb-2;
+  }
+
+  .hero-slide__categories {
+    @apply flex flex-wrap items-center gap-2 mb-2;
+  }
+
+  .hero-slide__category {
+    @apply bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full hover:bg-white/30 transition-colors;
+  }
+
+  .hero-slide__desc {
+    @apply text-sm md:text-base hidden md:block;
+  }
+
+  .like-button-container {
+    @apply flex items-center space-x-2;
+  }
+  .like-button {
+    @apply p-2 rounded-full transition-colors duration-200;
+  }
+  .like-button--liked {
+    @apply bg-pink-100;
+  }
+  .like-button--unliked {
+    @apply bg-gray-200 hover:bg-pink-100;
+  }
+  .like-button__icon {
+    @apply w-6 h-6;
+  }
+  .like-button__icon--liked {
+    @apply text-pink-500;
+  }
+  .like-button__icon--unliked {
+    @apply text-gray-500;
+  }
+  .like-count {
+    @apply text-lg font-semibold text-gray-700;
+  }
+
+  .comments-container {
+    @apply space-y-6;
+  }
+  .comment-form {
+    @apply space-y-4;
+  }
+  .comment-textarea {
+    @apply w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500;
+  }
+  .comment-submit-button {
+    @apply px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors;
+  }
+  .comments-list {
+    @apply space-y-4;
+  }
+  .comment {
+    @apply p-4 bg-gray-50 rounded-lg;
+  }
+  .comment__header {
+    @apply flex items-center space-x-2 mb-2;
+  }
+  .comment__author {
+    @apply font-bold text-gray-800;
+  }
+  .comment__date {
+    @apply text-sm text-gray-500;
+  }
+  .comment__body {
+    @apply text-gray-700;
+  }
+}
+
+@layer utilities {
+  .fade-in {
+    animation: fadeIn 0.7s forwards;
+  }
+
+  .fade-out {
+    animation: fadeOut 0.7s forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+}

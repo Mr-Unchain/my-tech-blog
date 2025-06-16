@@ -32,46 +32,44 @@ const displayedCategories = categories.slice(0, MAX_CATEGORIES_TO_SHOW);
 const hiddenCategoriesCount = categories.length - displayedCategories.length;
 ---
 
-<a
-  href={`/blog/${id}/`}
-  class="group flex flex-col h-full rounded-xl overflow-hidden bg-gray-800 border border-gray-700 transition-all duration-300 hover:border-blue-500/50 hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-900/60"
->
-  <div class="aspect-video overflow-hidden">
+<a href={`/blog/${id}/`} class="article-card group">
+  <div class="article-card__image-container">
     <Image
-      src={imageUrl}
+        src={imageUrl}
       width={400}
       height={225}
-      alt={`「${title}」の記事の画像`}
-      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-    />
-  </div>
-  <div class="p-6 flex flex-col flex-grow">
-    <div class="flex flex-wrap items-center gap-2 mb-3">
-      {
+        alt={`「${title}」の記事の画像`}
+      class="article-card__image"
+      />
+    </div>
+  <div class="article-card__content">
+    <div class="article-card__categories">
+        {
         displayedCategories.map((cat, idx) => (
-          <span
-            class={`text-xs font-bold py-1 px-3 rounded-full self-start ${colorMap[categoryColors[idx] ?? categoryColors[0]]}`}
-          >
-            {cat}
-          </span>
-        ))
-      }
+            <span
+            class:list={[
+              "article-card__category-badge",
+              colorMap[categoryColors[idx] ?? categoryColors[0]],
+            ]}
+            >
+              {cat}
+            </span>
+          ))
+        }
       {
         hiddenCategoriesCount > 0 && (
-          <span class="text-xs font-bold py-1 px-2.5 rounded-full bg-gray-700 text-gray-300 self-start">
+          <span class="article-card__category-extra">
             +{hiddenCategoriesCount}
           </span>
         )
       }
+      </div>
+    <h3 class="article-card__title">
+        {title}
+      </h3>
+    <p class="article-card__description">
+        {description}
+      </p>
+    <time class="article-card__date">{date}</time>
     </div>
-    <h3
-      class="font-bold text-xl text-gray-50 leading-tight group-hover:text-blue-400 transition-colors duration-300 line-clamp-2"
-    >
-      {title}
-    </h3>
-    <p class="text-gray-400 text-sm mt-3 mb-4 line-clamp-3">
-      {description}
-    </p>
-    <time class="text-xs text-gray-500 mt-auto">{date}</time>
-  </div>
 </a>

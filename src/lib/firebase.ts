@@ -1,21 +1,21 @@
 // src/lib/firebase.ts
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Firebaseの設定
 const firebaseConfig = {
-  apiKey: "AIzaSyDayES5ci8Yuv9qiKx_zuWW1ZCxrH-Xh68",
-  authDomain: "my-tech-blog-62367.firebaseapp.com",
-  projectId: "my-tech-blog-62367",
-  storageBucket: "my-tech-blog-62367.firebasestorage.app",
-  messagingSenderId: "75947302346",
-  appId: "1:75947302346:web:e39705296e892084568333",
-  measurementId: "G-SW3B6J7FZL",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Firebaseアプリを初期化
-const app = initializeApp(firebaseConfig);
+// Firebaseアプリを初期化（既に初期化されていれば既存のものを利用）
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 // Firestoreのインスタンスを取得
 export const db = getFirestore(app);

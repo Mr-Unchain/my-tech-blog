@@ -1,12 +1,12 @@
 ---
 // src/pages/index.astro
+import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 import ArticleCard from "../components/ArticleCard.astro";
-import HeroSlideshow from "../components/HeroSlideshow.astro"; // スライドショーをインポート
+import HeroSlideshowReact from "../components/HeroSlideshowReact";
 import Sidebar from "../components/Sidebar.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getBlogs, type Blog } from "../lib/microcms";
-import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { getBlogs, type Blog } from "../lib/microcms";
 
 // ★★★ ヒーローセクションの人気記事取得ロジック ★★★
 const viewsQuery = query(
@@ -25,7 +25,14 @@ if (popularPostIds.length > 0) {
   });
   // Firestoreの順序を維持
   heroPosts = popularPostIds
-    .map((id) => microCMSData.find((post) => post.id === id))
+    .map((id) => {
+      const post = microCMSData.find((post: Blog) => post.id === id);
+      if (!post) return undefined;
+      return {
+        ...post,
+        category: Array.isArray(post.category) ? [...post.category] : [post.category],
+      };
+    })
     .filter((post): post is Blog => !!post);
 }
 
@@ -49,19 +56,17 @@ const getCategoryColor = (categoryName: string) => {
 
 <BaseLayout>
   <main class="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
-    {/* ★★★ ヒーローセクションをスライドショーに置き換え ★★★ */}
-    {heroPosts.length > 0 && <HeroSlideshow posts={heroPosts} />}
+    {/* ★★★ ヒーローセクションをスライドショーに置き換え（React Island） ★★★ */}
+    {heroPosts.length > 0 && <HeroSlideshowReact client:load posts={heroPosts} />}
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
       <div class="lg:col-span-2">
         <!-- New Articles -->
         <section>
-          <h2 class="text-2xl font-bold mb-6 text-custom-heading">
-            新着記事
-          </h2>
+          <h2 class="text-2xl font-bold mb-6 text-custom-heading">新着記事</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
             {
-              listPosts.map((post) => (
+              listPosts.map((post: Blog) => (
                 <ArticleCard
                   id={post.id}
                   category={post.category}
@@ -86,7 +91,17 @@ const getCategoryColor = (categoryName: string) => {
                 class="flex items-center justify-center h-10 w-10 bg-gray-800 border border-gray-700 text-gray-400 rounded-full hover:bg-gray-700 hover:text-white transition-colors"
                 aria-label="前のページへ"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"></path></svg
+                >
               </a>
               <span
                 aria-current="page"
@@ -111,7 +126,17 @@ const getCategoryColor = (categoryName: string) => {
                 class="flex items-center justify-center h-10 w-10 bg-gray-800 border border-gray-700 text-gray-400 rounded-full hover:bg-gray-700 hover:text-white transition-colors"
                 aria-label="次のページへ"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  ><path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"></path></svg
+                >
               </a>
             </nav>
           </div>
