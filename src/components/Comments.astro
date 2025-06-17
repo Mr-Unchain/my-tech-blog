@@ -13,26 +13,38 @@ const disqusShortname = "shu-zhai-notetsukugia";
 
 <div id="giscus-container"></div>
 
-<script define:vars={{ pageUrl, pageIdentifier, pageTitle }}>
-  const giscusScript = document.createElement("script");
-  giscusScript.src = "https://giscus.app/client.js";
-  giscusScript.async = true;
-  giscusScript.crossOrigin = "anonymous";
-  
-  // Giscusの設定
-  giscusScript.setAttribute("data-repo", "YOUR_REPO/YOUR_REPO_NAME"); // あなたのリポジトリ
-  giscusScript.setAttribute("data-repo-id", "YOUR_REPO_ID"); // あなたのリポジトリID
-  giscusScript.setAttribute("data-category", "Announcements");
-  giscusScript.setAttribute("data-category-id", "YOUR_CATEGORY_ID");
-  giscusScript.setAttribute("data-mapping", "pathname");
-  giscusScript.setAttribute("data-strict", "0");
-  giscusScript.setAttribute("data-reactions-enabled", "1");
-  giscusScript.setAttribute("data-emit-metadata", "0");
-  giscusScript.setAttribute("data-input-position", "top");
-  giscusScript.setAttribute("data-theme", "transparent_dark");
-  giscusScript.setAttribute("data-lang", "ja");
-  giscusScript.setAttribute("data-loading", "lazy");
+<script>
+  const createGiscus = () => {
+    const giscusScript = document.createElement("script");
+    giscusScript.src = "https://giscus.app/client.js";
+    giscusScript.async = true;
+    giscusScript.crossOrigin = "anonymous";
+    
+    // Giscusの設定を.envから読み込む
+    giscusScript.setAttribute("data-repo", import.meta.env.VITE_GISCUS_REPO);
+    giscusScript.setAttribute("data-repo-id", import.meta.env.VITE_GISCUS_REPO_ID);
+    giscusScript.setAttribute("data-category", import.meta.env.VITE_GISCUS_CATEGORY);
+    giscusScript.setAttribute("data-category-id", import.meta.env.VITE_GISCUS_CATEGORY_ID);
+    
+    giscusScript.setAttribute("data-mapping", "pathname");
+    giscusScript.setAttribute("data-strict", "0");
+    giscusScript.setAttribute("data-reactions-enabled", "1");
+    giscusScript.setAttribute("data-emit-metadata", "0");
+    giscusScript.setAttribute("data-input-position", "top");
+    giscusScript.setAttribute("data-theme", "preferred_color_scheme");
+    giscusScript.setAttribute("data-lang", "ja");
+    giscusScript.setAttribute("crossorigin", "anonymous");
 
-  const container = document.getElementById("giscus-container");
-  container.appendChild(giscusScript);
+    const container = document.getElementById("giscus-container");
+    if (container) {
+      // 古いスクリプトがあれば削除
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+      container.appendChild(giscusScript);
+    }
+  };
+
+  // Astroのページ読み込みイベントに処理を一本化
+  document.addEventListener("astro:page-load", createGiscus);
 </script>

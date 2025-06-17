@@ -83,31 +83,6 @@
     @apply text-sm md:text-base hidden md:block;
   }
 
-  .like-button-container {
-    @apply flex items-center space-x-2;
-  }
-  .like-button {
-    @apply p-2 rounded-full transition-colors duration-200;
-  }
-  .like-button--liked {
-    @apply bg-pink-100;
-  }
-  .like-button--unliked {
-    @apply bg-gray-200 hover:bg-pink-100;
-  }
-  .like-button__icon {
-    @apply w-6 h-6;
-  }
-  .like-button__icon--liked {
-    @apply text-pink-500;
-  }
-  .like-button__icon--unliked {
-    @apply text-gray-500;
-  }
-  .like-count {
-    @apply text-lg font-semibold text-gray-700;
-  }
-
   .comments-container {
     @apply space-y-6;
   }
