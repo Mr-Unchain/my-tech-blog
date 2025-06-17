@@ -7,42 +7,64 @@ export interface Props {
 }
 const { pageUrl, pageIdentifier, pageTitle } = Astro.props;
 
+const giscus = {
+  repo: import.meta.env.VITE_GISCUS_REPO,
+  repoId: import.meta.env.VITE_GISCUS_REPO_ID,
+  category: import.meta.env.VITE_GISCUS_CATEGORY,
+  categoryId: import.meta.env.VITE_GISCUS_CATEGORY_ID,
+};
+
 // あなたのDisqusのshortnameに書き換えてください
 const disqusShortname = "shu-zhai-notetsukugia";
 ---
 
-<div id="giscus-container"></div>
+<div
+  id="giscus-container"
+  data-repo={giscus.repo}
+  data-repo-id={giscus.repoId}
+  data-category={giscus.category}
+  data-category-id={giscus.categoryId}
+>
+</div>
 
 <script>
   const createGiscus = () => {
+    const container = document.getElementById("giscus-container");
+    if (!container) return;
+
+    // data-* 属性から設定を読み込む
+    const { repo, repoId, category, categoryId } = container.dataset;
+
+    if (!repo || !repoId || !category || !categoryId) {
+      console.error("Giscus configuration is missing from data attributes.");
+      return;
+    }
+    
     const giscusScript = document.createElement("script");
     giscusScript.src = "https://giscus.app/client.js";
     giscusScript.async = true;
     giscusScript.crossOrigin = "anonymous";
     
-    // Giscusの設定を.envから読み込む
-    giscusScript.setAttribute("data-repo", import.meta.env.VITE_GISCUS_REPO);
-    giscusScript.setAttribute("data-repo-id", import.meta.env.VITE_GISCUS_REPO_ID);
-    giscusScript.setAttribute("data-category", import.meta.env.VITE_GISCUS_CATEGORY);
-    giscusScript.setAttribute("data-category-id", import.meta.env.VITE_GISCUS_CATEGORY_ID);
+    // Giscusの設定をdata-*属性から設定
+    giscusScript.setAttribute("data-repo", repo);
+    giscusScript.setAttribute("data-repo-id", repoId);
+    giscusScript.setAttribute("data-category", category);
+    giscusScript.setAttribute("data-category-id", categoryId);
     
     giscusScript.setAttribute("data-mapping", "pathname");
     giscusScript.setAttribute("data-strict", "0");
     giscusScript.setAttribute("data-reactions-enabled", "1");
     giscusScript.setAttribute("data-emit-metadata", "0");
     giscusScript.setAttribute("data-input-position", "top");
-    giscusScript.setAttribute("data-theme", "preferred_color_scheme");
+    giscusScript.setAttribute("data-theme", "light");
     giscusScript.setAttribute("data-lang", "ja");
     giscusScript.setAttribute("crossorigin", "anonymous");
 
-    const container = document.getElementById("giscus-container");
-    if (container) {
-      // 古いスクリプトがあれば削除
-      while (container.firstChild) {
-        container.removeChild(container.firstChild);
-      }
-      container.appendChild(giscusScript);
+    // 古いスクリプトがあれば削除
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
     }
+    container.appendChild(giscusScript);
   };
 
   // Astroのページ読み込みイベントに処理を一本化
