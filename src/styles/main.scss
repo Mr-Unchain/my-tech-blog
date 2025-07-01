@@ -1,3 +1,376 @@
+// AdminCreateArticle フォーム改善用（global.cssから移動）
+.note-form-container {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem 1.2rem 2rem 1.2rem;
+  max-width: 520px;
+  margin: 2.5rem auto 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  /* 余白を減らし中央寄せ */
+}
+
+/* 外側の重なりや余白を消すための親要素調整（もし親でラップしている場合） */
+.note-article-form {
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.note-form-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.note-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.note-form-label {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.note-input {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  background: #fafbfc;
+  transition: border 0.2s;
+}
+
+.note-input:focus {
+  border: 1.5px solid #38bdf8;
+  outline: none;
+  background: #fff;
+}
+
+.note-eyecatch-preview {
+  margin-top: 0.5rem;
+  max-width: 100%;
+  max-height: 120px;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+.note-md-label {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+
+.note-md-editor-custom {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.7rem;
+  overflow: hidden;
+  background: #f8fafc;
+  min-height: 400px;
+}
+
+.note-btn-row {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  margin-top: 1.2rem;
+}
+
+.note-btn-custom {
+  font-size: 1.08rem;
+  padding: 0.7rem 2.2rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  min-width: 120px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.note-btn-draft.note-btn-custom {
+  background: #f3f4f6;
+  color: #333;
+  border: 1px solid #e0e0e0;
+}
+
+.note-btn-publish.note-btn-custom {
+  background: #38bdf8;
+  color: #fff;
+  border: none;
+}
+
+.note-btn-custom:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+// note風 記事作成フォーム
+.note-article-form {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px rgba(30, 41, 59, 0.08);
+  max-width: 700px;
+  margin: 2.5rem auto 3rem auto;
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+}
+
+.note-article-form h1 {
+  font-size: 2.3rem;
+  font-weight: 800;
+  text-align: center;
+  color: #1e293b;
+  letter-spacing: 0.01em;
+  margin: 2.5rem 0 2rem 0;
+  border-bottom: 1.5px solid #e5e7eb;
+  padding-bottom: 1.2rem;
+  background: none;
+}
+
+.note-article-form input[type="text"] {
+  background: #f8fafc;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 0.7rem;
+  padding: 0.9rem 1.1rem;
+  font-size: 1.08rem;
+  margin-bottom: 0.7rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: none;
+}
+
+.note-article-form input[type="text"]:focus {
+  border-color: #38bdf8;
+  outline: none;
+  background: #fff;
+}
+
+.note-article-form .note-title-input {
+  font-size: 2.1rem;
+  font-weight: 700;
+  border: none;
+  border-bottom: 2px solid #e5e7eb;
+  border-radius: 0;
+  background: transparent;
+  margin-bottom: 1.5rem;
+  padding: 1.2rem 0 0.7rem 0.5rem;
+  box-shadow: none;
+}
+
+.note-article-form .note-title-input:focus {
+  border-bottom: 2px solid #38bdf8;
+  background: transparent;
+}
+
+.note-article-form .note-meta-row {
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.note-article-form .note-eyecatch-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.note-article-form .note-eyecatch-row img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.7rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(30, 41, 59, 0.07);
+}
+
+.note-article-form .note-md-label {
+  font-size: 0.98rem;
+  color: #64748b;
+  margin-bottom: 0.4rem;
+}
+
+.note-article-form .note-md-editor {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 0.7rem;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.note-article-form .note-btn-row {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 2.2rem;
+  justify-content: center;
+}
+
+.note-article-form .note-btn {
+  flex: 1;
+  padding: 0.9rem 0;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 1.08rem;
+  box-shadow: 0 2px 8px rgba(30, 41, 59, 0.04);
+  border: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.note-article-form .note-btn-draft {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.note-article-form .note-btn-draft:hover {
+  background: #e2e8f0;
+}
+
+.note-article-form .note-btn-publish {
+  background: #38bdf8;
+  color: #fff;
+}
+
+.note-article-form .note-btn-publish:hover {
+  background: #0ea5e9;
+}
+
+.note-article-form .note-message {
+  margin-bottom: 1.5rem;
+  padding: 0.7rem 1rem;
+  border-radius: 0.7rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.note-article-form .note-message-success {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1.5px solid #bae6fd;
+}
+
+.note-article-form .note-message-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1.5px solid #fecaca;
+}
+
+// 管理者ログインページ用スタイル
+.login-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.login-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.login-github-btn {
+  display: inline-block;
+  padding: 0.5rem 2rem;
+  background: #1f2937;
+  color: #fff;
+  border-radius: 0.375rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: background 0.2s;
+  text-align: center;
+}
+
+.login-github-btn:hover {
+  background: #111827;
+}
+
+.login-failed-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem;
+  background: #fff0f0;
+  border-radius: 1rem;
+  box-shadow: 0 2px 16px rgba(255, 0, 0, 0.08);
+  margin: 3rem auto;
+  max-width: 400px;
+}
+
+.login-failed-container h1 {
+  color: #e53e3e;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.login-failed-container p {
+  color: #444;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.login-failed-btn {
+  display: inline-block;
+  padding: 0.5rem 2rem;
+  background: #e53e3e;
+  color: #fff;
+  border-radius: 0.375rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.login-failed-btn:hover {
+  background: #b91c1c;
+}
+
+// ===== BaseLayoutのグローバルスタイル集約 =====
+body {
+  font-family: "Noto Sans JP", "Inter", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-inter {
+  font-family: "Inter", "Noto Sans JP", sans-serif;
+}
+
+.prose {
+  color: #374151;
+  /* gray-700 */
+}
+
+.prose h2 {
+  color: #111827;
+  /* gray-900 */
+  border-bottom-color: #e5e7eb;
+  /* gray-200 */
+}
+
+.prose a {
+  color: #3b82f6;
+  /* blue-500 */
+}
+
+.prose strong {
+  color: #111827;
+  /* gray-900 */
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -304,6 +677,108 @@
         @apply text-sm hover:underline;
       }
     }
+  }
+
+  .article-content {
+    @apply prose prose-lg max-w-none prose-slate prose-img:rounded-lg prose-a:text-blue-600 hover:prose-a:text-blue-500 prose-blockquote:border-l-4 prose-blockquote:border-blue-300 prose-blockquote:bg-blue-50 prose-blockquote:p-4 prose-blockquote:rounded-lg prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded prose-pre:bg-slate-900 prose-pre:text-white prose-pre:rounded-lg prose-table:rounded-lg prose-table:border prose-table:border-slate-200;
+    line-height: 1.8;
+    word-break: break-word;
+    font-size: 1.1rem;
+
+    code {
+      font-size: 0.95em;
+    }
+
+    img {
+      margin: 1.5rem auto;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    }
+
+    blockquote {
+      font-style: italic;
+      color: #2563eb;
+    }
+
+    table {
+      margin: 2rem 0;
+    }
+
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-weight: bold;
+      margin-top: 2.5rem;
+      margin-bottom: 1.2rem;
+      scroll-margin-top: 100px;
+    }
+
+    ul,
+    ol {
+      margin-left: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  // 管理ダッシュボード用スタイル
+  .dashboard-main {
+    min-height: 80vh;
+    background: #f6f7fa;
+    padding: 3rem 0 4rem 0;
+  }
+
+  .dashboard-section {
+    background: #fff;
+    border-radius: 1.2rem;
+    box-shadow: 0 4px 24px rgba(30, 41, 59, 0.08);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 2rem 2rem;
+  }
+
+  .dashboard-title {
+    font-size: 2.1rem;
+    font-weight: 800;
+    margin-bottom: 2.2rem;
+    color: #1e293b;
+    letter-spacing: 0.01em;
+    text-align: left;
+  }
+
+  .dashboard-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+  }
+
+  .dashboard-create-btn {
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.6rem 1.8rem;
+    border-radius: 0.5rem;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .dashboard-create-btn:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
+  }
+
+  .dashboard-table-wrapper {
+    background: #f9fafb;
+    border-radius: 0.7rem;
+    padding: 1.2rem 1rem 1.5rem 1rem;
+    box-shadow: 0 1px 6px rgba(30, 41, 59, 0.04);
+    overflow-x: auto;
   }
 }
 

@@ -1,0 +1,17 @@
+---
+// src/pages/admin/create.astro
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AdminCreateArticle from "../../components/AdminCreateArticle";
+---
+
+<BaseLayout>
+  <main class="container mx-auto px-4 py-8 md:py-12 max-w-3xl">
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <AdminCreateArticle 
+        client:only="react" 
+        serviceDomain={import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN} 
+        apiKey={import.meta.env.VITE_MICROCMS_API_KEY} 
+      />
+    </div>
+  </main>
+</BaseLayout>

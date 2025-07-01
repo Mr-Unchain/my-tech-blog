@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdminEditArticle from '../../../components/AdminEditArticle';
+const { id } = Astro.props || Astro.params;
+---
+
+<BaseLayout>
+  <main class="container mx-auto px-4 py-8 md:py-12 max-w-3xl">
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <AdminEditArticle client:only="react" id={id} />
+    </div>
+  </main>
+</BaseLayout>

@@ -19,7 +19,8 @@ const {
 
 const siteTitle = "書斎のテックギア";
 const title = pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle;
-const ogpImageUrl = ogImageUrl || new URL('default-og-image.png', Astro.site).href;
+const ogpImageUrl =
+  ogImageUrl || new URL("default-og-image.png", Astro.site).href;
 ---
 
 <!doctype html>
@@ -50,34 +51,7 @@ const ogpImageUrl = ogImageUrl || new URL('default-og-image.png', Astro.site).hr
     <ViewTransitions />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
-    <style is:global>
-      body {
-        font-family: "Noto Sans JP", "Inter", sans-serif;
-      }
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6,
-      .font-inter {
-        font-family: "Inter", "Noto Sans JP", sans-serif;
-      }
-      /* ★★★ 本文の文字色を修正しました ★★★ */
-      .prose {
-        color: #374151; /* gray-700 */
-      }
-      .prose h2 {
-        color: #111827; /* gray-900 */
-        border-bottom-color: #e5e7eb; /* gray-200 */
-      }
-      .prose a {
-        color: #3b82f6; /* blue-500 */
-      }
-      .prose strong {
-        color: #111827; /* gray-900 */
-      }
-    </style>
+    <!-- スタイルは src/styles/main.scss に集約 -->
   </head>
   <body class="bg-custom-bg text-slate-800">
     <Header />

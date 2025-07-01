@@ -20,7 +20,7 @@ const HeroSlideshowReact: React.FC<Props> = ({ posts }) => {
     }, 5000);
     return () => clearInterval(timer);
     // eslint-disable-next-line
-  }, [total, current]);
+  }, [total]);
 
   const handleNext = () => {
     setPrev(current);
@@ -146,18 +146,24 @@ const Slide: React.FC<{
             ))}
           </div>
           <time className="hero-slide__date">
-            {new Date(post.publishedAt || "").toLocaleDateString("ja-JP")}
+            {formatDate(post.publishedAt || "")}
           </time>
         </div>
         <p className="hero-slide__desc">{post.description}</p>
       </div>
     </a>
+
   );
 };
 
-export default HeroSlideshowReact;
+// SSR/CSRで差異が出ないように日付を固定フォーマットで出力
+function formatDate(dateStr: string) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}/${m}/${day}`;
+}
 
-// .fade-in { animation: fadeIn 0.7s forwards; }
-// .fade-out { animation: fadeOut 0.7s forwards; }
-// @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-// @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } } 
+export default HeroSlideshowReact;
