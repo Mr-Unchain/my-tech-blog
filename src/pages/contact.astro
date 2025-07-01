@@ -11,13 +11,13 @@ const formspreeEndpoint = "https://formspree.io/f/xanjoprz";
 >
   <main class="container mx-auto px-4 py-12 md:py-20">
     <div
-      class="max-w-xl mx-auto bg-slate-800/60 p-8 md:p-12 rounded-2xl border border-slate-700/80 shadow-2xl"
+      class="max-w-xl mx-auto bg-white p-8 md:p-12 rounded-xl border border-gray-200 shadow-md"
     >
       <header class="text-center mb-10">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-100 mb-2 tracking-tight">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-2 tracking-tight">
           お問い合わせ
         </h1>
-        <p class="mt-2 text-slate-400 text-base md:text-lg">
+        <p class="mt-2 text-slate-500 text-base md:text-lg">
           ご意見、ご感想、お仕事のご依頼など、お気軽にご連絡ください。
         </p>
       </header>
@@ -25,7 +25,7 @@ const formspreeEndpoint = "https://formspree.io/f/xanjoprz";
       <form action={formspreeEndpoint} method="POST" class="space-y-7">
         <!-- 名前 -->
         <div>
-          <label for="name" class="block text-base font-bold text-slate-200 mb-2 tracking-wide">
+          <label for="name" class="block text-base font-bold text-slate-700 mb-2 tracking-wide">
             お名前
           </label>
           <input
@@ -33,13 +33,13 @@ const formspreeEndpoint = "https://formspree.io/f/xanjoprz";
             name="name"
             id="name"
             required
-            class="block w-full bg-slate-900 border border-slate-700 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+            class="block w-full bg-slate-50 border border-slate-300 rounded-lg py-3 px-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-custom-button transition-all shadow-sm"
             placeholder="山田 太郎"
           />
         </div>
         <!-- メールアドレス -->
         <div>
-          <label for="email" class="block text-base font-bold text-slate-200 mb-2 tracking-wide">
+          <label for="email" class="block text-base font-bold text-slate-700 mb-2 tracking-wide">
             メールアドレス
           </label>
           <input
@@ -47,13 +47,13 @@ const formspreeEndpoint = "https://formspree.io/f/xanjoprz";
             name="email"
             id="email"
             required
-            class="block w-full bg-slate-900 border border-slate-700 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+            class="block w-full bg-slate-50 border border-slate-300 rounded-lg py-3 px-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-custom-button transition-all shadow-sm"
             placeholder="your.email@example.com"
           />
         </div>
         <!-- 件名 -->
         <div>
-          <label for="subject" class="block text-base font-bold text-slate-200 mb-2 tracking-wide">
+          <label for="subject" class="block text-base font-bold text-slate-700 mb-2 tracking-wide">
             件名
           </label>
           <input
@@ -61,13 +61,13 @@ const formspreeEndpoint = "https://formspree.io/f/xanjoprz";
             name="subject"
             id="subject"
             required
-            class="block w-full bg-slate-900 border border-slate-700 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+            class="block w-full bg-slate-50 border border-slate-300 rounded-lg py-3 px-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-custom-button transition-all shadow-sm"
             placeholder="お仕事のご依頼について"
           />
         </div>
         <!-- お問い合わせ内容 -->
         <div>
-          <label for="message" class="block text-base font-bold text-slate-200 mb-2 tracking-wide">
+          <label for="message" class="block text-base font-bold text-slate-700 mb-2 tracking-wide">
             お問い合わせ内容
           </label>
           <textarea
@@ -75,7 +75,7 @@ const formspreeEndpoint = "https://formspree.io/f/xanjoprz";
             id="message"
             rows="6"
             required
-            class="block w-full bg-slate-900 border border-slate-700 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+            class="block w-full bg-slate-50 border border-slate-300 rounded-lg py-3 px-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-custom-button transition-all shadow-sm"
             placeholder="こちらに内容をご記入ください。"
           ></textarea>
         </div>
@@ -83,10 +83,10 @@ const formspreeEndpoint = "https://formspree.io/f/xanjoprz";
           <button
             type="submit"
             id="submit-button"
-            class="inline-flex items-center justify-center py-3 px-10 border-none shadow-lg text-lg font-bold rounded-full text-white bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-slate-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="inline-flex items-center justify-center py-3 px-10 border-none shadow-lg text-lg font-bold rounded-full text-black bg-custom-button hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 focus:ring-offset-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span id="button-text">送信する</span>
-            <svg id="button-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg id="button-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-black hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -128,18 +128,18 @@ const formspreeEndpoint = "https://formspree.io/f/xanjoprz";
         // 成功した場合
         form.reset();
         formFeedback.textContent = "ありがとうございます！メッセージは正常に送信されました。";
-        formFeedback.className = "mt-8 text-center text-base text-green-400";
+        formFeedback.className = "mt-8 text-center text-base text-green-600";
       } else {
         // Formspree側でのバリデーションエラーなど
         const errorData = await response.json();
         const errorMessage = errorData.errors?.map((err) => err.message).join(", ") || "フォームの送信に失敗しました。";
         formFeedback.textContent = `エラー: ${errorMessage}`;
-        formFeedback.className = "mt-8 text-center text-base text-red-400";
+        formFeedback.className = "mt-8 text-center text-base text-red-600";
       }
     } catch (error) {
       // ネットワークエラーなど
       formFeedback.textContent = "エラー: ネットワーク接続に問題がある可能性があります。";
-      formFeedback.className = "mt-8 text-center text-base text-red-400";
+      formFeedback.className = "mt-8 text-center text-base text-red-600";
     } finally {
       // ボタンの状態を元に戻す
       submitButton.disabled = false;

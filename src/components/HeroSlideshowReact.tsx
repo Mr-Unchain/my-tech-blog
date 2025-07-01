@@ -66,7 +66,7 @@ const HeroSlideshowReact: React.FC<Props> = ({ posts }) => {
       </div>
       {/* Navigation Buttons */}
       <button
-        className="prev-btn absolute top-1/2 left-4 -translate-y-1/2 bg-black/30 hover:bg-black/50 p-3 rounded-full text-white transition-colors z-30 pointer-events-auto"
+        className="hero-slideshow__prev-btn"
         onClick={handlePrev}
         aria-label="前のスライド"
         style={{ zIndex: 30 }}
@@ -74,7 +74,7 @@ const HeroSlideshowReact: React.FC<Props> = ({ posts }) => {
         &#10094;
       </button>
       <button
-        className="next-btn absolute top-1/2 right-4 -translate-y-1/2 bg-black/30 hover:bg-black/50 p-3 rounded-full text-white transition-colors z-30 pointer-events-auto"
+        className="hero-slideshow__next-btn"
         onClick={handleNext}
         aria-label="次のスライド"
         style={{ zIndex: 30 }}
@@ -82,11 +82,11 @@ const HeroSlideshowReact: React.FC<Props> = ({ posts }) => {
         &#10095;
       </button>
       {/* Indicator Dots */}
-      <div className="dots-container absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+      <div className="hero-slideshow__dots">
         {posts.map((_, idx) => (
           <span
             key={idx}
-            className={`dot h-3 w-3 rounded-full cursor-pointer transition-colors ${idx === current ? "bg-white" : "bg-white/50"}`}
+            className={`hero-slideshow__dot ${idx === current ? "hero-slideshow__dot--active" : ""}`}
             onClick={() => handleDot(idx)}
           />
         ))}
@@ -107,7 +107,8 @@ const Slide: React.FC<{
     animationClass = "fade-out";
   }
   return (
-    <div
+    <a
+      href={`/blog/${post.id}/`}
       className={`hero-slide ${animationClass}`}
       style={{ zIndex: fadeOut ? 10 : 20 }}
     >
@@ -120,7 +121,7 @@ const Slide: React.FC<{
         className="hero-slide__bg"
         aria-hidden="true"
       />
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/10" />
       {/* 前景画像 */}
       <img
         src={post.eyecatch.url}
@@ -132,20 +133,25 @@ const Slide: React.FC<{
       <div className="hero-slide__overlay" />
       <div className="hero-slide__content">
         <h2 className="hero-slide__title">{post.title}</h2>
-        <div className="hero-slide__categories">
-          {post.category.map((cat, idx) => (
-            <a
-              key={cat + idx}
-              href={`/category/${cat}`}
-              className="hero-slide__category"
-            >
-              {cat}
-            </a>
-          ))}
+        <div className="hero-slide__meta">
+          <div className="hero-slide__categories">
+            {post.category.map((cat, idx) => (
+              <a
+                key={cat + idx}
+                href={`/category/${cat}`}
+                className="hero-slide__category"
+              >
+                {cat}
+              </a>
+            ))}
+          </div>
+          <time className="hero-slide__date">
+            {new Date(post.publishedAt || "").toLocaleDateString("ja-JP")}
+          </time>
         </div>
         <p className="hero-slide__desc">{post.description}</p>
       </div>
-    </div>
+    </a>
   );
 };
 

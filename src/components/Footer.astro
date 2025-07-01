@@ -3,18 +3,14 @@
 const today = new Date();
 ---
 
-<footer class="bg-custom-header text-white mt-12">
-  <div class="container mx-auto px-4 py-6 max-w-6xl">
-    <div class="flex justify-between items-center">
-      <p class="text-sm">
-        &copy; {today.getFullYear()} 書斎のテックギア. All rights reserved.
-      </p>
-      <div class="flex space-x-4">
-        <a href="/privacy-policy" class="text-sm hover:underline"
-          >プライバシーポリシー</a
-        >
-        <a href="/contact" class="text-sm hover:underline">お問い合わせ</a>
-      </div>
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <p class="site-footer__copyright">
+      &copy; {today.getFullYear()} 書斎のテックギア. All rights reserved.
+    </p>
+    <div class="site-footer__links">
+      <a href="/privacy">プライバシーポリシー</a>
+      <a href="/contact">お問い合わせ</a>
     </div>
   </div>
 </footer>

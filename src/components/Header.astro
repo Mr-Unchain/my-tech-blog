@@ -4,62 +4,49 @@
 ---
 
 {/* ★★★ ヘッダーの背景色を修正しました ★★★ */}
-<header class="bg-custom-header text-white shadow-md sticky top-0 z-50">
-  <div class="container mx-auto px-4 py-4 max-w-6xl">
-    <div class="flex justify-between items-center">
-      <a href="/" class="text-2xl font-bold hover:opacity-80 transition-opacity"
-        >書斎のテックギア</a
+<header class="site-header">
+  <div class="site-header__inner">
+    <div class="site-header__logo">
+      <a href="/">
+        <img src="/logo.svg" alt="書斎のテックギア ロゴ" />
+        <span>書斎のテックギア</span>
+      </a>
+    </div>
+    <nav class="site-header__nav">
+      <ul>
+        <li><a href="/category/チュートリアル">チュートリアル</a></li>
+        <li><a href="/category/ガジェット">ガジェット</a></li>
+        <li><a href="/category/開発ログ">開発ログ</a></li>
+        <li><a href="/profile">プロフィール</a></li>
+      </ul>
+    </nav>
+    <div class="site-header__mobile-button">
+      <button
+        id="mobile-menu-button"
+        class="focus:outline-none"
       >
-      <nav>
-        <ul class="flex space-x-6">
-          <li><a href="/category/チュートリアル" class="hover:underline">チュートリアル</a></li>
-          <li><a href="/category/ガジェット" class="hover:underline">ガジェット</a></li>
-          <li><a href="/category/開発ログ" class="hover:underline">開発ログ</a></li>
-          <li><a href="/profile" class="hover:underline">プロフィール</a></li>
-        </ul>
-      </nav>
-      <div class="md:hidden">
-        <button
-          id="mobile-menu-button"
-          class="text-slate-800 focus:outline-none"
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-            ><path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16m-7 6h7"></path></svg
-          >
-        </button>
-      </div>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16m-7 6h7"
+          ></path>
+        </svg>
+      </button>
     </div>
   </div>
-  <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
-    <a
-      href="/category/チュートリアル/"
-      class="block py-3 px-4 text-sm text-slate-800 hover:bg-slate-100"
-      >チュートリアル</a
-    >
-    <a
-      href="/category/ガジェット/"
-      class="block py-3 px-4 text-sm text-slate-800 hover:bg-slate-100"
-      >ガジェット</a
-    >
-    <a
-      href="/category/開発ログ/"
-      class="block py-3 px-4 text-sm text-slate-800 hover:bg-slate-100"
-      >開発ログ</a
-    >
-    <a
-      href="/profile/"
-      class="block py-3 px-4 text-sm text-slate-800 hover:bg-slate-100"
-      >プロフィール</a
-    >
+  <div id="mobile-menu" class="site-header__mobile-menu">
+    <a href="/category/チュートリアル/">チュートリアル</a>
+    <a href="/category/ガジェット/">ガジェット</a>
+    <a href="/category/開発ログ/">開発ログ</a>
+    <a href="/profile/">プロフィール</a>
   </div>
 </header>
 <script>

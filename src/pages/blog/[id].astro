@@ -1,12 +1,12 @@
 ---
 // src/pages/blog/[id].astro
-import { doc, increment, setDoc } from "firebase/firestore";
+import { Image } from "astro:assets";
 import * as cheerio from "cheerio";
+import { doc, increment, setDoc } from "firebase/firestore";
 import Comments from "../../components/Comments.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { db } from "../../lib/firebase";
 import { getBlogDetail } from "../../lib/microcms";
-import { Image } from "astro:assets";
 
 const { id } = Astro.params;
 
@@ -55,14 +55,13 @@ if (post.content) {
           class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
         >
           {
-            post.eyecatch ? (
+            post.eyecatch?.url ? (
               <div class="relative h-[300px] overflow-hidden rounded-lg shadow-lg mb-8">
                 <div
                   class="absolute inset-0 bg-cover bg-center"
                   style={`background-image: url(${post.eyecatch.url}?w=1200&blur=20&q=50);`}
-                >
-                </div>
-                <div class="absolute inset-0 bg-black/30"></div>
+                />
+                <div class="absolute inset-0 bg-black/30" />
                 <Image
                   src={post.eyecatch.url}
                   width={1200}
@@ -70,78 +69,92 @@ if (post.content) {
                   alt={`「${post.title}」のアイキャッチ画像`}
                   class="relative w-full h-full object-contain"
                 />
-                <header
-                  class="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent text-white"
-                >
-                  <h1 class="text-3xl md:text-4xl font-bold mb-2">{post.title}</h1>
+                <header class="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent text-white">
+                  <h1 class="text-3xl md:text-4xl font-bold mb-2">
+                    {post.title}
+                  </h1>
                   <div class="flex items-center text-sm">
-                    <time>{new Date(post.publishedAt || "").toLocaleDateString("ja-JP")}</time>
+                    <time>
+                      {new Date(post.publishedAt || "").toLocaleDateString(
+                        "ja-JP"
+                      )}
+                    </time>
                     <span class="mx-2">|</span>
                     <div class="flex flex-wrap gap-2">
                       {post.category.map((cat: string) => (
                         <a
                           href={`/category/${cat}`}
                           class="bg-custom-button text-black text-xs font-bold px-2 py-1 rounded hover:opacity-80 transition-opacity"
-                        >{cat}</a
-                        >
-                      ))}
-                    </div>
-                  </div>
-                </header>
-              </div>
-            ) : (
-              <header class="text-center my-10 px-6">
-                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-6">
-                  {post.title}
-                </h1>
-                <div class="flex items-center justify-center flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
-                  <div class="flex items-center gap-2">
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <time datetime={post.publishedAt}>
-                      {new Date(post.publishedAt || "").toLocaleDateString(
-                        "ja-JP"
-                      )}
-                    </time>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <svg
-                      class="w-4 h-4 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                      />
-                    </svg>
-                    <div class="flex flex-wrap gap-2">
-                      {post.category.map((cat) => (
-                        <a
-                          href={`/category/${cat}/`}
-                          class="bg-slate-100 text-slate-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-slate-200 transition-colors"
                         >
                           {cat}
                         </a>
                       ))}
                     </div>
                   </div>
-                </div>
-              </header>
+                </header>
+              </div>
+            ) : (
+              <div class="relative h-[300px] overflow-hidden rounded-lg shadow-lg mb-8 bg-gray-100 flex items-center justify-center">
+                <Image
+                  src="/placeholder.svg"
+                  width={1200}
+                  height={630}
+                  alt="No image"
+                  class="relative w-full h-full object-contain opacity-60"
+                />
+                <header class="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent text-white">
+                  <h1 class="text-3xl md:text-4xl font-bold mb-2">
+                    {post.title}
+                  </h1>
+                  <div class="flex items-center justify-center flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
+                    <div class="flex items-center gap-2">
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <time datetime={post.publishedAt}>
+                        {new Date(post.publishedAt || "").toLocaleDateString(
+                          "ja-JP"
+                        )}
+                      </time>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <svg
+                        class="w-4 h-4 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                        />
+                      </svg>
+                      <div class="flex flex-wrap gap-2">
+                        {post.category.map((cat) => (
+                          <a
+                            href={`/category/${cat}/`}
+                            class="bg-slate-100 text-slate-700 text-xs font-medium px-3 py-1 rounded-full hover:bg-slate-200 transition-colors"
+                          >
+                            {cat}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </header>
+              </div>
             )
           }
 
@@ -154,8 +167,7 @@ if (post.content) {
         </div>
 
         <!-- Like Button -->
-        <div class="mt-8 pt-6 border-t border-gray-700 text-center">
-        </div>
+        <div class="mt-8 pt-6 border-t border-gray-700 text-center"></div>
 
         <!-- コメント欄 -->
         <div
@@ -171,7 +183,9 @@ if (post.content) {
       </article>
 
       <!-- サイドバー (目次) -->
-      <aside class="lg:col-span-1 lg:sticky lg:top-28 self-start hidden lg:block">
+      <aside
+        class="lg:col-span-1 lg:sticky lg:top-28 self-start hidden lg:block"
+      >
         <div
           class="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm"
         >

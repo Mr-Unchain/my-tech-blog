@@ -1,4 +1,5 @@
 ---
+// src/pages/privacy.astro
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
@@ -7,14 +8,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   pageDescription="当サイトのプライバシーポリシーに関するページです。"
 >
   <main class="container mx-auto px-4 py-12 md:py-16">
-    <div class="max-w-4xl mx-auto bg-slate-800/50 p-8 md:p-12 rounded-xl border border-slate-700/80 shadow-lg">
-      <h1 class="text-3xl md:text-4xl font-bold text-slate-100 mb-8 pb-4 border-b border-slate-700">
+    <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl border border-gray-200 shadow-md">
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-8 pb-4 border-b border-gray-200">
         プライバシーポリシー
       </h1>
 
-      <div class="prose prose-lg max-w-none text-slate-300 prose-headings:text-slate-100 prose-strong:text-slate-100 prose-a:text-blue-400">
+      <div class="prose prose-lg max-w-none text-slate-600 prose-headings:text-slate-800 prose-strong:text-slate-800 prose-a:text-blue-600">
         <p>
-          TechGadget Hub（以下、「当サイト」といいます。）は、当サイトの提供するサービス（以下、「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。
+          書斎のテックギア（以下、「当サイト」といいます。）は、当サイトの提供するサービス（以下、「本サービス」といい、ます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。
         </p>
 
         <h2 class="text-2xl font-bold mt-8 mb-4">第1条（個人情報）</h2>
@@ -48,7 +49,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           本ポリシーに関するお問い合わせは、お問い合わせフォームよりお願いいたします。
         </p>
         
-        <p class="text-right mt-8">
+        <p class="text-right mt-8 text-sm text-slate-500">
           最終更新日: {new Date().toLocaleDateString("ja-JP")}
         </p>
       </div>

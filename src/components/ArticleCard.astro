@@ -2,7 +2,6 @@
 // src/components/ArticleCard.astro
 import { Image } from "astro:assets";
 
-type ColorKey = "sky" | "purple" | "pink" | "slate" | "gray";
 export interface Props {
   id: string;
   category: string | string[];
@@ -10,66 +9,58 @@ export interface Props {
   description: string;
   date: string;
   imageUrl: string;
-  categoryColor: ColorKey | ColorKey[];
+  imageUrlList?: string;
+  class?: string;
 }
-const { id, category, title, description, date, imageUrl, categoryColor } =
-  Astro.props;
-const colorMap: Record<ColorKey, string> = {
-  sky: "text-sky-300 bg-sky-900/60 border-sky-400/30",
-  purple: "text-purple-300 bg-purple-900/60 border-purple-400/30",
-  pink: "text-pink-300 bg-pink-900/60 border-pink-400/30",
-  slate: "text-gray-400 bg-gray-700/50 border-gray-600/30",
-  gray: "text-gray-400 bg-gray-700/50 border-gray-600/30",
-};
+const {
+  id,
+  category,
+  title,
+  description,
+  date,
+  imageUrl,
+  imageUrlList,
+  class: className,
+} = Astro.props;
+
 // 配列で受け取るように変換
 const categories = Array.isArray(category) ? category : [category];
-const categoryColors = Array.isArray(categoryColor)
-  ? categoryColor
-  : [categoryColor];
 
 const MAX_CATEGORIES_TO_SHOW = 3;
 const displayedCategories = categories.slice(0, MAX_CATEGORIES_TO_SHOW);
 const hiddenCategoriesCount = categories.length - displayedCategories.length;
 ---
 
-<a href={`/blog/${id}/`} class="article-card group">
+<a href={`/blog/${id}/`} class:list={["article-card group", className]}>
   <div class="article-card__image-container">
     <Image
-        src={imageUrl}
+      src={imageUrl}
       width={400}
       height={225}
-        alt={`「${title}」の記事の画像`}
-      class="article-card__image"
-      />
-    </div>
+      alt={`「${title}」の記事の画像`}
+      class="article-card__image article-card__image--grid"
+    />
+    <Image
+      src={imageUrlList ?? "/placeholder.svg"}
+      width={256}
+      height={144}
+      alt={`「${title}」の記事の画像`}
+      class="article-card__image article-card__image--list"
+    />
+  </div>
   <div class="article-card__content">
     <div class="article-card__categories">
-        {
-        displayedCategories.map((cat, idx) => (
-            <span
-            class:list={[
-              "article-card__category-badge",
-              colorMap[categoryColors[idx] ?? categoryColors[0]],
-            ]}
-            >
-              {cat}
-            </span>
-          ))
-        }
-      {
-        hiddenCategoriesCount > 0 && (
-          <span class="article-card__category-extra">
-            +{hiddenCategoriesCount}
-          </span>
-        )
-      }
-      </div>
-    <h3 class="article-card__title">
-        {title}
-      </h3>
-    <p class="article-card__description">
-        {description}
-      </p>
-    <time class="article-card__date">{date}</time>
+      {displayedCategories.map((cat) => (
+        <span class="article-card__category-badge">{cat}</span>
+      ))}
+      {hiddenCategoriesCount > 0 && (
+        <span class="article-card__category-extra">
+          +{hiddenCategoriesCount}
+        </span>
+      )}
     </div>
+    <h3 class="article-card__title">{title}</h3>
+    <p class="article-card__description">{description}</p>
+    <time class="article-card__date">{date}</time>
+  </div>
 </a>

@@ -8,9 +8,9 @@ import { getBlogs } from "../../lib/microcms";
 
 // どのカテゴリーページを生成するかをAstroに教える
 export async function getStaticPaths() {
-  const { contents: posts } = await getBlogs({ fields: "category" });
+  const { contents: allPosts }: { contents: { category: string[] }[] } = await getBlogs({ fields: "category" });
   // すべての記事からユニークなカテゴリー名を取得
-  const allCategories = posts.flatMap((post) => post.category);
+  const allCategories = allPosts.flatMap((post) => post.category);
   const uniqueCategories = [...new Set(allCategories)];
 
   return uniqueCategories.map((category) => ({
@@ -21,7 +21,7 @@ export async function getStaticPaths() {
 const { categoryName } = Astro.params;
 
 // 特定のカテゴリーに属するブログ記事のみを取得
-const { contents: posts } = await getBlogs({
+const { contents: posts }: { contents: Blog[] } = await getBlogs({
   filters: `category[contains]${categoryName}`,
 });
 
@@ -60,8 +60,8 @@ const getCategoryColor = (name: string) => {
                       ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
                       : ""
                   }
-                  imageUrl={post.eyecatch.url + "?w=400"}
-                  categoryColor={post.category.map(getCategoryColor)}
+                  imageUrl={post.eyecatch?.url ? post.eyecatch.url + "?w=400" : "/placeholder.svg"}
+                  imageUrlList={post.eyecatch?.url ? post.eyecatch.url + "?w=256" : "/placeholder.svg"}
                 />
               ))
             ) : (

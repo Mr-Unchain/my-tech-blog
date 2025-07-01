@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout pageTitle="404 Not Found">
+  <main class="container mx-auto px-4 py-16 text-center max-w-2xl">
+    <h1 class="text-6xl font-bold text-custom-heading mb-4">404</h1>
+    <h2 class="text-2xl font-semibold text-slate-700 mb-6">ページが見つかりませんでした</h2>
+    <p class="text-slate-500 mb-8">
+      お探しのページは、移動または削除された可能性があります。
+    </p>
+    <a href="/" class="inline-block bg-custom-button text-black font-bold px-6 py-3 rounded-lg hover:bg-yellow-400 transition-colors">
+      トップページへ戻る
+    </a>
+  </main>
+</BaseLayout> 

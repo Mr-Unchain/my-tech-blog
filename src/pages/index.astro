@@ -30,7 +30,9 @@ if (popularPostIds.length > 0) {
       if (!post) return undefined;
       return {
         ...post,
-        category: Array.isArray(post.category) ? [...post.category] : [post.category],
+        category: Array.isArray(post.category)
+          ? [...post.category]
+          : [post.category],
       };
     })
     .filter((post): post is Blog => !!post);
@@ -57,17 +59,62 @@ const getCategoryColor = (categoryName: string) => {
 <BaseLayout>
   <main class="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
     {/* ★★★ ヒーローセクションをスライドショーに置き換え（React Island） ★★★ */}
-    {heroPosts.length > 0 && <HeroSlideshowReact client:load posts={heroPosts} />}
+    {
+      heroPosts.length > 0 && (
+        <HeroSlideshowReact client:load posts={heroPosts} />
+      )
+    }
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
       <div class="lg:col-span-2">
         <!-- New Articles -->
         <section>
-          <h2 class="text-2xl font-bold mb-6 text-custom-heading">新着記事</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-custom-heading">新着記事</h2>
+            <div class="flex space-x-2">
+              <button
+                id="view-grid"
+                title="グリッド表示"
+                class="p-2 rounded-md bg-slate-200 text-slate-800"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z"
+                  ></path>
+                </svg>
+              </button>
+              <button
+                id="view-list"
+                title="リスト表示"
+                class="p-2 rounded-md bg-white text-slate-400"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div
+            id="article-list-container"
+            class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch"
+          >
             {
               listPosts.map((post: Blog) => (
                 <ArticleCard
+                  class="article-card"
                   id={post.id}
                   category={post.category}
                   title={post.title}
@@ -77,8 +124,8 @@ const getCategoryColor = (categoryName: string) => {
                       ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
                       : ""
                   }
-                  imageUrl={post.eyecatch.url + "?w=400"}
-                  categoryColor={post.category.map(getCategoryColor)}
+                  imageUrl={post.eyecatch?.url ? post.eyecatch.url + "?w=400&h=225&fit=crop" : "/placeholder.svg"}
+                  imageUrlList={post.eyecatch?.url ? post.eyecatch.url + "?w=320&h=180&fit=crop" : "/placeholder.svg"}
                 />
               ))
             }
@@ -88,7 +135,7 @@ const getCategoryColor = (categoryName: string) => {
             <nav class="flex items-center space-x-2">
               <a
                 href="#"
-                class="flex items-center justify-center h-10 w-10 bg-gray-800 border border-gray-700 text-gray-400 rounded-full hover:bg-gray-700 hover:text-white transition-colors"
+                class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-400 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
                 aria-label="前のページへ"
               >
                 <svg
@@ -105,25 +152,25 @@ const getCategoryColor = (categoryName: string) => {
               </a>
               <span
                 aria-current="page"
-                class="flex items-center justify-center h-10 w-10 bg-blue-600 border border-blue-500 text-white font-bold rounded-full z-10"
+                class="flex items-center justify-center h-10 w-10 bg-custom-heading border border-custom-heading text-white font-bold rounded-full z-10"
               >
                 1
               </span>
               <a
                 href="#"
-                class="flex items-center justify-center h-10 w-10 bg-gray-800 border border-gray-700 text-gray-300 rounded-full hover:bg-gray-700 hover:text-white transition-colors"
+                class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-500 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
               >
                 2
               </a>
               <a
                 href="#"
-                class="flex items-center justify-center h-10 w-10 bg-gray-800 border border-gray-700 text-gray-300 rounded-full hover:bg-gray-700 hover:text-white transition-colors"
+                class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-500 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
               >
                 3
               </a>
               <a
                 href="#"
-                class="flex items-center justify-center h-10 w-10 bg-gray-800 border border-gray-700 text-gray-400 rounded-full hover:bg-gray-700 hover:text-white transition-colors"
+                class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-400 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
                 aria-label="次のページへ"
               >
                 <svg
@@ -146,3 +193,50 @@ const getCategoryColor = (categoryName: string) => {
     </div>
   </main>
 </BaseLayout>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const gridButton = document.getElementById("view-grid");
+    const listButton = document.getElementById("view-list");
+    const container = document.getElementById("article-list-container");
+
+    const updateButtonStyles = (view: 'grid' | 'list') => {
+      const isGrid = view === 'grid';
+      gridButton?.classList.toggle('bg-slate-200', isGrid);
+      gridButton?.classList.toggle('text-slate-800', isGrid);
+      gridButton?.classList.toggle('bg-white', !isGrid);
+      gridButton?.classList.toggle('text-slate-400', !isGrid);
+      
+      listButton?.classList.toggle('bg-slate-200', !isGrid);
+      listButton?.classList.toggle('text-slate-800', !isGrid);
+      listButton?.classList.toggle('bg-white', isGrid);
+      listButton?.classList.toggle('text-slate-400', isGrid);
+    };
+
+    const setView = (view: 'grid' | 'list') => {
+      if (!container) return;
+      const cards = container?.querySelectorAll(".article-card");
+
+      if (view === "list") {
+        container.classList.remove("grid", "md:grid-cols-2", "gap-8");
+        container.classList.add("flex", "flex-col", "gap-4");
+        cards.forEach((card) => card.classList.add("list-view"));
+      } else {
+        // grid
+        container.classList.remove("flex", "flex-col", "gap-4");
+        container.classList.add("grid", "md:grid-cols-2", "gap-8");
+        cards.forEach((card) => card.classList.remove("list-view"));
+      }
+
+      updateButtonStyles(view);
+      localStorage.setItem("article_view_mode", view);
+    };
+
+    gridButton?.addEventListener("click", () => setView("grid"));
+    listButton?.addEventListener("click", () => setView("list"));
+
+    // On page load, apply the saved view mode
+    const savedView = localStorage.getItem("article_view_mode");
+    setView(savedView === 'list' ? 'list' : 'grid');
+  });
+</script>

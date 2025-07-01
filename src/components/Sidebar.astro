@@ -24,7 +24,7 @@ if (popularPostIds.length > 0) {
     fields: "id,title",
   });
   popularPosts = popularPostIds
-    .map((id) => microCMSData.find((post) => post.id === id))
+    .map((id) => microCMSData.find((post: { id: string }) => post.id === id))
     .filter((post): post is Blog => !!post);
 }
 
@@ -32,11 +32,14 @@ if (popularPostIds.length > 0) {
 const { contents: postsForCategories } = await getBlogs({
   fields: "id,category",
 });
-const allCategories = postsForCategories.flatMap((post) => post.category);
+const allCategories: string[] = postsForCategories.flatMap(
+  (post: { category: string | string[] }) =>
+    Array.isArray(post.category) ? post.category : [post.category]
+);
 
 // 各カテゴリーの記事数をカウント
 const categoryCounts: Record<string, number> = allCategories.reduce(
-  (acc, category) => {
+  (acc: Record<string, number>, category: string) => {
     acc[category] = (acc[category] || 0) + 1;
     return acc;
   },
