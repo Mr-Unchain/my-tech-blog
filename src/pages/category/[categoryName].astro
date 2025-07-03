@@ -6,6 +6,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import type { Blog } from "../../lib/microcms";
 import { getBlogs } from "../../lib/microcms";
 
+export const prerender = true;
+
 // どのカテゴリーページを生成するかをAstroに教える
 export async function getStaticPaths() {
   const { contents: allPosts }: { contents: { category: string[] }[] } =
