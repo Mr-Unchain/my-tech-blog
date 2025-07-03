@@ -12,11 +12,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        "custom-header": "#316C82",
-        "custom-button": "#FFD266",
-        "custom-text-bg": "#FFFFFF",
-        "custom-bg": "#F4F4F4",
-        "custom-heading": "#13B2AA",
+        primary: "#1976D2",
+        secondary: "#FFC107",
+        background: "#FFFFFF",
+        surface: "#FFFFFF",
+        "on-primary": "#FFFFFF",
+        "on-secondary": "#000000",
+        "text-primary": "rgba(0, 0, 0, 0.87)",
+        "text-secondary": "rgba(0, 0, 0, 0.6)",
       },
       fontFamily: {
         sans: ["Noto Sans JP", ...defaultTheme.fontFamily.sans],

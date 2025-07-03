@@ -25,6 +25,7 @@ export type Profile = {
   githubUrl?: string;
   // ここから下を追加
   portfolio_introduction?: string;
+  portfolio_intro?: string; // microCMSスキーマ用
   skills?: string;
   work_history?: string;
   contact_email?: string;

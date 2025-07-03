@@ -1,343 +1,144 @@
-// AdminCreateArticle フォーム改善用（global.cssから移動）
-.note-form-container {
-  background: #fff;
-  border-radius: 1.2rem;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-  padding: 1.5rem 1.2rem 2rem 1.2rem;
-  max-width: 520px;
-  margin: 2.5rem auto 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-  /* 余白を減らし中央寄せ */
-}
-
-/* 外側の重なりや余白を消すための親要素調整（もし親でラップしている場合） */
-.note-article-form {
-  background: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.note-form-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  text-align: center;
-}
-
-.note-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.note-form-label {
-  font-size: 1rem;
-  color: #333;
-  font-weight: 500;
-}
-
-.note-input {
-  border: 1px solid #e0e0e0;
-  border-radius: 0.5rem;
-  padding: 0.7rem 1rem;
-  font-size: 1rem;
-  background: #fafbfc;
-  transition: border 0.2s;
-}
-
-.note-input:focus {
-  border: 1.5px solid #38bdf8;
-  outline: none;
-  background: #fff;
-}
-
-.note-eyecatch-preview {
-  margin-top: 0.5rem;
-  max-width: 100%;
-  max-height: 120px;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
-}
-
-.note-md-label {
-  font-size: 1rem;
-  font-weight: 500;
-  margin-bottom: 0.3rem;
-}
-
-.note-md-editor-custom {
-  border: 1px solid #e0e0e0;
-  border-radius: 0.7rem;
-  overflow: hidden;
-  background: #f8fafc;
-  min-height: 400px;
-}
-
-.note-btn-row {
-  display: flex;
-  gap: 1.2rem;
-  justify-content: center;
-  margin-top: 1.2rem;
-}
-
-.note-btn-custom {
-  font-size: 1.08rem;
-  padding: 0.7rem 2.2rem;
-  border-radius: 2rem;
-  font-weight: 600;
-  min-width: 120px;
-  transition: background 0.2s, color 0.2s;
-}
-
-.note-btn-draft.note-btn-custom {
-  background: #f3f4f6;
-  color: #333;
-  border: 1px solid #e0e0e0;
-}
-
-.note-btn-publish.note-btn-custom {
-  background: #38bdf8;
-  color: #fff;
-  border: none;
-}
-
-.note-btn-custom:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-// note風 記事作成フォーム
-.note-article-form {
-  background: #fff;
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 24px rgba(30, 41, 59, 0.08);
-  max-width: 700px;
-  margin: 2.5rem auto 3rem auto;
-  border: 1px solid #f1f5f9;
-  overflow: hidden;
-}
-
-.note-article-form h1 {
-  font-size: 2.3rem;
-  font-weight: 800;
-  text-align: center;
-  color: #1e293b;
-  letter-spacing: 0.01em;
-  margin: 2.5rem 0 2rem 0;
-  border-bottom: 1.5px solid #e5e7eb;
-  padding-bottom: 1.2rem;
-  background: none;
-}
-
-.note-article-form input[type="text"] {
-  background: #f8fafc;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 0.7rem;
-  padding: 0.9rem 1.1rem;
-  font-size: 1.08rem;
-  margin-bottom: 0.7rem;
-  transition: border 0.2s, box-shadow 0.2s;
-  box-shadow: none;
-}
-
-.note-article-form input[type="text"]:focus {
-  border-color: #38bdf8;
-  outline: none;
-  background: #fff;
-}
-
-.note-article-form .note-title-input {
-  font-size: 2.1rem;
-  font-weight: 700;
-  border: none;
-  border-bottom: 2px solid #e5e7eb;
-  border-radius: 0;
-  background: transparent;
-  margin-bottom: 1.5rem;
-  padding: 1.2rem 0 0.7rem 0.5rem;
-  box-shadow: none;
-}
-
-.note-article-form .note-title-input:focus {
-  border-bottom: 2px solid #38bdf8;
-  background: transparent;
-}
-
-.note-article-form .note-meta-row {
-  display: flex;
-  gap: 1.2rem;
-  margin-bottom: 1.2rem;
-}
-
-.note-article-form .note-eyecatch-row {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  margin-bottom: 1.5rem;
-}
-
-.note-article-form .note-eyecatch-row img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 0.7rem;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 2px 8px rgba(30, 41, 59, 0.07);
-}
-
-.note-article-form .note-md-label {
-  font-size: 0.98rem;
-  color: #64748b;
-  margin-bottom: 0.4rem;
-}
-
-.note-article-form .note-md-editor {
-  border: 1.5px solid #e5e7eb;
-  border-radius: 0.7rem;
-  background: #f8fafc;
-  overflow: hidden;
-}
-
-.note-article-form .note-btn-row {
-  display: flex;
-  gap: 1.2rem;
-  margin-top: 2.2rem;
-  justify-content: center;
-}
-
-.note-article-form .note-btn {
-  flex: 1;
-  padding: 0.9rem 0;
-  border-radius: 9999px;
-  font-weight: 700;
-  font-size: 1.08rem;
-  box-shadow: 0 2px 8px rgba(30, 41, 59, 0.04);
-  border: none;
-  transition: background 0.2s, color 0.2s;
-}
-
-.note-article-form .note-btn-draft {
-  background: #f1f5f9;
-  color: #334155;
-}
-
-.note-article-form .note-btn-draft:hover {
-  background: #e2e8f0;
-}
-
-.note-article-form .note-btn-publish {
-  background: #38bdf8;
-  color: #fff;
-}
-
-.note-article-form .note-btn-publish:hover {
-  background: #0ea5e9;
-}
-
-.note-article-form .note-message {
-  margin-bottom: 1.5rem;
-  padding: 0.7rem 1rem;
-  border-radius: 0.7rem;
-  text-align: center;
-  font-weight: 600;
-  font-size: 1.05rem;
-}
-
-.note-article-form .note-message-success {
-  background: #e0f2fe;
-  color: #0284c7;
-  border: 1.5px solid #bae6fd;
-}
-
-.note-article-form .note-message-error {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1.5px solid #fecaca;
-}
-
-// 管理者ログインページ用スタイル
-.login-page-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-}
-
-.login-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.login-github-btn {
-  display: inline-block;
-  padding: 0.5rem 2rem;
-  background: #1f2937;
-  color: #fff;
-  border-radius: 0.375rem;
-  font-size: 1.1rem;
-  font-weight: 500;
-  transition: background 0.2s;
-  text-align: center;
-}
-
-.login-github-btn:hover {
-  background: #111827;
-}
-
-.login-failed-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  padding: 2rem;
-  background: #fff0f0;
-  border-radius: 1rem;
-  box-shadow: 0 2px 16px rgba(255, 0, 0, 0.08);
-  margin: 3rem auto;
-  max-width: 400px;
-}
-
-.login-failed-container h1 {
-  color: #e53e3e;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.login-failed-container p {
-  color: #444;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.login-failed-btn {
-  display: inline-block;
-  padding: 0.5rem 2rem;
-  background: #e53e3e;
-  color: #fff;
-  border-radius: 0.375rem;
-  font-size: 1.1rem;
-  font-weight: 500;
+.toc-list a {
+  color: inherit;
   text-decoration: none;
-  transition: background 0.2s;
+  transition: color 0.2s;
+}
+.toc-list a:hover {
+  color: #2563eb;
+}
+/* --- 目次（Table of Contents）用 --- */
+.toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
 }
 
-.login-failed-btn:hover {
-  background: #b91c1c;
+.toc-list::before {
+  content: '';
+  position: absolute;
+  left: 0.2em;
+  top: 0.7em;
+  bottom: 0.7em;
+  width: 2px;
+  background: #e5e7eb;
+  z-index: 0;
 }
+
+
+.toc-h2 {
+  position: relative;
+  margin: 0.3em 0;
+  padding-left: 1.6em;
+  font-weight: 400;
+  font-size: 1em;
+  z-index: 1;
+}
+
+.toc-h2::before {
+  content: '';
+  position: absolute;
+  left: 0.0em;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.6em;
+  height: 0.6em;
+  background: #60a5fa;
+  border-radius: 50%;
+  display: inline-block;
+  z-index: 2;
+}
+
+
+.toc-h3 {
+  margin: 0.2em 0 0.2em 0;
+  padding-left: 1.6em;
+  color: #64748b;
+  font-weight: 400;
+  font-size: 1em;
+  position: relative;
+  z-index: 1;
+}
+
+.toc-h3::before {
+  content: '';
+  position: absolute;
+  left: 0.1em;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.35em;
+  height: 0.35em;
+  background: #cbd5e1;
+  border-radius: 50%;
+  display: inline-block;
+  z-index: 2;
+}
+
+
+:root {
+  --font-base: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif, "Segoe UI Emoji";
+  --font-code: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace, "Segoe UI Emoji";
+  --font-latin-hero: "Inter", BlinkMacSystemFont, Arial, sans-serif;
+}
+
+/* ページネーションの現在ページ（1など）を常に見やすく */
+.bg-custom-heading,
+.pagination-active {
+  background: #2563eb !important;
+  /* Zenn風の青 or お好みで */
+  border-color: #2563eb !important;
+  color: #fff !important;
+  font-weight: bold;
+  z-index: 10;
+}
+
+// Zenn風フォント設定（全体適用）
+.blog-global-font {
+  font-family: var(--font-base);
+}
+
+// ブログ記事本文のフォント・余白・サイズ
+.blog-article-content {
+  font-family: inherit;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  font-size: 1.08rem;
+  line-height: 2.0;
+  color: #222e3a;
+  background: #fff;
+  border-radius: 1rem;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 8px rgba(30, 40, 60, 0.03);
+  margin-bottom: 2rem;
+  letter-spacing: 0.01em;
+
+  @media (min-width: 768px) {
+    padding-left: 3rem;
+    padding-right: 3rem;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    font-size: 1.13rem;
+  }
+}
+
+
 
 // ===== BaseLayoutのグローバルスタイル集約 =====
+
 body {
-  font-family: "Noto Sans JP", "Inter", sans-serif;
+  @apply bg-background text-text-primary;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  font-family: var(--font-base);
+  font-feature-settings: "ss01", "cv01", "cv02", "cv03", "cv04", "cv11";
+  font-variation-settings: "wght" 400, "slnt" 0;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
 
 h1,
 h2,
@@ -346,7 +147,12 @@ h4,
 h5,
 h6,
 .font-inter {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: var(--font-base);
+  font-feature-settings: "ss01", "cv01", "cv02", "cv03", "cv04", "cv11";
+  font-variation-settings: "wght" 700, "slnt" 0;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .prose {
@@ -377,14 +183,13 @@ h6,
 
 @layer components {
   .article-card {
-    @apply flex flex-col h-full rounded-xl overflow-hidden bg-white border border-gray-200;
-    @apply transition-transform duration-200 ease-in-out;
+    @apply flex flex-col h-full rounded-lg overflow-hidden bg-surface border border-gray-200;
     @apply transition-shadow duration-200 ease-in-out;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 
     &:hover {
       transform: translateY(-4px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
     }
 
     &.list-view {
@@ -479,7 +284,14 @@ h6,
     }
 
     &__category-badge {
-      @apply text-xs font-semibold py-1 px-3 rounded-full border bg-custom-button text-black;
+      background: #e0f2fe;
+      color: #2563eb;
+      border: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.18em 0.95em;
+      border-radius: 9999px;
+      display: inline-block;
     }
 
     &__category-extra {
@@ -487,7 +299,7 @@ h6,
     }
 
     &__title {
-      @apply font-bold text-lg text-gray-800 mb-2 group-hover:text-custom-heading transition-colors;
+      @apply font-bold text-lg text-gray-800 mb-2 group-hover:text-primary transition-colors;
     }
 
     &__description {
@@ -501,6 +313,18 @@ h6,
 
   .hero-slideshow {
     @apply relative w-full h-96 md:h-[450px] mb-8 md:mb-12 rounded-xl overflow-hidden border border-slate-200 shadow-lg;
+
+    @media (max-width: 640px) {
+      height: 220px;
+      min-height: 180px;
+      max-height: 260px;
+    }
+
+    @media (max-width: 430px) {
+      height: 180px;
+      min-height: 140px;
+      max-height: 210px;
+    }
   }
 
   .hero-slide {
@@ -524,6 +348,15 @@ h6,
     background-color: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    max-height: 60%;
+    overflow-y: auto;
+
+    @media (max-width: 640px) {
+      padding: 0.7rem 0.7rem 0.9rem 0.7rem;
+      font-size: 0.97rem;
+      max-height: 48%;
+      min-height: 2.5rem;
+    }
   }
 
   .hero-slide__title {
@@ -543,7 +376,19 @@ h6,
   }
 
   .hero-slide__category {
-    @apply bg-custom-button text-black text-xs font-bold px-2.5 py-1 rounded-full hover:opacity-80 transition-opacity;
+    background: #e0f2fe;
+    color: #2563eb;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.18em 0.95em;
+    border-radius: 9999px;
+    display: inline-block;
+    border: none;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   .hero-slide__desc {
@@ -620,10 +465,22 @@ h6,
   }
 
   .site-header {
-    @apply bg-white text-slate-800 shadow-md sticky top-0 z-50;
+    @apply bg-primary text-text-primary shadow-lg sticky top-0 z-50;
 
     &__inner {
-      @apply container mx-auto px-4 py-4 max-w-6xl flex justify-between items-center;
+      @apply w-full max-w-6xl flex justify-between items-center px-3;
+      margin: 0 auto;
+      padding-top: 0.4rem;
+      padding-bottom: 0.4rem;
+      min-height: 48px;
+
+      @media (max-width: 640px) {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.5rem;
+        min-height: 44px;
+      }
     }
 
     &__logo a {
@@ -631,47 +488,105 @@ h6,
     }
 
     &__logo img {
-      @apply h-8 w-8 text-custom-heading;
+      @apply h-8 w-8 text-primary;
     }
 
     &__logo span {
-      @apply text-2xl font-bold text-custom-heading;
+      @apply text-2xl font-bold;
+      color: #fff !important;
+
+      @media (max-width: 400px) {
+        font-size: 1.1rem;
+      }
     }
 
     &__nav ul {
-      @apply flex space-x-6 text-slate-600 font-medium;
+      @apply flex space-x-6 font-medium;
+      color: #fff !important;
+
+      @media (max-width: 640px) {
+        display: none;
+      }
     }
 
     &__nav a {
-      @apply hover:text-custom-heading transition-colors;
+      color: #fff !important;
+      @apply hover:text-yellow-200 transition-colors;
     }
 
     &__mobile-button {
       @apply md:hidden text-slate-800 focus:outline-none;
+      position: absolute;
+      top: 0.7rem;
+      right: 1.1rem;
+      margin-left: 0;
+      z-index: 60;
+
+      @media (min-width: 641px) {
+        display: none;
+      }
+
+      @media (max-width: 640px) {
+        top: 0.5rem;
+        right: 0.7rem;
+      }
     }
 
     &__mobile-menu {
-      @apply hidden md:hidden bg-white shadow-lg;
+      @apply bg-white shadow-lg;
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      left: 0;
+      z-index: 100;
+      border-bottom-left-radius: 0.7rem;
+      border-bottom-right-radius: 0.7rem;
+
+      @media (max-width: 640px) {
+        display: block;
+      }
 
       a {
         @apply block py-3 px-4 text-sm text-slate-800 hover:bg-slate-100;
+        border-bottom: 1px solid #f1f5f9;
       }
+    }
+
+    /* 表示切替用 */
+    &__mobile-menu.hidden {
+      display: none !important;
     }
   }
 
   .site-footer {
-    @apply bg-custom-header text-white mt-12;
+    @apply bg-primary text-on-primary mt-12;
 
     &__inner {
-      @apply container mx-auto px-4 py-6 max-w-6xl flex justify-between items-center;
+      @apply w-full px-3 py-6 max-w-6xl flex justify-between items-center;
+      margin: 0 auto;
+
+      @media (max-width: 640px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.7rem;
+        padding: 1.2rem 0.5rem;
+      }
     }
 
     &__copyright {
       @apply text-sm;
+      margin-bottom: 0.5rem;
     }
 
     &__links {
       @apply flex space-x-4;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+
+      @media (max-width: 640px) {
+        margin-top: 0.5rem;
+      }
 
       a {
         @apply text-sm hover:underline;
@@ -687,6 +602,24 @@ h6,
 
     code {
       font-size: 0.95em;
+    }
+
+    pre,
+    pre code {
+      background: #0d1220 !important;
+      color: #f4f7fa !important;
+      border-radius: 0.7rem !important;
+      font-size: 0.92em !important;
+      line-height: 1.9 !important;
+      padding: 1.1em 1.3em !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+      overflow-x: auto !important;
+      font-family: var(--font-code) !important;
+      word-break: break-all !important;
+      white-space: pre !important;
+      tab-size: 4 !important;
+      width: 100% !important;
+      display: block !important;
     }
 
     img {
@@ -724,90 +657,33 @@ h6,
     }
   }
 
-  // 管理ダッシュボード用スタイル
-  .dashboard-main {
-    min-height: 80vh;
-    background: #f6f7fa;
-    padding: 3rem 0 4rem 0;
-  }
-
-  .dashboard-section {
-    background: #fff;
-    border-radius: 1.2rem;
-    box-shadow: 0 4px 24px rgba(30, 41, 59, 0.08);
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2.5rem 2rem 2rem 2rem;
-  }
-
-  .dashboard-title {
-    font-size: 2.1rem;
-    font-weight: 800;
-    margin-bottom: 2.2rem;
-    color: #1e293b;
-    letter-spacing: 0.01em;
-    text-align: left;
-  }
-
-  .dashboard-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1.5rem;
-  }
-
-  .dashboard-create-btn {
-    background: #2563eb;
-    color: #fff;
-    font-weight: 600;
-    padding: 0.6rem 1.8rem;
-    border-radius: 0.5rem;
-    font-size: 1.1rem;
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
-    transition: background 0.2s, box-shadow 0.2s;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .dashboard-create-btn:hover {
-    background: #1d4ed8;
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
-  }
-
-  .dashboard-table-wrapper {
-    background: #f9fafb;
-    border-radius: 0.7rem;
-    padding: 1.2rem 1rem 1.5rem 1rem;
-    box-shadow: 0 1px 6px rgba(30, 41, 59, 0.04);
-    overflow-x: auto;
-  }
-}
-
-@layer utilities {
-  .fade-in {
-    animation: fadeIn 0.7s forwards;
-  }
-
-  .fade-out {
-    animation: fadeOut 0.7s forwards;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
+  @layer utilities {
+    .fade-in {
+      animation: fadeIn 0.7s forwards;
     }
 
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes fadeOut {
-    from {
-      opacity: 1;
+    .fade-out {
+      animation: fadeOut 0.7s forwards;
     }
 
-    to {
-      opacity: 0;
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
     }
   }
 }

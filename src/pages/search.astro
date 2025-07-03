@@ -16,19 +16,6 @@ const query = Astro.url.searchParams.get("q");
 const { contents: posts } = await getBlogs({
   q: query || "",
 });
-
-const getCategoryColor = (name: string) => {
-  switch (name) {
-    case "ガジェット":
-      return "sky";
-    case "ソフトウェア":
-      return "purple";
-    case "レビュー":
-      return "pink";
-    default:
-      return "slate";
-  }
-};
 ---
 
 <BaseLayout>
@@ -53,7 +40,7 @@ const getCategoryColor = (name: string) => {
                         : ""
                     }
                     imageUrl={post.eyecatch.url + "?w=400"}
-                    categoryColor={post.category.map(getCategoryColor)}
+                    }
                   />
                 ))
               : query && (

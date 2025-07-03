@@ -8,7 +8,8 @@ import { getBlogs } from "../../lib/microcms";
 
 // どのカテゴリーページを生成するかをAstroに教える
 export async function getStaticPaths() {
-  const { contents: allPosts }: { contents: { category: string[] }[] } = await getBlogs({ fields: "category" });
+  const { contents: allPosts }: { contents: { category: string[] }[] } =
+    await getBlogs({ fields: "category" });
   // すべての記事からユニークなカテゴリー名を取得
   const allCategories = allPosts.flatMap((post) => post.category);
   const uniqueCategories = [...new Set(allCategories)];
@@ -24,19 +25,6 @@ const { categoryName } = Astro.params;
 const { contents: posts }: { contents: Blog[] } = await getBlogs({
   filters: `category[contains]${categoryName}`,
 });
-
-const getCategoryColor = (name: string) => {
-  switch (name) {
-    case "ガジェット":
-      return "sky";
-    case "ソフトウェア":
-      return "purple";
-    case "レビュー":
-      return "pink";
-    default:
-      return "slate";
-  }
-};
 ---
 
 <BaseLayout>
@@ -60,12 +48,22 @@ const getCategoryColor = (name: string) => {
                       ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
                       : ""
                   }
-                  imageUrl={post.eyecatch?.url ? post.eyecatch.url + "?w=400" : "/placeholder.svg"}
-                  imageUrlList={post.eyecatch?.url ? post.eyecatch.url + "?w=256" : "/placeholder.svg"}
+                  imageUrl={
+                    post.eyecatch?.url
+                      ? post.eyecatch.url + "?w=400"
+                      : "/placeholder.svg"
+                  }
+                  imageUrlList={
+                    post.eyecatch?.url
+                      ? post.eyecatch.url + "?w=256"
+                      : "/placeholder.svg"
+                  }
                 />
               ))
             ) : (
-              <p class="text-slate-500">このカテゴリーの記事はまだありません。</p>
+              <p class="text-slate-500">
+                このカテゴリーの記事はまだありません。
+              </p>
             )
           }
         </div>

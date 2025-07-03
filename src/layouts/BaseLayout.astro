@@ -53,9 +53,11 @@ const ogpImageUrl =
 
     <!-- スタイルは src/styles/main.scss に集約 -->
   </head>
-  <body class="bg-custom-bg text-slate-800">
+  <body class="flex flex-col min-h-screen">
     <Header />
-    <slot />
+    <main class="flex-grow">
+      <slot />
+    </main>
     <Footer />
   </body>
 </html>

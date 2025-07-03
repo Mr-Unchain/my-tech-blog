@@ -135,15 +135,33 @@ const Slide: React.FC<{
         <h2 className="hero-slide__title">{post.title}</h2>
         <div className="hero-slide__meta">
           <div className="hero-slide__categories">
-            {post.category.map((cat, idx) => (
-              <a
-                key={cat + idx}
-                href={`/category/${cat}`}
-                className="hero-slide__category"
-              >
-                {cat}
-              </a>
-            ))}
+            {(() => {
+              // SSR対策: デフォルトは全カテゴリ表示、クライアントで2つ制限
+              const [max, setMax] = React.useState(post.category.length);
+              React.useEffect(() => {
+                const update = () => {
+                  setMax(window.innerWidth <= 640 ? 2 : post.category.length);
+                };
+                update();
+                window.addEventListener('resize', update);
+                return () => window.removeEventListener('resize', update);
+              }, [post.category.length]);
+              const cats = post.category.slice(0, max);
+              return <>
+                {cats.map((cat, idx) => (
+                  <a
+                    key={cat + idx}
+                    href={`/category/${cat}`}
+                    className="hero-slide__category"
+                  >
+                    {cat}
+                  </a>
+                ))}
+                {max < post.category.length && (
+                  <span className="hero-slide__category-extra">+{post.category.length - max}</span>
+                )}
+              </>;
+            })()}
           </div>
           <time className="hero-slide__date">
             {formatDate(post.publishedAt || "")}

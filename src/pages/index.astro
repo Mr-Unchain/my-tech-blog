@@ -41,19 +41,6 @@ if (popularPostIds.length > 0) {
 // ★★★ 新しい記事一覧の取得ロジック ★★★
 // すべての記事を新しい順に取得
 const { contents: listPosts } = await getBlogs({ orders: "-publishedAt" });
-
-const getCategoryColor = (categoryName: string) => {
-  switch (categoryName) {
-    case "ガジェット":
-      return "sky";
-    case "個人開発":
-      return "purple";
-    case "IT":
-      return "pink";
-    default:
-      return "gray";
-  }
-};
 ---
 
 <BaseLayout>
@@ -124,8 +111,16 @@ const getCategoryColor = (categoryName: string) => {
                       ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
                       : ""
                   }
-                  imageUrl={post.eyecatch?.url ? post.eyecatch.url + "?w=400&h=225&fit=crop" : "/placeholder.svg"}
-                  imageUrlList={post.eyecatch?.url ? post.eyecatch.url + "?w=320&h=180&fit=crop" : "/placeholder.svg"}
+                  imageUrl={
+                    post.eyecatch?.url
+                      ? post.eyecatch.url + "?w=400&h=225&fit=crop"
+                      : "/placeholder.svg"
+                  }
+                  imageUrlList={
+                    post.eyecatch?.url
+                      ? post.eyecatch.url + "?w=320&h=180&fit=crop"
+                      : "/placeholder.svg"
+                  }
                 />
               ))
             }
@@ -200,20 +195,20 @@ const getCategoryColor = (categoryName: string) => {
     const listButton = document.getElementById("view-list");
     const container = document.getElementById("article-list-container");
 
-    const updateButtonStyles = (view: 'grid' | 'list') => {
-      const isGrid = view === 'grid';
-      gridButton?.classList.toggle('bg-slate-200', isGrid);
-      gridButton?.classList.toggle('text-slate-800', isGrid);
-      gridButton?.classList.toggle('bg-white', !isGrid);
-      gridButton?.classList.toggle('text-slate-400', !isGrid);
-      
-      listButton?.classList.toggle('bg-slate-200', !isGrid);
-      listButton?.classList.toggle('text-slate-800', !isGrid);
-      listButton?.classList.toggle('bg-white', isGrid);
-      listButton?.classList.toggle('text-slate-400', isGrid);
+    const updateButtonStyles = (view: "grid" | "list") => {
+      const isGrid = view === "grid";
+      gridButton?.classList.toggle("bg-slate-200", isGrid);
+      gridButton?.classList.toggle("text-slate-800", isGrid);
+      gridButton?.classList.toggle("bg-white", !isGrid);
+      gridButton?.classList.toggle("text-slate-400", !isGrid);
+
+      listButton?.classList.toggle("bg-slate-200", !isGrid);
+      listButton?.classList.toggle("text-slate-800", !isGrid);
+      listButton?.classList.toggle("bg-white", isGrid);
+      listButton?.classList.toggle("text-slate-400", isGrid);
     };
 
-    const setView = (view: 'grid' | 'list') => {
+    const setView = (view: "grid" | "list") => {
       if (!container) return;
       const cards = container?.querySelectorAll(".article-card");
 
@@ -237,6 +232,6 @@ const getCategoryColor = (categoryName: string) => {
 
     // On page load, apply the saved view mode
     const savedView = localStorage.getItem("article_view_mode");
-    setView(savedView === 'list' ? 'list' : 'grid');
+    setView(savedView === "list" ? "list" : "grid");
   });
 </script>
