@@ -7,7 +7,7 @@ import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://example.com", // TODO: あなたのサイトのドメインに変更してください
+  site: "https://my-tech-blog.vercel.app",
   output: "server",
   adapter: node({ mode: "standalone" }),
   integrations: [tailwind(), sitemap(), react()],
