@@ -34,7 +34,7 @@ export type Profile = {
 // SSR用: API取得用のクライアントを作成
 const serverClient = createClient({
   serviceDomain: import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN,
-  apiKey: import.meta.env.VITE_MICROCMS_API_KEY,
+  apiKey: import.meta.env.MICROCMS_API_KEY,
 });
 
 // ブログ一覧を取得
@@ -103,7 +103,7 @@ export async function createBlog(article: {
   status: "PUBLISHED" | "DRAFT";
 }) {
   const endpoint = import.meta.env.VITE_MICROCMS_API_URL || "";
-  const apiKey = import.meta.env.VITE_MICROCMS_API_KEY || "";
+  const apiKey = import.meta.env.MICROCMS_API_KEY || "";
   const res = await fetch(`${endpoint}/blogs`, {
     method: "POST",
     headers: {
