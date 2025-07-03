@@ -38,9 +38,20 @@ if (popularPostIds.length > 0) {
     .filter((post): post is Blog => !!post);
 }
 
-// ★★★ 新しい記事一覧の取得ロジック ★★★
-// すべての記事を新しい順に取得
-const { contents: listPosts } = await getBlogs({ orders: "-publishedAt" });
+// ★★★ 新しい記事一覧の取得ロジック（ページネーション対応） ★★★
+const PAGE_SIZE = 20;
+const pageParam = Astro.url.searchParams.get("page");
+const currentPage = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
+const offset = (currentPage - 1) * PAGE_SIZE;
+
+
+// ★★★ 本番用：通常のページネーション・記事取得ロジックに戻す ★★★
+const { contents: pagedPosts, totalCount } = await getBlogs({
+  orders: "-publishedAt",
+  limit: PAGE_SIZE,
+  offset,
+});
+const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
 ---
 
 <BaseLayout>
@@ -99,7 +110,7 @@ const { contents: listPosts } = await getBlogs({ orders: "-publishedAt" });
             class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch"
           >
             {
-              listPosts.map((post: Blog) => (
+              pagedPosts.map((post: Blog) => (
                 <ArticleCard
                   class="article-card"
                   id={post.id}
@@ -126,62 +137,46 @@ const { contents: listPosts } = await getBlogs({ orders: "-publishedAt" });
             }
           </div>
           {/* ページネーション */}
-          <div class="mt-12 flex justify-center">
-            <nav class="flex items-center space-x-2">
-              <a
-                href="#"
-                class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-400 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
-                aria-label="前のページへ"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  ><path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 19l-7-7 7-7"></path></svg
+          {totalPages > 1 && (
+            <div class="mt-12 flex justify-center">
+              <nav class="flex items-center space-x-2">
+                {/* 前へ */}
+                <a
+                  href={`?page=${currentPage - 1}`}
+                  class={`flex items-center justify-center h-10 w-10 bg-white border border-slate-200 rounded-full transition-colors ${currentPage === 1 ? 'text-slate-300 pointer-events-none' : 'text-slate-400 hover:bg-slate-100 hover:text-custom-heading'}`}
+                  aria-label="前のページへ"
                 >
-              </a>
-              <span
-                aria-current="page"
-                class="flex items-center justify-center h-10 w-10 bg-custom-heading border border-custom-heading text-white font-bold rounded-full z-10"
-              >
-                1
-              </span>
-              <a
-                href="#"
-                class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-500 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
-              >
-                2
-              </a>
-              <a
-                href="#"
-                class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-500 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
-              >
-                3
-              </a>
-              <a
-                href="#"
-                class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-400 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
-                aria-label="次のページへ"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  ><path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5l7 7-7 7"></path></svg
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </a>
+                {/* ページ番号 */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) =>
+                  page === currentPage ? (
+                    <span
+                      aria-current="page"
+                      class="flex items-center justify-center h-10 w-10 bg-custom-heading border border-custom-heading text-white font-bold rounded-full z-10"
+                    >
+                      {page}
+                    </span>
+                  ) : (
+                    <a
+                      href={`?page=${page}`}
+                      class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-500 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
+                    >
+                      {page}
+                    </a>
+                  )
+                )}
+                {/* 次へ */}
+                <a
+                  href={`?page=${currentPage + 1}`}
+                  class={`flex items-center justify-center h-10 w-10 bg-white border border-slate-200 rounded-full transition-colors ${currentPage === totalPages ? 'text-slate-300 pointer-events-none' : 'text-slate-400 hover:bg-slate-100 hover:text-custom-heading'}`}
+                  aria-label="次のページへ"
                 >
-              </a>
-            </nav>
-          </div>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </a>
+              </nav>
+            </div>
+          )}
         </section>
       </div>
       <Sidebar />

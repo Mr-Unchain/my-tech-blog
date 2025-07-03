@@ -3,9 +3,11 @@
   text-decoration: none;
   transition: color 0.2s;
 }
+
 .toc-list a:hover {
   color: #2563eb;
 }
+
 /* --- 目次（Table of Contents）用 --- */
 .toc-list {
   list-style: none;
@@ -386,6 +388,7 @@ h6,
     border: none;
     transition: opacity 0.2s;
     cursor: pointer;
+
     &:hover {
       opacity: 0.8;
     }
@@ -465,7 +468,8 @@ h6,
   }
 
   .site-header {
-    @apply bg-primary text-text-primary shadow-lg sticky top-0 z-50;
+    background: #2563eb !important;
+    @apply text-text-primary shadow-lg sticky top-0 z-50;
 
     &__inner {
       @apply w-full max-w-6xl flex justify-between items-center px-3;
@@ -560,7 +564,8 @@ h6,
   }
 
   .site-footer {
-    @apply bg-primary text-on-primary mt-12;
+    background: #2563eb !important;
+    @apply text-on-primary mt-12;
 
     &__inner {
       @apply w-full px-3 py-6 max-w-6xl flex justify-between items-center;
