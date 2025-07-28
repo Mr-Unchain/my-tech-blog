@@ -13,11 +13,11 @@ export interface Props {
 
 const {
   pageTitle,
-  pageDescription = "書斎のテックギアは、デスク周りのガジェットやソフトウェアについての情報を発信する技術ブログです。",
+  pageDescription = "Monologgerは、テクノロジー、ガジェット、開発に関する情報を発信する技術ブログです。",
   ogImageUrl,
 } = Astro.props;
 
-const siteTitle = "書斎のテックギア";
+const siteTitle = "Monologger";
 const title = pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle;
 const ogpImageUrl =
   ogImageUrl || new URL("default-og-image.png", Astro.site).href;
@@ -30,6 +30,9 @@ const ogpImageUrl =
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={pageDescription} />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- OGP Tags -->
     <meta property="og:title" content={title} />
@@ -53,7 +56,7 @@ const ogpImageUrl =
 
     <!-- スタイルは src/styles/main.scss に集約 -->
   </head>
-  <body class="flex flex-col min-h-screen">
+  <body class="flex flex-col min-h-screen bg-slate-900">
     <Header />
     <main class="flex-grow">
       <slot />

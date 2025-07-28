@@ -30,12 +30,21 @@ const { contents: posts }: { contents: Blog[] } = await getBlogs({
 ---
 
 <BaseLayout>
-  <main class="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
+  <main class="min-h-screen bg-slate-900">
+    <div class="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
       <div class="lg:col-span-2">
-        <h1 class="text-3xl font-bold mb-6 text-custom-heading">
-          「{categoryName}」の記事一覧
-        </h1>
+        <div class="mb-8">
+          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mb-2">
+            「{categoryName}」の記事一覧
+          </h1>
+          <div class="flex items-center space-x-3">
+            <div class="w-1.5 h-6 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full"></div>
+            <span class="text-slate-300 text-lg font-medium">
+              {posts.length}件の記事があります
+            </span>
+          </div>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           {
             posts.length > 0 ? (
@@ -63,14 +72,46 @@ const { contents: posts }: { contents: Blog[] } = await getBlogs({
                 />
               ))
             ) : (
-              <p class="text-slate-500">
-                このカテゴリーの記事はまだありません。
-              </p>
+              <div class="col-span-full flex flex-col items-center justify-center py-16 px-6">
+                <div class="bg-gradient-to-b from-slate-800/90 to-slate-800/95 rounded-xl p-8 md:p-12 border border-slate-700/50 shadow-xl backdrop-blur-sm relative overflow-hidden max-w-md w-full text-center">
+                  <!-- Background tech pattern -->
+                  <div class="absolute inset-0 bg-tech-grid bg-tech-grid opacity-5 pointer-events-none"></div>
+                  
+                  <!-- Content with z-index -->
+                  <div class="relative z-10">
+                    <!-- Category icon -->
+                    <div class="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-slate-700 to-slate-800 rounded-full flex items-center justify-center border border-slate-600/50">
+                      <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                      </svg>
+                    </div>
+                    
+                    <!-- Message -->
+                    <h3 class="text-xl font-bold text-slate-200 mb-3">
+                      記事がありません
+                    </h3>
+                    <p class="text-slate-400 mb-4 leading-relaxed">
+                      「<span class="text-cyan-400 font-medium">{categoryName}</span>」カテゴリーの記事はまだ投稿されていません。
+                    </p>
+                    
+                    <!-- Suggestions -->
+                    <div class="text-sm text-slate-500 space-y-1">
+                      <p>• 他のカテゴリーもご覧ください</p>
+                      <p>• 新しい記事をお待ちください</p>
+                    </div>
+                    
+                    <!-- Decorative elements -->
+                    <div class="absolute -top-2 -right-2 w-4 h-4 bg-cyan-400/20 rounded-full"></div>
+                    <div class="absolute -bottom-2 -left-2 w-6 h-6 bg-blue-400/10 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
             )
           }
         </div>
       </div>
       <Sidebar />
+    </div>
     </div>
   </main>
 </BaseLayout>

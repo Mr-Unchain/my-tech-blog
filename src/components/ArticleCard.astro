@@ -26,7 +26,7 @@ const {
 // 配列で受け取るように変換
 const categories = Array.isArray(category) ? category : [category];
 
-const MAX_CATEGORIES_TO_SHOW = 3;
+const MAX_CATEGORIES_TO_SHOW = 2;
 const displayedCategories = categories.slice(0, MAX_CATEGORIES_TO_SHOW);
 const hiddenCategoriesCount = categories.length - displayedCategories.length;
 ---
@@ -38,6 +38,7 @@ const hiddenCategoriesCount = categories.length - displayedCategories.length;
       width={400}
       height={225}
       alt={`「${title}」の記事の画像`}
+      loading="lazy"
       class="article-card__image article-card__image--grid"
     />
     <Image
@@ -45,6 +46,7 @@ const hiddenCategoriesCount = categories.length - displayedCategories.length;
       width={256}
       height={144}
       alt={`「${title}」の記事の画像`}
+      loading="lazy"
       class="article-card__image article-card__image--list"
     />
   </div>
@@ -54,7 +56,7 @@ const hiddenCategoriesCount = categories.length - displayedCategories.length;
         <span class="article-card__category-badge">{cat}</span>
       ))}
       {hiddenCategoriesCount > 0 && (
-        <span class="article-card__category-extra">
+        <span class="article-card__category-badge article-card__category-extra">
           +{hiddenCategoriesCount}
         </span>
       )}
