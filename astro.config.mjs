@@ -6,7 +6,7 @@ import vercel from "@astrojs/vercel"; // vercelをインポート
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
-  site: "https://my-tech-blog.vercel.app", // 本番ドメイン
+  site: "https://monologger.dev", // 新しいドメインに変更
   output: "server", // outputは"server"のまま
   adapter: vercel(), // adapterをvercel()に変更
   integrations: [tailwind(), sitemap(), react()],
