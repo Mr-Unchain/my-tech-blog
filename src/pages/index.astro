@@ -239,7 +239,7 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
 </BaseLayout>
 
 <script>
-  document.addEventListener("astro:page-load", () => {
+  function initializeViewToggle() {
     const gridButton = document.getElementById("view-grid");
     const listButton = document.getElementById("view-list");
     const container = document.getElementById("article-list-container");
@@ -280,25 +280,25 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
       container.style.transform = "translateY(10px)";
       
       setTimeout(() => {
-      if (view === "list") {
-        // リストビュー：縦一列配置で各カードは横長レイアウト
-        container.classList.remove("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
-        container.classList.add("flex", "flex-col", "gap-4", "md:gap-6");
-        cards.forEach((card) => {
-          card.classList.add("list-view");
-          // 確実にリストビュースタイルを適用
-          (card as HTMLElement).style.width = "100%";
-        });
-      } else {
-        // グリッドビュー：複数列配置
-        container.classList.remove("flex", "flex-col", "gap-4", "md:gap-6");
-        container.classList.add("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
-        cards.forEach((card) => {
-          card.classList.remove("list-view");
-          // グリッドビュー用のスタイルをリセット
-          (card as HTMLElement).style.width = "";
-        });
-      }
+        if (view === "list") {
+          // リストビュー：縦一列配置で各カードは横長レイアウト
+          container.classList.remove("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
+          container.classList.add("flex", "flex-col", "gap-4", "md:gap-6");
+          cards.forEach((card) => {
+            card.classList.add("list-view");
+            // 確実にリストビュースタイルを適用
+            (card as HTMLElement).style.width = "100%";
+          });
+        } else {
+          // グリッドビュー：複数列配置
+          container.classList.remove("flex", "flex-col", "gap-4", "md:gap-6");
+          container.classList.add("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
+          cards.forEach((card) => {
+            card.classList.remove("list-view");
+            // グリッドビュー用のスタイルをリセット
+            (card as HTMLElement).style.width = "";
+          });
+        }
 
         // フェードインアニメーション
         requestAnimationFrame(() => {
@@ -317,5 +317,10 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
     // On page load, apply the saved view mode
     const savedView = localStorage.getItem("article_view_mode");
     setView(savedView === "list" ? "list" : "grid");
-  });
+  }
+
+  // 複数のイベントに対応
+  document.addEventListener("astro:page-load", initializeViewToggle);
+  document.addEventListener("swup:contentReplaced", initializeViewToggle);
+  document.addEventListener("DOMContentLoaded", initializeViewToggle);
 </script>

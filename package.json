@@ -12,6 +12,7 @@
     "@astrojs/react": "^4.3.0",
     "@astrojs/sitemap": "^3.4.1",
     "@astrojs/vercel": "^8.0.4",
+    "@swup/scripts-plugin": "^2.1.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.8",
     "@types/cheerio": "^0.22.35",
@@ -22,6 +23,7 @@
     "microcms-js-sdk": "^3.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "swup": "^4.8.2",
     "vite": "^7.0.0"
   },
   "devDependencies": {
