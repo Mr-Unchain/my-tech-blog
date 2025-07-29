@@ -16,9 +16,21 @@ const query = Astro.url.searchParams.get("q");
 const { contents: posts } = await getBlogs({
   q: query || "",
 });
+
+// SEO用情報の準備
+const pageTitle = query ? `「${query}」の検索結果` : "記事検索";
+const pageDescription = query ? 
+  `「${query}」に関する記事の検索結果です。${posts.length}件の記事が見つかりました。` :
+  "ブログ記事を検索できます。キーワードを入力して関連する記事を見つけてください。";
+const keywords = query ? `${query}, 検索, ブログ検索` : "検索, ブログ検索, 記事検索";
 ---
 
-<BaseLayout>
+<BaseLayout
+  pageTitle={pageTitle}
+  pageDescription={pageDescription}
+  keywords={keywords}
+  noIndex={!query}
+>
   <main class="min-h-screen bg-slate-900">
     <div class="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
@@ -26,7 +38,7 @@ const { contents: posts } = await getBlogs({
         <div class="mb-8">
           <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mb-2">
             {query ? `「${query}」の検索結果` : "検索ページ"}
-          </h1>
+        </h1>
           {query && (
             <div class="flex items-center space-x-3">
               <div class="w-1.5 h-6 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full"></div>
@@ -77,10 +89,10 @@ const { contents: posts } = await getBlogs({
             </div>
           </div>
         ) : (
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {
-              posts.length > 0
-                ? posts.map((post: Blog) => (
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {
+            posts.length > 0
+              ? posts.map((post: Blog) => (
                   <ArticleCard
                     id={post.id}
                     category={post.category}
@@ -115,7 +127,7 @@ const { contents: posts } = await getBlogs({
                           </h3>
                           <p class="text-slate-400 mb-4 leading-relaxed">
                             「<span class="text-cyan-400 font-medium">{query}</span>」に一致する記事はありませんでした。
-                          </p>
+                  </p>
                           
                           <!-- Suggestions -->
                           <div class="text-sm text-slate-500 space-y-1">
@@ -129,9 +141,9 @@ const { contents: posts } = await getBlogs({
                         </div>
                       </div>
                     </div>
-                  )
-            }
-          </div>
+                )
+          }
+        </div>
         )}
       </div>
       <Sidebar />

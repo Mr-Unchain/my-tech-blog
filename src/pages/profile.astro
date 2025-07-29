@@ -23,14 +23,16 @@ const skills = parseSkills(profile.skills);
 ---
 
 <BaseLayout
-  pageTitle={profile.name}
-  pageDescription={`${profile.name}のプロフィールページです。`}
+  pageTitle={`${profile.name}のプロフィール`}
+  pageDescription={`${profile.name}のプロフィールページです。経歴、スキル、お問い合わせ情報をご覧いただけます。`}
+  keywords={`${profile.name}, プロフィール, 開発者, エンジニア, ${skills.slice(0, 3).join(", ")}`}
+  author={profile.name}
 >
   <main class="min-h-screen bg-slate-900">
     <div class="container mx-auto px-4 py-12 md:py-16">
-      <div
+    <div
         class="max-w-4xl mx-auto bg-gradient-to-b from-slate-800/90 to-slate-800/95 p-8 md:p-12 rounded-xl border border-slate-700/50 shadow-xl backdrop-blur-sm relative overflow-hidden"
-      >
+    >
         <!-- Background tech pattern -->
         <div class="absolute inset-0 bg-tech-grid bg-tech-grid opacity-5 pointer-events-none"></div>
         
@@ -106,7 +108,7 @@ const skills = parseSkills(profile.skills);
                 自己紹介
                 <div class="absolute -bottom-0.5 left-0 w-16 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div>
               </h2>
-                              <div
+              <div
                 class="prose prose-lg max-w-none text-slate-200 prose-p:leading-relaxed prose-headings:text-slate-100 prose-strong:text-slate-100 prose-a:text-cyan-400 prose-a:hover:text-cyan-300"
               >
                 <Fragment set:html={profile.portfolio_intro || profile.portfolio_introduction} />

@@ -170,13 +170,24 @@
       document.body.style.overflow = "";
     }
   }
-
-  // ページ読み込み後に即座に実行
-  document.addEventListener("DOMContentLoaded", function() {
+  
+  // View Transitionsに対応したイベントリスナー設定
+  function initializeMobileMenu() {
     const mobileMenuButton = document.getElementById("mobile-menu-button");
     const mobileMenuClose = document.getElementById("mobile-menu-close");
     const mobileMenu = document.getElementById("mobile-menu");
     const overlay = document.getElementById("mobile-menu-overlay");
+    
+    // 既存のイベントリスナーをクリア（重複を防ぐため）
+    if (mobileMenuButton) {
+      mobileMenuButton.onclick = null;
+    }
+    if (mobileMenuClose) {
+      mobileMenuClose.onclick = null;
+    }
+    if (overlay) {
+      overlay.onclick = null;
+    }
     
     // ハンバーガーボタンクリック
     if (mobileMenuButton) {
@@ -212,12 +223,19 @@
         };
       });
     }
-    
-    // ESCキーで閉じる
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "Escape") {
-        closeMobileMenu();
-      }
-    });
-  });
+  }
+  
+  // ESCキーで閉じる（グローバルイベント）
+  function handleEscapeKey(e) {
+    if (e.key === "Escape") {
+      closeMobileMenu();
+    }
+  }
+  
+  // 初回ページ読み込み時とView Transitionsでのページ遷移時に実行
+  document.addEventListener("DOMContentLoaded", initializeMobileMenu);
+  document.addEventListener("astro:page-load", initializeMobileMenu);
+  
+  // ESCキーイベントは一度だけ設定
+  document.addEventListener("keydown", handleEscapeKey);
 </script>

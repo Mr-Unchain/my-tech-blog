@@ -23,12 +23,7 @@ const {
   class: className,
 } = Astro.props;
 
-// 配列で受け取るように変換
-const categories = Array.isArray(category) ? category : [category];
-
-const MAX_CATEGORIES_TO_SHOW = 2;
-const displayedCategories = categories.slice(0, MAX_CATEGORIES_TO_SHOW);
-const hiddenCategoriesCount = categories.length - displayedCategories.length;
+// カテゴリ表示は廃止（noteのようなシンプルデザイン）
 ---
 
 <a href={`/blog/${id}/`} class:list={["article-card group", className]}>
@@ -51,16 +46,6 @@ const hiddenCategoriesCount = categories.length - displayedCategories.length;
     />
   </div>
   <div class="article-card__content">
-    <div class="article-card__categories">
-      {displayedCategories.map((cat) => (
-        <span class="article-card__category-badge">{cat}</span>
-      ))}
-      {hiddenCategoriesCount > 0 && (
-        <span class="article-card__category-badge article-card__category-extra">
-          +{hiddenCategoriesCount}
-        </span>
-      )}
-    </div>
     <h3 class="article-card__title">{title}</h3>
     <p class="article-card__description">{description}</p>
     <time class="article-card__date">{date}</time>

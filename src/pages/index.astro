@@ -53,7 +53,52 @@ const { contents: pagedPosts, totalCount } = await getBlogs({
 const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
 ---
 
-<BaseLayout>
+<BaseLayout
+  pageTitle="技術ブログ - 最新の記事"
+  pageDescription="Monologgerは、テクノロジー、ガジェット、開発に関する最新情報を発信する技術ブログです。プログラミング、Web開発、最新技術トレンドなどの記事をお届けします。"
+  keywords="テクノロジー, ガジェット, 開発, プログラミング, Web開発, JavaScript, React, Astro, 技術ブログ"
+>
+  <!-- ホームページ用の構造化データ -->
+  <script slot="head" type="application/ld+json">
+    {
+      JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "Monologger",
+        "description": "テクノロジー、ガジェット、開発に関する技術ブログ",
+        "url": Astro.site,
+        "author": {
+          "@type": "Person",
+          "name": "Monologger",
+          "url": new URL("/profile", Astro.site).href
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Monologger",
+          "logo": {
+            "@type": "ImageObject",
+            "url": new URL("/logo.svg", Astro.site).href
+          }
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": Astro.site
+        },
+        "blogPost": pagedPosts.slice(0, 10).map(post => ({
+          "@type": "BlogPosting",
+          "headline": post.title,
+          "description": post.description,
+          "url": new URL(`/blog/${post.id}`, Astro.site).href,
+          "datePublished": post.publishedAt,
+          "author": {
+            "@type": "Person", 
+            "name": "Monologger"
+          },
+          "image": post.eyecatch?.url || new URL("/placeholder.svg", Astro.site).href
+        }))
+      })
+    }
+  </script>
   <main class="min-h-screen bg-slate-900">
     {/* ★★★ ヒーローセクションをスライドショーに置き換え（React Island） ★★★ */}
     {
@@ -234,16 +279,16 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
       container.style.transform = "translateY(10px)";
       
       setTimeout(() => {
-        if (view === "list") {
-          container.classList.remove("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
-          container.classList.add("flex", "flex-col", "gap-6");
-          cards.forEach((card) => card.classList.add("list-view"));
-        } else {
-          // grid
-          container.classList.remove("flex", "flex-col", "gap-6");
-          container.classList.add("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
-          cards.forEach((card) => card.classList.remove("list-view"));
-        }
+      if (view === "list") {
+        container.classList.remove("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
+        container.classList.add("flex", "flex-col", "gap-6");
+        cards.forEach((card) => card.classList.add("list-view"));
+      } else {
+        // grid
+        container.classList.remove("flex", "flex-col", "gap-6");
+        container.classList.add("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
+        cards.forEach((card) => card.classList.remove("list-view"));
+      }
 
         // フェードインアニメーション
         requestAnimationFrame(() => {
