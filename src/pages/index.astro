@@ -160,6 +160,7 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
             <div
               id="article-list-container"
               class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8"
+              style="transition: all 0.3s ease;"
             >
               {
                 pagedPosts.map((post: Blog) => (
@@ -280,14 +281,23 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
       
       setTimeout(() => {
       if (view === "list") {
+        // リストビュー：縦一列配置で各カードは横長レイアウト
         container.classList.remove("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
-        container.classList.add("flex", "flex-col", "gap-6");
-        cards.forEach((card) => card.classList.add("list-view"));
+        container.classList.add("flex", "flex-col", "gap-4", "md:gap-6");
+        cards.forEach((card) => {
+          card.classList.add("list-view");
+          // 確実にリストビュースタイルを適用
+          (card as HTMLElement).style.width = "100%";
+        });
       } else {
-        // grid
-        container.classList.remove("flex", "flex-col", "gap-6");
+        // グリッドビュー：複数列配置
+        container.classList.remove("flex", "flex-col", "gap-4", "md:gap-6");
         container.classList.add("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
-        cards.forEach((card) => card.classList.remove("list-view"));
+        cards.forEach((card) => {
+          card.classList.remove("list-view");
+          // グリッドビュー用のスタイルをリセット
+          (card as HTMLElement).style.width = "";
+        });
       }
 
         // フェードインアニメーション
