@@ -1,0 +1,98 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background gradient -->
+    <defs>
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#1e293b;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#334155;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+        </linearGradient>
+        <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.3" />
+        </linearGradient>
+    </defs>
+
+    <!-- Background -->
+    <rect width="1200" height="630" fill="url(#bgGradient)" />
+
+    <!-- Tech pattern background -->
+    <g opacity="0.1">
+        <circle cx="150" cy="100" r="2" fill="#06b6d4" />
+        <circle cx="300" cy="150" r="1.5" fill="#3b82f6" />
+        <circle cx="450" cy="80" r="2" fill="#8b5cf6" />
+        <circle cx="600" cy="200" r="1" fill="#06b6d4" />
+        <circle cx="750" cy="120" r="1.5" fill="#3b82f6" />
+        <circle cx="900" cy="180" r="2" fill="#8b5cf6" />
+        <circle cx="1050" cy="90" r="1" fill="#06b6d4" />
+
+        <circle cx="100" cy="450" r="1.5" fill="#06b6d4" />
+        <circle cx="250" cy="500" r="2" fill="#3b82f6" />
+        <circle cx="400" cy="480" r="1" fill="#8b5cf6" />
+        <circle cx="550" cy="520" r="1.5" fill="#06b6d4" />
+        <circle cx="700" cy="460" r="2" fill="#3b82f6" />
+        <circle cx="850" cy="510" r="1" fill="#8b5cf6" />
+        <circle cx="1000" cy="470" r="1.5" fill="#06b6d4" />
+        <circle cx="1150" cy="490" r="2" fill="#3b82f6" />
+
+        <!-- Connecting lines -->
+        <line x1="150" y1="100" x2="300" y2="150" stroke="#06b6d4" stroke-width="0.5" />
+        <line x1="300" y1="150" x2="450" y2="80" stroke="#3b82f6" stroke-width="0.5" />
+        <line x1="600" y1="200" x2="750" y2="120" stroke="#06b6d4" stroke-width="0.5" />
+        <line x1="750" y1="120" x2="900" y2="180" stroke="#3b82f6" stroke-width="0.5" />
+    </g>
+
+    <!-- Main content container -->
+    <rect x="100" y="150" width="1000" height="330" rx="20" fill="rgba(30, 41, 59, 0.8)" stroke="rgba(71, 85, 105, 0.5)"
+        stroke-width="1" />
+
+    <!-- Logo/Icon area -->
+    <rect x="150" y="200" width="80" height="80" rx="12" fill="url(#accentGradient)" />
+    <rect x="160" y="210" width="60" height="60" rx="8" fill="none" stroke="url(#titleGradient)" stroke-width="2" />
+    <text x="190" y="250" text-anchor="middle" fill="url(#titleGradient)" font-family="Arial, sans-serif" font-size="24"
+        font-weight="bold">M</text>
+
+    <!-- Main title -->
+    <text x="280" y="240" fill="url(#titleGradient)" font-family="Arial, sans-serif" font-size="48"
+        font-weight="900">Monologger</text>
+
+    <!-- Subtitle -->
+    <text x="280" y="280" fill="#e2e8f0" font-family="Arial, sans-serif" font-size="24" font-weight="500">技術ブログ</text>
+
+    <!-- Description -->
+    <text x="280" y="320" fill="#94a3b8" font-family="Arial, sans-serif" font-size="18">テクノロジー、ガジェット、開発に関する情報を発信</text>
+
+    <!-- Tech keywords -->
+    <g transform="translate(280, 350)">
+        <rect x="0" y="0" width="90" height="30" rx="15" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4"
+            stroke-width="1" />
+        <text x="45" y="20" text-anchor="middle" fill="#06b6d4" font-family="Arial, sans-serif" font-size="12"
+            font-weight="500">JavaScript</text>
+
+        <rect x="100" y="0" width="70" height="30" rx="15" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6"
+            stroke-width="1" />
+        <text x="135" y="20" text-anchor="middle" fill="#3b82f6" font-family="Arial, sans-serif" font-size="12"
+            font-weight="500">React</text>
+
+        <rect x="180" y="0" width="60" height="30" rx="15" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6"
+            stroke-width="1" />
+        <text x="210" y="20" text-anchor="middle" fill="#8b5cf6" font-family="Arial, sans-serif" font-size="12"
+            font-weight="500">Astro</text>
+
+        <rect x="250" y="0" width="80" height="30" rx="15" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4"
+            stroke-width="1" />
+        <text x="290" y="20" text-anchor="middle" fill="#06b6d4" font-family="Arial, sans-serif" font-size="12"
+            font-weight="500">Web開発</text>
+    </g>
+
+    <!-- Bottom accent line -->
+    <rect x="100" y="500" width="1000" height="4" rx="2" fill="url(#titleGradient)" />
+
+    <!-- URL -->
+    <text x="600" y="550" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif"
+        font-size="16">my-tech-blog.vercel.app</text>
+</svg>

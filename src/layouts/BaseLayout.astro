@@ -32,7 +32,7 @@ const {
 const siteTitle = "Monologger";
 const title = pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle;
 const ogpImageUrl =
-  ogImageUrl || new URL("default-og-image.png", Astro.site).href;
+  ogImageUrl || new URL("default-og-image.svg", Astro.site).href;
 
 // カノニカルURLの生成
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
