@@ -69,4 +69,10 @@ const disqusShortname = "shu-zhai-notetsukugia";
 
   // Astroのページ読み込みイベントに処理を一本化
   document.addEventListener("astro:page-load", createGiscus);
+  
+  // Swupのページ遷移にも対応
+  document.addEventListener("swup:contentReplaced", createGiscus);
+  
+  // 初回ページ読み込み時にも対応
+  document.addEventListener("DOMContentLoaded", createGiscus);
 </script>
