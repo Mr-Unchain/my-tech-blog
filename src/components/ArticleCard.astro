@@ -23,12 +23,7 @@ const {
   class: className,
 } = Astro.props;
 
-// 配列で受け取るように変換
-const categories = Array.isArray(category) ? category : [category];
-
-const MAX_CATEGORIES_TO_SHOW = 3;
-const displayedCategories = categories.slice(0, MAX_CATEGORIES_TO_SHOW);
-const hiddenCategoriesCount = categories.length - displayedCategories.length;
+// カテゴリ表示は廃止（noteのようなシンプルデザイン）
 ---
 
 <a href={`/blog/${id}/`} class:list={["article-card group", className]}>
@@ -38,6 +33,7 @@ const hiddenCategoriesCount = categories.length - displayedCategories.length;
       width={400}
       height={225}
       alt={`「${title}」の記事の画像`}
+      loading="lazy"
       class="article-card__image article-card__image--grid"
     />
     <Image
@@ -45,22 +41,14 @@ const hiddenCategoriesCount = categories.length - displayedCategories.length;
       width={256}
       height={144}
       alt={`「${title}」の記事の画像`}
+      loading="lazy"
       class="article-card__image article-card__image--list"
     />
   </div>
   <div class="article-card__content">
-    <div class="article-card__categories">
-      {displayedCategories.map((cat) => (
-        <span class="article-card__category-badge">{cat}</span>
-      ))}
-      {hiddenCategoriesCount > 0 && (
-        <span class="article-card__category-extra">
-          +{hiddenCategoriesCount}
-        </span>
-      )}
-    </div>
     <h3 class="article-card__title">{title}</h3>
-    <p class="article-card__description">{description}</p>
+    <!-- Description is hidden as per user request -->
+    <!-- <p class="article-card__description">{description}</p> -->
     <time class="article-card__date">{date}</time>
   </div>
 </a>

@@ -1,15 +1,14 @@
 // astro.config.mjs
-import node from "@astrojs/node";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwind from "@astrojs/tailwind";
+import vercel from "@astrojs/vercel"; // vercelをインポート
 import { defineConfig } from "astro/config";
 
-// https://astro.build/config
 export default defineConfig({
-  site: "https://my-tech-blog.vercel.app",
-  output: "server",
-  adapter: node({ mode: "standalone" }),
+  site: "https://my-tech-blog.vercel.app", // 本番ドメイン
+  output: "server", // outputは"server"のまま
+  adapter: vercel(), // adapterをvercel()に変更
   integrations: [tailwind(), sitemap(), react()],
   image: {
     domains: ["images.microcms-assets.io"],

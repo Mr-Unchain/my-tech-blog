@@ -7,17 +7,24 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
 
 <BaseLayout
   pageTitle="お問い合わせ"
-  pageDescription="ご意見、ご感想、お仕事のご依頼などはこちらからお願いいたします。"
+  pageDescription="ご意見、ご感想、お仕事のご依頼などはこちらからお願いいたします。お気軽にご連絡ください。"
+  keywords="お問い合わせ, 連絡, 仕事依頼, フィードバック, コンタクト"
 >
-  <main class="container mx-auto px-4 py-12 md:py-20">
+  <main class="min-h-screen bg-slate-900">
+    <div class="container mx-auto px-4 py-12 md:py-20">
     <div
-      class="max-w-xl mx-auto bg-white p-8 md:p-12 rounded-xl border border-gray-200 shadow-md"
+        class="max-w-xl mx-auto bg-gradient-to-b from-slate-800/90 to-slate-800/95 p-8 md:p-12 rounded-xl border border-slate-700/50 shadow-xl backdrop-blur-sm relative overflow-hidden"
     >
+        <!-- Background tech pattern -->
+        <div class="absolute inset-0 bg-tech-grid bg-tech-grid opacity-5 pointer-events-none"></div>
+        
+        <!-- Content wrapper with z-index -->
+        <div class="relative z-10">
       <header class="text-center mb-10">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-2 tracking-tight">
+        <h1 class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent mb-2 tracking-tight">
           お問い合わせ
         </h1>
-        <p class="mt-2 text-slate-500 text-base md:text-lg">
+        <p class="mt-2 text-slate-300 text-base md:text-lg leading-relaxed">
           ご意見、ご感想、記事内容に関するご質問など、お気軽にご連絡ください。
         </p>
       </header>
@@ -25,7 +32,7 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
       <form action={formspreeEndpoint} method="POST" class="space-y-7">
         <!-- 名前 -->
         <div>
-          <label for="name" class="block text-base font-bold text-slate-700 mb-2 tracking-wide">
+          <label for="name" class="block text-base font-semibold text-slate-200 mb-2 tracking-wide">
             お名前
           </label>
           <input
@@ -33,13 +40,13 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
             name="name"
             id="name"
             required
-            class="block w-full bg-slate-50 border border-slate-300 rounded-lg py-3 px-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-custom-button transition-all shadow-sm"
+            class="block w-full bg-slate-700/60 border border-slate-600/50 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400 hover:bg-slate-700/80 transition-all duration-300 shadow-sm backdrop-blur-sm"
             placeholder="山田 太郎"
           />
         </div>
         <!-- メールアドレス -->
         <div>
-          <label for="email" class="block text-base font-bold text-slate-700 mb-2 tracking-wide">
+          <label for="email" class="block text-base font-semibold text-slate-200 mb-2 tracking-wide">
             メールアドレス
           </label>
           <input
@@ -47,13 +54,13 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
             name="email"
             id="email"
             required
-            class="block w-full bg-slate-50 border border-slate-300 rounded-lg py-3 px-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-custom-button transition-all shadow-sm"
+            class="block w-full bg-slate-700/60 border border-slate-600/50 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400 hover:bg-slate-700/80 transition-all duration-300 shadow-sm backdrop-blur-sm"
             placeholder="your.email@example.com"
           />
         </div>
         <!-- 件名 -->
         <div>
-          <label for="subject" class="block text-base font-bold text-slate-700 mb-2 tracking-wide">
+          <label for="subject" class="block text-base font-semibold text-slate-200 mb-2 tracking-wide">
             件名
           </label>
           <input
@@ -61,13 +68,13 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
             name="subject"
             id="subject"
             required
-            class="block w-full bg-slate-50 border border-slate-300 rounded-lg py-3 px-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-custom-button transition-all shadow-sm"
+            class="block w-full bg-slate-700/60 border border-slate-600/50 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400 hover:bg-slate-700/80 transition-all duration-300 shadow-sm backdrop-blur-sm"
             placeholder="お仕事のご依頼について"
           />
         </div>
         <!-- お問い合わせ内容 -->
         <div>
-          <label for="message" class="block text-base font-bold text-slate-700 mb-2 tracking-wide">
+          <label for="message" class="block text-base font-semibold text-slate-200 mb-2 tracking-wide">
             お問い合わせ内容
           </label>
           <textarea
@@ -75,7 +82,7 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
             id="message"
             rows="6"
             required
-            class="block w-full bg-slate-50 border border-slate-300 rounded-lg py-3 px-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-custom-button transition-all shadow-sm"
+            class="block w-full bg-slate-700/60 border border-slate-600/50 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400 hover:bg-slate-700/80 transition-all duration-300 shadow-sm backdrop-blur-sm resize-none"
             placeholder="こちらに内容をご記入ください。"
           ></textarea>
         </div>
@@ -83,10 +90,10 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
           <button
             type="submit"
             id="submit-button"
-            class="inline-flex items-center justify-center py-3 px-10 border-none shadow-lg text-lg font-bold rounded-full text-black bg-custom-button hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 focus:ring-offset-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="inline-flex items-center justify-center py-3 px-10 border-none shadow-lg text-lg font-bold rounded-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 hover:shadow-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-400 focus:ring-offset-slate-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
           >
             <span id="button-text">送信する</span>
-            <svg id="button-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-black hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg id="button-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -94,6 +101,8 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
         </div>
       </form>
       <div id="form-feedback" class="mt-8 text-center text-base hidden"></div>
+        </div>
+      </div>
     </div>
   </main>
 </BaseLayout>
@@ -128,18 +137,18 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
         // 成功した場合
         form.reset();
         formFeedback.textContent = "ありがとうございます！メッセージは正常に送信されました。";
-        formFeedback.className = "mt-8 text-center text-base text-green-600";
+        formFeedback.className = "mt-8 text-center text-base text-emerald-400 font-medium";
       } else {
         // Formspree側でのバリデーションエラーなど
         const errorData = await response.json();
         const errorMessage = errorData.errors?.map((err) => err.message).join(", ") || "フォームの送信に失敗しました。";
         formFeedback.textContent = `エラー: ${errorMessage}`;
-        formFeedback.className = "mt-8 text-center text-base text-red-600";
+        formFeedback.className = "mt-8 text-center text-base text-red-400 font-medium";
       }
     } catch (error) {
       // ネットワークエラーなど
       formFeedback.textContent = "エラー: ネットワーク接続に問題がある可能性があります。";
-      formFeedback.className = "mt-8 text-center text-base text-red-600";
+      formFeedback.className = "mt-8 text-center text-base text-red-400 font-medium";
     } finally {
       // ボタンの状態を元に戻す
       submitButton.disabled = false;

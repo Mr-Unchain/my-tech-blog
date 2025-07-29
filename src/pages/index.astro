@@ -44,7 +44,6 @@ const pageParam = Astro.url.searchParams.get("page");
 const currentPage = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
 const offset = (currentPage - 1) * PAGE_SIZE;
 
-
 // ★★★ 本番用：通常のページネーション・記事取得ロジックに戻す ★★★
 const { contents: pagedPosts, totalCount } = await getBlogs({
   orders: "-publishedAt",
@@ -54,132 +53,187 @@ const { contents: pagedPosts, totalCount } = await getBlogs({
 const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
 ---
 
-<BaseLayout>
-  <main class="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
+<BaseLayout
+  pageTitle="技術ブログ - 最新の記事"
+  pageDescription="Monologgerは、テクノロジー、ガジェット、開発に関する最新情報を発信する技術ブログです。プログラミング、Web開発、最新技術トレンドなどの記事をお届けします。"
+  keywords="テクノロジー, ガジェット, 開発, プログラミング, Web開発, JavaScript, React, Astro, 技術ブログ"
+>
+  <!-- ホームページ用の構造化データ -->
+  <script slot="head" type="application/ld+json">
+    {
+      JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "Monologger",
+        "description": "テクノロジー、ガジェット、開発に関する技術ブログ",
+        "url": Astro.site,
+        "author": {
+          "@type": "Person",
+          "name": "Monologger",
+          "url": new URL("/profile", Astro.site).href
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Monologger",
+          "logo": {
+            "@type": "ImageObject",
+            "url": new URL("/logo.svg", Astro.site).href
+          }
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": Astro.site
+        },
+        "blogPost": pagedPosts.slice(0, 10).map(post => ({
+          "@type": "BlogPosting",
+          "headline": post.title,
+          "description": post.description,
+          "url": new URL(`/blog/${post.id}`, Astro.site).href,
+          "datePublished": post.publishedAt,
+          "author": {
+            "@type": "Person", 
+            "name": "Monologger"
+          },
+          "image": post.eyecatch?.url || new URL("/placeholder.svg", Astro.site).href
+        }))
+      })
+    }
+  </script>
+  <main class="min-h-screen bg-slate-900">
     {/* ★★★ ヒーローセクションをスライドショーに置き換え（React Island） ★★★ */}
     {
       heroPosts.length > 0 && (
-        <HeroSlideshowReact client:load posts={heroPosts} />
+        <div class="mb-8 md:mb-12">
+          <HeroSlideshowReact client:load posts={heroPosts} />
+        </div>
       )
     }
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-      <div class="lg:col-span-2">
-        <!-- New Articles -->
-        <section>
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-custom-heading">新着記事</h2>
-            <div class="flex space-x-2">
-              <button
-                id="view-grid"
-                title="グリッド表示"
-                class="p-2 rounded-md bg-slate-200 text-slate-800"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
+    <div class="container mx-auto px-6 py-8 md:py-12 max-w-7xl">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
+        <div class="lg:col-span-3">
+          <!-- New Articles -->
+          <section>
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-12 gap-6">
+              <div class="flex items-center space-x-4">
+                <div class="w-1.5 h-10 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-400/30"></div>
+                <h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent">Latest Articles</h2>
+              </div>
+              <div class="flex space-x-3">
+                <button
+                  id="view-grid"
+                  title="グリッド表示"
+                  aria-label="記事をグリッド形式で表示"
+                  class="p-4 rounded-xl bg-slate-800/80 text-cyan-400 border border-slate-700/50 shadow-lg hover:bg-slate-700 hover:border-cyan-400 hover:shadow-cyan-400/20 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all duration-300 backdrop-blur-sm"
                 >
-                  <path
-                    d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z"
-                  ></path>
-                </svg>
-              </button>
-              <button
-                id="view-list"
-                title="リスト表示"
-                class="p-2 rounded-md bg-white text-slate-400"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z"
+                    ></path>
+                  </svg>
+                </button>
+                <button
+                  id="view-list"
+                  title="リスト表示"
+                  aria-label="記事をリスト形式で表示"
+                  class="p-4 rounded-xl bg-slate-800/80 text-slate-400 border border-slate-700/50 shadow-lg hover:bg-slate-700 hover:text-cyan-400 hover:border-cyan-400 hover:shadow-cyan-400/20 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all duration-300 backdrop-blur-sm"
                 >
-                  <path
-                    fill-rule="evenodd"
-                    d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clip-rule="evenodd"></path>
-                </svg>
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                      clip-rule="evenodd"></path>
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
-          <div
-            id="article-list-container"
-            class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch"
-          >
-            {
-              pagedPosts.map((post: Blog) => (
-                <ArticleCard
-                  class="article-card"
-                  id={post.id}
-                  category={post.category}
-                  title={post.title}
-                  description={post.description}
-                  date={
-                    post.publishedAt
-                      ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
-                      : ""
-                  }
-                  imageUrl={
-                    post.eyecatch?.url
-                      ? post.eyecatch.url + "?w=400&h=225&fit=crop"
-                      : "/placeholder.svg"
-                  }
-                  imageUrlList={
-                    post.eyecatch?.url
-                      ? post.eyecatch.url + "?w=320&h=180&fit=crop"
-                      : "/placeholder.svg"
-                  }
-                />
-              ))
-            }
-          </div>
-          {/* ページネーション */}
-          {totalPages > 1 && (
-            <div class="mt-12 flex justify-center">
-              <nav class="flex items-center space-x-2">
-                {/* 前へ */}
-                <a
-                  href={`?page=${currentPage - 1}`}
-                  class={`flex items-center justify-center h-10 w-10 bg-white border border-slate-200 rounded-full transition-colors ${currentPage === 1 ? 'text-slate-300 pointer-events-none' : 'text-slate-400 hover:bg-slate-100 hover:text-custom-heading'}`}
-                  aria-label="前のページへ"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                </a>
-                {/* ページ番号 */}
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) =>
-                  page === currentPage ? (
-                    <span
-                      aria-current="page"
-                      class="flex items-center justify-center h-10 w-10 bg-custom-heading border border-custom-heading text-white font-bold rounded-full z-10"
-                    >
-                      {page}
-                    </span>
-                  ) : (
-                    <a
-                      href={`?page=${page}`}
-                      class="flex items-center justify-center h-10 w-10 bg-white border border-slate-200 text-slate-500 rounded-full hover:bg-slate-100 hover:text-custom-heading transition-colors"
-                    >
-                      {page}
-                    </a>
-                  )
-                )}
-                {/* 次へ */}
-                <a
-                  href={`?page=${currentPage + 1}`}
-                  class={`flex items-center justify-center h-10 w-10 bg-white border border-slate-200 rounded-full transition-colors ${currentPage === totalPages ? 'text-slate-300 pointer-events-none' : 'text-slate-400 hover:bg-slate-100 hover:text-custom-heading'}`}
-                  aria-label="次のページへ"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                </a>
-              </nav>
+            <div
+              id="article-list-container"
+              class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8"
+              style="transition: all 0.3s ease;"
+            >
+              {
+                pagedPosts.map((post: Blog) => (
+                  <ArticleCard
+                    class="article-card"
+                    id={post.id}
+                    category={post.category}
+                    title={post.title}
+                    description={post.description}
+                    date={
+                      post.publishedAt
+                        ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
+                        : ""
+                    }
+                    imageUrl={
+                      post.eyecatch?.url
+                        ? post.eyecatch.url + "?w=400&h=225&fit=crop"
+                        : "/placeholder.svg"
+                    }
+                    imageUrlList={
+                      post.eyecatch?.url
+                        ? post.eyecatch.url + "?w=320&h=180&fit=crop"
+                        : "/placeholder.svg"
+                    }
+                  />
+                ))
+              }
             </div>
-          )}
-        </section>
+            {/* ページネーション */}
+            {totalPages > 1 && (
+              <div class="mt-12 md:mt-16 flex justify-center">
+                <nav class="flex items-center space-x-3">
+                  {/* 前へ */}
+                  <a
+                    href={`?page=${currentPage - 1}`}
+                    class={`flex items-center justify-center h-12 w-12 bg-slate-800 border border-slate-700 rounded-xl shadow-lg transition-all duration-300 ${currentPage === 1 ? 'text-slate-600 pointer-events-none' : 'text-slate-300 hover:bg-slate-700 hover:text-cyan-400 hover:border-cyan-400'}`}
+                    aria-label="前のページへ"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                  </a>
+                  {/* ページ番号 */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) =>
+                    page === currentPage ? (
+                      <span
+                        aria-current="page"
+                        class="flex items-center justify-center h-12 w-12 bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-400 text-white font-bold rounded-xl shadow-lg z-10"
+                      >
+                        {page}
+                      </span>
+                    ) : (
+                      <a
+                        href={`?page=${page}`}
+                        class="flex items-center justify-center h-12 w-12 bg-slate-800 border border-slate-700 text-slate-300 rounded-xl shadow-lg hover:bg-slate-700 hover:text-cyan-400 hover:border-cyan-400 transition-all duration-300"
+                      >
+                        {page}
+                      </a>
+                    )
+                  )}
+                  {/* 次へ */}
+                  <a
+                    href={`?page=${currentPage + 1}`}
+                    class={`flex items-center justify-center h-12 w-12 bg-slate-800 border border-slate-700 rounded-xl shadow-lg transition-all duration-300 ${currentPage === totalPages ? 'text-slate-600 pointer-events-none' : 'text-slate-300 hover:bg-slate-700 hover:text-cyan-400 hover:border-cyan-400'}`}
+                    aria-label="次のページへ"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                  </a>
+                </nav>
+              </div>
+            )}
+          </section>
+        </div>
+        <Sidebar />
       </div>
-      <Sidebar />
     </div>
   </main>
 </BaseLayout>
@@ -192,31 +246,66 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
 
     const updateButtonStyles = (view: "grid" | "list") => {
       const isGrid = view === "grid";
-      gridButton?.classList.toggle("bg-slate-200", isGrid);
-      gridButton?.classList.toggle("text-slate-800", isGrid);
-      gridButton?.classList.toggle("bg-white", !isGrid);
-      gridButton?.classList.toggle("text-slate-400", !isGrid);
+      
+      // Grid button styles
+      if (isGrid) {
+        gridButton?.classList.remove("text-slate-400");
+        gridButton?.classList.add("text-cyan-400", "border-cyan-400", "bg-slate-700");
+      } else {
+        gridButton?.classList.remove("text-cyan-400", "border-cyan-400", "bg-slate-700");
+        gridButton?.classList.add("text-slate-400");
+      }
 
-      listButton?.classList.toggle("bg-slate-200", !isGrid);
-      listButton?.classList.toggle("text-slate-800", !isGrid);
-      listButton?.classList.toggle("bg-white", isGrid);
-      listButton?.classList.toggle("text-slate-400", isGrid);
+      // List button styles
+      if (!isGrid) {
+        listButton?.classList.remove("text-slate-400");
+        listButton?.classList.add("text-cyan-400", "border-cyan-400", "bg-slate-700");
+      } else {
+        listButton?.classList.remove("text-cyan-400", "border-cyan-400", "bg-slate-700");
+        listButton?.classList.add("text-slate-400");
+      }
     };
 
     const setView = (view: "grid" | "list") => {
       if (!container) return;
       const cards = container?.querySelectorAll(".article-card");
 
+      // 既存のアニメーションクラスをリセット
+      cards.forEach((card) => {
+        card.classList.remove("animate-fade-in", "animate-fade-out");
+      });
+
+      // フェードアウトアニメーション
+      container.style.opacity = "0.7";
+      container.style.transform = "translateY(10px)";
+      
+      setTimeout(() => {
       if (view === "list") {
-        container.classList.remove("grid", "md:grid-cols-2", "gap-8");
-        container.classList.add("flex", "flex-col", "gap-4");
-        cards.forEach((card) => card.classList.add("list-view"));
+        // リストビュー：縦一列配置で各カードは横長レイアウト
+        container.classList.remove("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
+        container.classList.add("flex", "flex-col", "gap-4", "md:gap-6");
+        cards.forEach((card) => {
+          card.classList.add("list-view");
+          // 確実にリストビュースタイルを適用
+          (card as HTMLElement).style.width = "100%";
+        });
       } else {
-        // grid
-        container.classList.remove("flex", "flex-col", "gap-4");
-        container.classList.add("grid", "md:grid-cols-2", "gap-8");
-        cards.forEach((card) => card.classList.remove("list-view"));
+        // グリッドビュー：複数列配置
+        container.classList.remove("flex", "flex-col", "gap-4", "md:gap-6");
+        container.classList.add("grid", "md:grid-cols-2", "xl:grid-cols-3", "gap-6", "md:gap-8");
+        cards.forEach((card) => {
+          card.classList.remove("list-view");
+          // グリッドビュー用のスタイルをリセット
+          (card as HTMLElement).style.width = "";
+        });
       }
+
+        // フェードインアニメーション
+        requestAnimationFrame(() => {
+          container.style.opacity = "1";
+          container.style.transform = "translateY(0)";
+        });
+      }, 150);
 
       updateButtonStyles(view);
       localStorage.setItem("article_view_mode", view);
