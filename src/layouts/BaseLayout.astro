@@ -126,6 +126,14 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
     
     <ViewTransitions />
 
+    <!-- ページ遷移時にスクロール位置をトップに戻すスクリプト -->
+    <script>
+      document.addEventListener('astro:page-load', () => {
+        // ページ遷移完了後にスクロールを上に戻す
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    </script>
+
     <!-- スタイルは src/styles/main.scss に集約 -->
   </head>
   <body class="flex flex-col min-h-screen bg-slate-900">

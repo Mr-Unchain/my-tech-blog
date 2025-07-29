@@ -14,9 +14,25 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Firebaseアプリを初期化（既に初期化されていれば既存のものを利用）
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+// Firebase設定の検証
+const hasValidConfig = Object.values(firebaseConfig).every(value => value && value !== 'undefined');
 
-// Firestoreのインスタンスを取得
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+let app: any = null;
+let db: any = null;
+let auth: any = null;
+
+// 有効な設定がある場合のみFirebaseを初期化
+if (hasValidConfig) {
+  try {
+    // Firebaseアプリを初期化（既に初期化されていれば既存のものを利用）
+    app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+    
+    // Firestoreのインスタンスを取得
+    db = getFirestore(app);
+    auth = getAuth(app);
+  } catch (error) {
+    console.warn('Firebase initialization failed:', error);
+  }
+}
+
+export { db, auth };
