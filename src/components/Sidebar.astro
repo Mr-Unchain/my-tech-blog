@@ -4,6 +4,13 @@ import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { getBlogs, getProfile, type Blog } from "../lib/microcms";
 
+// プロパティの型定義
+interface Props {
+  hideCategories?: boolean; // カテゴリセクションを非表示にするオプション
+}
+
+const { hideCategories = false } = Astro.props;
+
 // プロフィール情報を取得
 const profile = await getProfile();
 
@@ -28,26 +35,31 @@ if (popularPostIds.length > 0) {
     .filter((post): post is Blog => !!post);
 }
 
-// ★★★ カテゴリーの取得と記事数のカウントロジックを追加 ★★★
-const { contents: postsForCategories } = await getBlogs({
-  fields: "id,category",
-});
-const allCategories: string[] = postsForCategories.flatMap(
-  (post: { category: string | string[] }) =>
-    Array.isArray(post.category) ? post.category : [post.category]
-);
+// ★★★ カテゴリーの取得と記事数のカウントロジック（条件付き）★★★
+let uniqueCategories: string[] = [];
+let categoryCounts: Record<string, number> = {};
 
-// 各カテゴリーの記事数をカウント
-const categoryCounts: Record<string, number> = allCategories.reduce(
-  (acc: Record<string, number>, category: string) => {
-    acc[category] = (acc[category] || 0) + 1;
-    return acc;
-  },
-  {} as Record<string, number>
-);
+if (!hideCategories) {
+  const { contents: postsForCategories } = await getBlogs({
+    fields: "id,category",
+  });
+  const allCategories: string[] = postsForCategories.flatMap(
+    (post: { category: string | string[] }) =>
+      Array.isArray(post.category) ? post.category : [post.category]
+  );
 
-// 重複を除いたカテゴリ名のリスト
-const uniqueCategories = [...new Set(allCategories)];
+  // 各カテゴリーの記事数をカウント
+  categoryCounts = allCategories.reduce(
+    (acc: Record<string, number>, category: string) => {
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  // 重複を除いたカテゴリ名のリスト
+  uniqueCategories = [...new Set(allCategories)];
+}
 ---
 
 <aside class="space-y-8">
@@ -176,27 +188,29 @@ const uniqueCategories = [...new Set(allCategories)];
     }
   </div>
 
-  {/* ★★★ カテゴリーリストを記事数表示に対応 ★★★ */}
-  <div class="bg-custom-text-bg p-6 rounded-lg shadow">
-    <h3 class="font-bold text-lg mb-4 text-custom-heading">カテゴリ</h3>
-    <ul class="space-y-1">
-      {
-        uniqueCategories.map((category) => (
-          <li>
-            <a
-              href={`/category/${category}/`}
-              class="group flex justify-between items-center p-2 rounded-md hover:bg-slate-100 transition-colors"
-            >
-              <span class="text-slate-700 group-hover:text-blue-500 transition-colors">
-                {category}
-              </span>
-              <span class="text-xs bg-slate-200 text-slate-600 font-medium px-2 py-1 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
-                {categoryCounts[category]}
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+  {/* ★★★ カテゴリーリスト（条件付き表示） ★★★ */}
+  {!hideCategories && (
+    <div class="bg-custom-text-bg p-6 rounded-lg shadow">
+      <h3 class="font-bold text-lg mb-4 text-custom-heading">カテゴリ</h3>
+      <ul class="space-y-1">
+        {
+          uniqueCategories.map((category) => (
+            <li>
+              <a
+                href={`/category/${category}/`}
+                class="group flex justify-between items-center p-2 rounded-md hover:bg-slate-100 transition-colors"
+              >
+                <span class="text-slate-700 group-hover:text-blue-500 transition-colors">
+                  {category}
+                </span>
+                <span class="text-xs bg-slate-200 text-slate-600 font-medium px-2 py-1 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                  {categoryCounts[category]}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  )}
 </aside>
