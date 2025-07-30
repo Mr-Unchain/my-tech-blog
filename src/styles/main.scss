@@ -1356,3 +1356,33 @@ aside {
 html.is-animating .transition-fade {
   opacity: 0;
 }
+
+/* 向き変更時のビューポート高さ対応 */
+:root {
+  --vh: 1vh;
+}
+
+/* モバイルメニューの向き変更対応 */
+#mobile-menu {
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  max-height: 100vh;
+  max-height: calc(var(--vh, 1vh) * 100);
+}
+
+/* 向き変更時のレイアウト安定化 */
+@media screen and (max-width: 767px) {
+  body {
+    /* モバイルでの向き変更時にズームされないよう調整 */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* モバイルでの横スクロール完全防止 */
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    position: relative !important;
+  }
+}
