@@ -1,0 +1,474 @@
+---
+// src/pages/blog/index.astro
+import ArticleCard from "../../components/ArticleCard.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getBlogs, type Blog } from "../../lib/microcms";
+
+// ページネーション設定
+const PAGE_SIZE = 12;
+
+// URL パラメータから設定を取得
+const pageParam = Astro.url.searchParams.get("page");
+const sortParam = Astro.url.searchParams.get("sort") || "-publishedAt";
+const categoryParam = Astro.url.searchParams.get("category");
+const viewParam = Astro.url.searchParams.get("view") || "grid";
+
+const currentPage = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
+const offset = (currentPage - 1) * PAGE_SIZE;
+
+// ソートオプションの定義
+const sortOptions = [
+  { value: "-publishedAt", label: "新しい順" },
+  { value: "publishedAt", label: "古い順" },
+  { value: "title", label: "タイトル昇順" },
+  { value: "-title", label: "タイトル降順" },
+];
+
+// 記事取得のクエリを構築
+let queries: any = {
+  orders: sortParam,
+  limit: PAGE_SIZE,
+  offset: offset,
+};
+
+// カテゴリフィルターがある場合
+if (categoryParam && categoryParam !== "all") {
+  queries.filters = `category[contains]${categoryParam}`;
+}
+
+// 記事一覧とカテゴリ一覧を取得
+const { contents: posts, totalCount } = await getBlogs(queries);
+const { contents: allPosts } = await getBlogs({ limit: 100 });
+
+// カテゴリの集計
+const categoryMap = new Map<string, number>();
+allPosts.forEach((post: Blog) => {
+  if (Array.isArray(post.category)) {
+    post.category.forEach((cat: string) => {
+      categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1);
+    });
+  }
+});
+
+const categories = Array.from(categoryMap.entries()).map(([name, count]) => ({
+  name,
+  count,
+}));
+
+// ページネーション計算
+const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+const hasNextPage = currentPage < totalPages;
+const hasPrevPage = currentPage > 1;
+
+// ページタイトル
+const pageTitle = categoryParam && categoryParam !== "all" 
+  ? `${categoryParam} - ブログ記事一覧` 
+  : "ブログ記事一覧";
+
+// パンくずリストの定義
+const breadcrumbItems = [
+  { name: "ホーム", href: "/" },
+  { name: "ブログ", href: categoryParam && categoryParam !== "all" ? "/blog" : undefined },
+];
+
+if (categoryParam && categoryParam !== "all") {
+  breadcrumbItems.push({ name: categoryParam, href: undefined });
+}
+---
+
+<BaseLayout 
+  pageTitle={pageTitle}
+  pageDescription="Monologgerのブログ記事一覧です。テクノロジー、ガジェット、開発に関する記事を掲載しています。"
+  keywords="ブログ, 記事一覧, テクノロジー, ガジェット, 開発, プログラミング"
+>
+  <div class="min-h-screen bg-slate-900 text-white">
+    <!-- ヒーローセクション -->
+    <section class="relative bg-gradient-to-b from-slate-800 via-slate-900 to-slate-900 py-16 md:py-24">
+      <!-- 背景パターン -->
+      <div class="absolute inset-0 bg-tech-grid opacity-5 pointer-events-none"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/50 to-slate-900"></div>
+      
+      <div class="relative container mx-auto px-6 max-w-7xl text-center">
+        <div class="flex items-center justify-center space-x-3 mb-6">
+          <div class="w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse"></div>
+          <div class="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
+          <div class="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" style="animation-delay: 1s"></div>
+        </div>
+        
+        <h1 class="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mb-6">
+          Blog Articles
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+          テクノロジー、ガジェット、開発に関する記事を掲載しています
+        </p>
+        
+        {categoryParam && categoryParam !== "all" && (
+          <div class="mt-8 inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full border border-cyan-400/30">
+            <span class="text-cyan-300 font-medium">カテゴリ: {categoryParam}</span>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <div class="container mx-auto px-6 max-w-7xl py-12">
+      <!-- パンくずリスト -->
+      <Breadcrumb items={breadcrumbItems} class="mb-8" />
+      
+      <div class="flex flex-col lg:flex-row gap-12">
+        <!-- メインコンテンツ -->
+        <main class="flex-1">
+          <!-- フィルター・ソートバー -->
+          <div class="bg-gradient-to-r from-slate-800/90 to-slate-700/80 backdrop-blur-sm rounded-xl border border-slate-600/30 p-4 md:p-6 mb-8">
+            <!-- モバイル表示 -->
+            <div class="flex md:hidden flex-col space-y-4">
+              <!-- 記事数 -->
+              <div class="text-slate-300 text-center">
+                <span class="text-cyan-400 font-bold text-lg">{totalCount}</span>
+                <span class="ml-1">件の記事</span>
+                {categoryParam && categoryParam !== "all" && (
+                  <span class="ml-2 text-slate-400">（{categoryParam}）</span>
+                )}
+              </div>
+              
+              <!-- コントロール行 -->
+              <div class="flex items-center justify-between space-x-3">
+                <!-- ソート選択（コンパクト） -->
+                <div class="flex items-center space-x-2 flex-1">
+                  <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"></path>
+                  </svg>
+                  <select 
+                    id="sort-select" 
+                    class="bg-slate-700/80 border border-slate-600/50 text-white rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200 flex-1 min-w-0"
+                  >
+                    {sortOptions.map(option => (
+                      <option value={option.value} selected={sortParam === option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <!-- 表示切り替え -->
+                <div class="flex items-center space-x-1 bg-slate-700/50 rounded-lg p-1 flex-shrink-0">
+                  <button 
+                    id="grid-view" 
+                    class={`p-2 rounded-md transition-all duration-200 ${viewParam === 'grid' ? 'bg-cyan-500 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-600/50'}`}
+                    title="グリッド表示"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                  </button>
+                  <button 
+                    id="list-view" 
+                    class={`p-2 rounded-md transition-all duration-200 ${viewParam === 'list' ? 'bg-cyan-500 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-600/50'}`}
+                    title="リスト表示"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- デスクトップ表示 -->
+            <div class="hidden md:flex items-center justify-between">
+              <!-- 記事数表示 -->
+              <div class="flex items-center space-x-4">
+                <div class="text-slate-300">
+                  <span class="text-cyan-400 font-bold text-lg">{totalCount}</span>
+                  <span class="ml-1">件の記事</span>
+                  {categoryParam && categoryParam !== "all" && (
+                    <span class="ml-2 text-slate-400">（{categoryParam}）</span>
+                  )}
+                </div>
+              </div>
+
+              <!-- コントロール -->
+              <div class="flex items-center space-x-6">
+                <!-- ソート選択 -->
+                <div class="flex items-center space-x-3">
+                  <label class="text-slate-300 text-sm font-medium whitespace-nowrap">並び順：</label>
+                  <select 
+                    id="sort-select-desktop" 
+                    class="bg-slate-700/80 border border-slate-600/50 text-white rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all duration-200"
+                  >
+                    {sortOptions.map(option => (
+                      <option value={option.value} selected={sortParam === option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <!-- 表示切り替え -->
+                <div class="flex items-center space-x-2 bg-slate-700/50 rounded-lg p-1">
+                  <button 
+                    id="grid-view-desktop" 
+                    class={`p-2 rounded-md transition-all duration-200 ${viewParam === 'grid' ? 'bg-cyan-500 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-600/50'}`}
+                    title="グリッド表示"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                  </button>
+                  <button 
+                    id="list-view-desktop" 
+                    class={`p-2 rounded-md transition-all duration-200 ${viewParam === 'list' ? 'bg-cyan-500 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-600/50'}`}
+                    title="リスト表示"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 記事一覧 -->
+          {posts.length > 0 ? (
+            <div id="article-list-container">
+              <div 
+                id="articles-grid" 
+                class={viewParam === 'list' ? 'space-y-6' : 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8'}
+              >
+                {posts.map((post: Blog, index: number) => (
+                  <div style={`animation-delay: ${index * 0.1}s`} class="animate-fade-in">
+                    <ArticleCard 
+                      class={viewParam === 'list' ? 'article-card list-view' : 'article-card'}
+                      id={post.id}
+                      category={post.category}
+                      title={post.title}
+                      description={post.description}
+                      date={post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("ja-JP") : ""}
+                      imageUrl={post.eyecatch?.url ? post.eyecatch.url + "?w=400&h=225&fit=crop" : "/placeholder.svg"}
+                      imageUrlList={post.eyecatch?.url ? post.eyecatch.url + "?w=256&h=144&fit=crop" : "/placeholder.svg"}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div class="text-center py-16 bg-gradient-to-b from-slate-800/50 to-slate-700/30 rounded-xl border border-slate-600/30">
+              <div class="text-6xl mb-4">📝</div>
+              <h3 class="text-2xl font-bold text-white mb-2">記事が見つかりません</h3>
+              <p class="text-slate-400 mb-6">指定された条件に該当する記事がありません</p>
+              <a 
+                href="/blog" 
+                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-300 transform hover:scale-105"
+              >
+                すべての記事を見る
+              </a>
+            </div>
+          )}
+
+          <!-- ページネーション -->
+          {totalPages > 1 && (
+            <nav class="mt-12 flex justify-center" aria-label="ページネーション">
+              <div class="flex items-center space-x-2">
+                {hasPrevPage && (
+                  <a 
+                    href={`/blog?page=${currentPage - 1}&sort=${sortParam}&category=${categoryParam || 'all'}&view=${viewParam}`}
+                    class="px-4 py-2 bg-slate-700/80 hover:bg-slate-600/80 text-white rounded-lg border border-slate-600/50 hover:border-slate-500/70 transition-all duration-200 flex items-center space-x-2"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    <span>前へ</span>
+                  </a>
+                )}
+
+                {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
+                  const pageNum = i + 1;
+                  const isActive = pageNum === currentPage;
+                  
+                  return (
+                    <a 
+                      href={`/blog?page=${pageNum}&sort=${sortParam}&category=${categoryParam || 'all'}&view=${viewParam}`}
+                      class={`px-4 py-2 rounded-lg border transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-transparent shadow-lg' 
+                          : 'bg-slate-700/80 hover:bg-slate-600/80 text-white border-slate-600/50 hover:border-slate-500/70'
+                      }`}
+                    >
+                      {pageNum}
+                    </a>
+                  );
+                })}
+
+                {hasNextPage && (
+                  <a 
+                    href={`/blog?page=${currentPage + 1}&sort=${sortParam}&category=${categoryParam || 'all'}&view=${viewParam}`}
+                    class="px-4 py-2 bg-slate-700/80 hover:bg-slate-600/80 text-white rounded-lg border border-slate-600/50 hover:border-slate-500/70 transition-all duration-200 flex items-center space-x-2"
+                  >
+                    <span>次へ</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </nav>
+          )}
+        </main>
+
+        <!-- サイドバー -->
+        <aside class="lg:w-80">
+          <div class="sticky top-24 space-y-8">
+            <Sidebar />
+            
+            <!-- カテゴリフィルター -->
+            <div class="bg-gradient-to-b from-slate-800/90 to-slate-800/95 rounded-xl shadow-xl border border-slate-700/50 backdrop-blur-sm p-6">
+              <h3 class="text-xl font-bold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent mb-6 relative">
+                カテゴリ
+                <span class="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></span>
+              </h3>
+              
+              <div class="space-y-2">
+                <a 
+                  href={`/blog?sort=${sortParam}&view=${viewParam}`}
+                  class={`block p-3 rounded-lg transition-all duration-200 border ${
+                    !categoryParam || categoryParam === 'all'
+                      ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-400/50 text-cyan-300'
+                      : 'border-slate-600/30 text-slate-300 hover:bg-slate-700/40 hover:border-slate-500/50'
+                  }`}
+                >
+                  <div class="flex justify-between items-center">
+                    <span class="font-medium">すべて</span>
+                    <span class="text-sm px-2 py-1 bg-slate-600/50 rounded-full">{totalCount}</span>
+                  </div>
+                </a>
+                
+                {categories.map(category => (
+                  <a 
+                    href={`/blog?category=${category.name}&sort=${sortParam}&view=${viewParam}`}
+                    class={`block p-3 rounded-lg transition-all duration-200 border ${
+                      categoryParam === category.name
+                        ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-400/50 text-cyan-300'
+                        : 'border-slate-600/30 text-slate-300 hover:bg-slate-700/40 hover:border-slate-500/50'
+                    }`}
+                  >
+                    <div class="flex justify-between items-center">
+                      <span class="font-medium">{category.name}</span>
+                      <span class="text-sm px-2 py-1 bg-slate-600/50 rounded-full">{category.count}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // ソート機能（モバイル・デスクトップ両対応）
+  function handleSortChange(e: Event) {
+    const newSort = (e.target as HTMLSelectElement).value;
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('sort', newSort);
+    urlParams.set('page', '1'); // ソート変更時は1ページ目に戻す
+    window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
+  }
+
+  const sortSelectMobile = document.getElementById('sort-select') as HTMLSelectElement;
+  const sortSelectDesktop = document.getElementById('sort-select-desktop') as HTMLSelectElement;
+  
+  if (sortSelectMobile) {
+    sortSelectMobile.addEventListener('change', handleSortChange);
+  }
+  if (sortSelectDesktop) {
+    sortSelectDesktop.addEventListener('change', handleSortChange);
+  }
+
+  // 表示切り替え機能
+  function updateView(viewType: 'grid' | 'list') {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('view', viewType);
+    window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
+  }
+
+  // モバイル用ボタン
+  const gridViewBtnMobile = document.getElementById('grid-view');
+  const listViewBtnMobile = document.getElementById('list-view');
+  
+  // デスクトップ用ボタン
+  const gridViewBtnDesktop = document.getElementById('grid-view-desktop');
+  const listViewBtnDesktop = document.getElementById('list-view-desktop');
+
+  if (gridViewBtnMobile) {
+    gridViewBtnMobile.addEventListener('click', () => updateView('grid'));
+  }
+  if (listViewBtnMobile) {
+    listViewBtnMobile.addEventListener('click', () => updateView('list'));
+  }
+  if (gridViewBtnDesktop) {
+    gridViewBtnDesktop.addEventListener('click', () => updateView('grid'));
+  }
+  if (listViewBtnDesktop) {
+    listViewBtnDesktop.addEventListener('click', () => updateView('list'));
+  }
+
+  // アニメーション
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-fade-in');
+      }
+    });
+  }, observerOptions);
+
+  // 記事カードにアニメーションを適用
+  document.querySelectorAll('#articles-grid > div').forEach(card => {
+    observer.observe(card);
+  });
+</script>
+
+<style>
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* カスタムスクロールバー */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #06b6d4, #3b82f6);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #0891b2, #2563eb);
+  }
+</style>
