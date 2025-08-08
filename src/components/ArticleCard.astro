@@ -1,6 +1,7 @@
 ---
 // src/components/ArticleCard.astro
 import { Image } from "astro:assets";
+// BookmarkButton は個人ブログでは非表示にするため削除
 
 export interface Props {
   id: string;
@@ -11,7 +12,17 @@ export interface Props {
   imageUrl: string;
   imageUrlList?: string;
   class?: string;
+  // 新機能フラグ（ブックマークは無効化）
+  showBookmark?: boolean;
+  showReactions?: boolean;
+  showReadingTime?: boolean;
+  showDescription?: boolean; // 検索結果などで抜粋を表示したい場合
+  content?: string; // 読了時間計算用
+  // ハイライト済みHTMLを渡す場合（検索用）
+  titleHtml?: string;
+  descriptionHtml?: string;
 }
+
 const {
   id,
   category,
@@ -21,34 +32,91 @@ const {
   imageUrl,
   imageUrlList,
   class: className,
+  showBookmark = false,
+  showReactions = false, // 記事一覧ではデフォルト非表示
+  showReadingTime = true,
+  showDescription = false,
+  content = '',
+  titleHtml,
+  descriptionHtml,
 } = Astro.props;
 
-// カテゴリ表示は廃止（noteのようなシンプルデザイン）
+import { calculateReadingTimeSimple } from '../utils/readingTime';
+
+const readingTime = calculateReadingTimeSimple(content);
+const categoryArray = Array.isArray(category) ? category : [category];
+const titleId = `article-${id}-title`;
+const dateIso = (() => {
+  const d = new Date(date);
+  return isNaN(d.getTime()) ? '' : d.toISOString();
+})();
 ---
 
-<a href={`/blog/${id}/`} class:list={["article-card group", className]}>
-  <div class="article-card__image-container">
-    <Image
-      src={imageUrl}
-      width={400}
-      height={225}
-      alt={`「${title}」の記事の画像`}
-      loading="lazy"
-      class="article-card__image article-card__image--grid"
-    />
-    <Image
-      src={imageUrlList ?? "/placeholder.svg"}
-      width={256}
-      height={144}
-      alt={`「${title}」の記事の画像`}
-      loading="lazy"
-      class="article-card__image article-card__image--list"
-    />
-  </div>
-  <div class="article-card__content">
-    <h3 class="article-card__title">{title}</h3>
-    <!-- Description is hidden as per user request -->
-    <!-- <p class="article-card__description">{description}</p> -->
-    <time class="article-card__date">{date}</time>
-  </div>
-</a>
+<article class:list={["article-card group", className]} aria-labelledby={titleId} aria-describedby={date ? `${id}-date` : undefined}>
+  <a href={`/blog/${id}/`} class="article-card__link" aria-label={title} rel="bookmark">
+    <div class="article-card__image-container">
+      <Image
+        src={imageUrl}
+        width={400}
+        height={225}
+        alt={`「${title}」の記事の画像`}
+        loading="lazy"
+        decoding="async"
+        sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+        class="article-card__image article-card__image--grid"
+        format="webp"
+        quality={70}
+      />
+      <Image
+        src={imageUrlList ?? "/placeholder.svg"}
+        width={256}
+        height={144}
+        alt={`「${title}」の記事の画像`}
+        loading="lazy"
+        decoding="async"
+        sizes="(min-width: 1024px) 256px, (min-width: 768px) 200px, 160px"
+        class="article-card__image article-card__image--list"
+        format="webp"
+        quality={70}
+      />
+    </div>
+    <div class="article-card__content">
+      <h3 id={titleId} class="article-card__title">
+        {titleHtml ? (<Fragment set:html={titleHtml} />) : title}
+      </h3>
+      {showDescription && (
+        <p class="article-card__description">
+          {descriptionHtml ? (<Fragment set:html={descriptionHtml} />) : description}
+        </p>
+      )}
+      
+      <div class="article-card__meta">
+        <time id={`${id}-date`} class="article-card__date" datetime={dateIso || undefined}>{date}</time>
+        
+        {showReadingTime && (
+          <div class="reading-time">
+            <svg class="reading-time-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{readingTime}分で読める</span>
+          </div>
+        )}
+      </div>
+    </div>
+  </a>
+
+  <!-- 記事アクション（ブックマーク・リアクション）エリア -->
+  {showReactions && (
+    <div class="article-actions">
+      <div class="actions-left">
+        {showReactions && (
+          <div id={`reactions-${id}`} class="reaction-buttons">
+            <!-- リアクションボタンはJavaScriptで動的生成 -->
+          </div>
+        )}
+      </div>
+      
+      <div class="actions-right"></div>
+    </div>
+  )}
+</article>

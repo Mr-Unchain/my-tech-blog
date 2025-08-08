@@ -9,13 +9,47 @@ import ArticleCard from "../components/ArticleCard.astro";
 import { getBlogs } from "../lib/microcms";
 import type { Blog } from "../lib/microcms";
 
-// URLのクエリパラメータから検索キーワードを取得
+// URLのクエリパラメータ
 const query = Astro.url.searchParams.get("q");
+const catParam = Astro.url.searchParams.get("cat") || "";
 
 // microCMSの全文検索API(q)を使って記事を検索
-const { contents: posts } = await getBlogs({
-  q: query || "",
+// タイトル・本文・カテゴリ名すべてを対象に軽いフィルタリング
+const { contents: all } = await getBlogs({ limit: 100, orders: "-publishedAt" });
+const qRaw = (query || '').trim();
+const q = qRaw.toLowerCase();
+// 一意カテゴリ一覧
+const categorySet = new Set<string>();
+all.forEach((p: Blog) => (Array.isArray(p.category) ? p.category : []).forEach((c) => c && categorySet.add(String(c))));
+const categoriesAll = Array.from(categorySet).sort((a,b)=>a.localeCompare(b,'ja'));
+
+const posts = all.filter((p: Blog) => {
+  const inTitle = p.title?.toLowerCase().includes(q);
+  const inDesc = p.description?.toLowerCase().includes(q);
+  const inContent = p.content?.toLowerCase().includes(q);
+  const inCategoryText = Array.isArray(p.category) && p.category.some(c => String(c).toLowerCase().includes(q));
+  // キーワード未指定時はテキスト一致は常にtrue（＝全件表示）
+  let ok = !q || inTitle || inDesc || inContent || inCategoryText;
+  if (!ok) return false;
+  // カテゴリフィルタ
+  if (catParam) {
+    ok = Array.isArray(p.category) && p.category.includes(catParam);
+    if (!ok) return false;
+  }
+  return true;
 });
+
+// 簡易ハイライト（XSS対策: キーワードのみ<mark>）
+const escapeHtml = (s: string) => s
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;');
+
+const mark = (text: string) => {
+  if (!qRaw) return escapeHtml(text || '');
+  const re = new RegExp(`(${qRaw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'ig');
+  return escapeHtml(text || '').replace(re, '<mark>$1</mark>');
+};
 
 // SEO用情報の準備
 const pageTitle = query ? `「${query}」の検索結果` : "記事検索";
@@ -39,6 +73,27 @@ const keywords = query ? `${query}, 検索, ブログ検索` : "検索, ブロ�
           <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mb-2">
             {query ? `「${query}」の検索結果` : "検索ページ"}
         </h1>
+          <!-- Filter form -->
+          <form class="mt-4 grid grid-cols-1 md:grid-cols-8 gap-3 items-end" method="get">
+            <div class="md:col-span-5">
+              <label for="q" class="block text-sm text-slate-300 mb-1">キーワード</label>
+              <input id="q" name="q" list="search-suggestions" value={query || ''} placeholder="キーワードを入力" class="w-full px-3 py-2 rounded-lg bg-slate-800/70 border border-slate-600/60 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50" />
+              <datalist id="search-suggestions"></datalist>
+            </div>
+            <div class="md:col-span-3">
+              <label for="cat" class="block text-sm text-slate-300 mb-1">カテゴリ</label>
+              <select id="cat" name="cat" class="w-full px-3 py-2 rounded-lg bg-slate-800/70 border border-slate-600/60 text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-400/50">
+                <option value="" selected={!catParam}>すべて</option>
+                {categoriesAll.map((c) => (
+                  <option value={c} selected={c === catParam}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <div class="md:col-span-8 flex gap-3">
+              <button type="submit" class="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow hover:shadow-cyan-500/30">検索</button>
+              <a href="/search" class="px-4 py-2 rounded-lg bg-slate-700/70 text-slate-100 border border-slate-600/60">クリア</a>
+            </div>
+          </form>
           {query && (
             <div class="flex items-center space-x-3">
               <div class="w-1.5 h-6 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full"></div>
@@ -48,62 +103,24 @@ const keywords = query ? `${query}, 検索, ブログ検索` : "検索, ブロ�
             </div>
           )}
         </div>
-        {!query ? (
-          <div class="flex flex-col items-center justify-center py-16 px-6">
-            <div class="bg-gradient-to-b from-slate-800/90 to-slate-800/95 rounded-xl p-8 md:p-12 border border-slate-700/50 shadow-xl backdrop-blur-sm relative overflow-hidden max-w-lg w-full text-center">
-              <!-- Background tech pattern -->
-              <div class="absolute inset-0 bg-tech-grid bg-tech-grid opacity-5 pointer-events-none"></div>
-              
-              <!-- Content with z-index -->
-              <div class="relative z-10">
-                <!-- Search icon -->
-                <div class="w-20 h-20 mx-auto mb-8 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full flex items-center justify-center border border-cyan-400/30">
-                  <svg class="w-10 h-10 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                  </svg>
-                </div>
-                
-                <!-- Welcome message -->
-                <h2 class="text-2xl font-bold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent mb-4">
-                  記事を検索
-                </h2>
-                <p class="text-slate-300 mb-6 leading-relaxed">
-                  サイドバーの検索フォームを使用して、<br/>
-                  興味のある記事を見つけてください。
-                </p>
-                
-                <!-- Search tips -->
-                <div class="bg-slate-700/40 rounded-lg p-4 border border-slate-600/30">
-                  <h4 class="text-slate-200 font-medium mb-2 text-sm">検索のヒント:</h4>
-                  <div class="text-xs text-slate-400 space-y-1 text-left">
-                    <p>• キーワードを入力して記事を検索</p>
-                    <p>• タイトルや本文から検索されます</p>
-                    <p>• カテゴリ名でも検索可能です</p>
-                  </div>
-                </div>
-                
-                <!-- Decorative elements -->
-                <div class="absolute -top-3 -right-3 w-6 h-6 bg-cyan-400/20 rounded-full"></div>
-                <div class="absolute -bottom-3 -left-3 w-8 h-8 bg-blue-400/10 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        ) : (
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           {
-            posts.length > 0
+                posts.length > 0
               ? posts.map((post: Blog) => (
                   <ArticleCard
                     id={post.id}
                     category={post.category}
                     title={post.title}
+                    titleHtml={mark(post.title)}
                     description={post.description}
+                    descriptionHtml={mark(post.description)}
                     date={
                       post.publishedAt
                         ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
                         : ""
                     }
-                    imageUrl={post.eyecatch.url + "?w=400"}
+                        imageUrl={(post.eyecatch?.url || "/placeholder.svg") + "?w=400"}
+                        showDescription={true}
                   />
                 ))
                 : (
@@ -144,10 +161,36 @@ const keywords = query ? `${query}, 検索, ブログ検索` : "検索, ブロ�
                 )
           }
         </div>
-        )}
       </div>
       <Sidebar />
     </div>
     </div>
   </main>
 </BaseLayout>
+
+<script is:inline>
+  // 検索履歴（LocalStorage）: 'search_history' に最大20件保存
+  (function(){
+    const STORAGE_KEY = 'search_history';
+    function getHistory(){
+      try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }catch{ return []; }
+    }
+    function setHistory(arr){
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(0,20))); }catch{}
+    }
+    const form = document.querySelector('form[method="get"]');
+    const input = document.getElementById('q');
+    const datalist = document.getElementById('search-suggestions');
+    const history = getHistory();
+    if (datalist && Array.isArray(history)) {
+      datalist.innerHTML = history.map((h)=>`<option value="${h}"></option>`).join('');
+    }
+    form?.addEventListener('submit', () => {
+      const q = (input?.value || '').trim();
+      if (!q) return;
+      const h = getHistory();
+      const next = [q, ...h.filter((x)=>x!==q)];
+      setHistory(next);
+    });
+  })();
+</script>

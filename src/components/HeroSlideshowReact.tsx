@@ -10,7 +10,8 @@ type Direction = "next" | "prev";
 const HeroSlideshowReact: React.FC<Props> = ({ posts }) => {
   const [current, setCurrent] = useState(0);
   const [prev, setPrev] = useState<number | null>(null);
-  const [isFading, setIsFading] = useState(false);
+  const [isSliding, setIsSliding] = useState(false);
+  const [dir, setDir] = useState<Direction>("next");
   const total = posts.length;
 
   useEffect(() => {
@@ -24,24 +25,27 @@ const HeroSlideshowReact: React.FC<Props> = ({ posts }) => {
 
   const handleNext = () => {
     setPrev(current);
+    setDir("next");
     setCurrent((prevIdx) => (prevIdx + 1) % total);
-    setIsFading(true);
-    setTimeout(() => setIsFading(false), 700);
+    setIsSliding(true);
+    setTimeout(() => setIsSliding(false), 700);
   };
 
   const handlePrev = () => {
     setPrev(current);
+    setDir("prev");
     setCurrent((prevIdx) => (prevIdx - 1 + total) % total);
-    setIsFading(true);
-    setTimeout(() => setIsFading(false), 700);
+    setIsSliding(true);
+    setTimeout(() => setIsSliding(false), 700);
   };
 
   const handleDot = (idx: number) => {
     if (idx === current) return;
     setPrev(current);
+    setDir(idx > current ? "next" : "prev");
     setCurrent(idx);
-    setIsFading(true);
-    setTimeout(() => setIsFading(false), 700);
+    setIsSliding(true);
+    setTimeout(() => setIsSliding(false), 700);
   };
 
   if (total === 0) return null;
@@ -50,17 +54,17 @@ const HeroSlideshowReact: React.FC<Props> = ({ posts }) => {
     <section id="hero-slideshow-react" className="hero-slideshow relative w-full h-[280px] md:h-[350px] lg:h-[400px] overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="relative w-full h-full">
         {/* 前のスライド（フェードアウト） */}
-        {isFading && prev !== null && (
+        {isSliding && prev !== null && (
           <Slide
             post={posts[prev]}
-            fadeOut={true}
+            anim={dir === "next" ? "out-left" : "out-right"}
             key={posts[prev].id + "-out"}
           />
         )}
         {/* 現在のスライド（フェードイン） */}
         <Slide
           post={posts[current]}
-          fadeIn={isFading}
+          anim={isSliding ? (dir === "next" ? "in-right" : "in-left") : undefined}
           key={posts[current].id + "-in"}
         />
       </div>
@@ -104,28 +108,27 @@ const HeroSlideshowReact: React.FC<Props> = ({ posts }) => {
 
 const Slide: React.FC<{
   post: Blog;
-  fadeIn?: boolean;
-  fadeOut?: boolean;
-}> = ({ post, fadeIn, fadeOut }) => {
-  let animationClass = "";
-  if (fadeIn) {
-    animationClass = "animate-fade-in";
-  } else if (fadeOut) {
-    animationClass = "animate-fade-out";
-  }
+  anim?: "in-right" | "in-left" | "out-left" | "out-right";
+}> = ({ post, anim }) => {
+  const animationClass =
+    anim === "in-right" ? "animate-slide-in-right" :
+    anim === "in-left" ? "animate-slide-in-left" :
+    anim === "out-left" ? "animate-slide-out-left" :
+    anim === "out-right" ? "animate-slide-out-right" : "";
   
   return (
     <a
       href={`/blog/${post.id}/`}
       className={`absolute inset-0 block group ${animationClass}`}
-      style={{ zIndex: fadeOut ? 10 : 20 }}
+      style={{ zIndex: anim && anim.startsWith("out") ? 10 : 20 }}
     >
       {/* 背景画像 */}
       <div className="absolute inset-0">
         <img
-          src={post.eyecatch?.url || "/placeholder.svg"}
+          src={(post.eyecatch?.url || "/placeholder.svg") + '?w=1200&q=70'}
           alt=""
           loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover"
           aria-hidden="true"
         />
