@@ -19,9 +19,9 @@ export interface Props {
 
 const {
   pageTitle,
-  pageDescription = "Monologgerは、テクノロジー、ガジェット、開発に関する情報を発信する技術ブログです。",
+  pageDescription = "ITまわりで日々の気づきや試してみたメモをゆるく残すブログ。ツールや小ワザ、学びの断片を記録しています。",
   ogImageUrl,
-  keywords = "テクノロジー, ガジェット, 開発, プログラミング, Web開発, JavaScript, React, Astro",
+  keywords = "テクノロジー, ガジェット, 開発, プログラミング, コーディング, AI, Web開発, JavaScript, React, Astro",
   author = "Monologger",
   publishedTime,
   modifiedTime,
@@ -89,11 +89,17 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
       rel="stylesheet"
     />
     
-    <!-- Sitemap and RSS -->
+    <!-- Sitemap, Manifest and RSS -->
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     
     <!-- DNS Prefetch for external domains -->
     <link rel="dns-prefetch" href="//images.microcms-assets.io" />
+
+    <!-- Resource Hints -->
+    <link rel="preload" as="image" href="/logo.svg" />
+    <link rel="prefetch" href="/blog" />
+    <link rel="prefetch" href="/search" />
     
     <!-- Structured Data - Website Schema -->
     <script type="application/ld+json">
@@ -120,6 +126,32 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
         })
       }
     </script>
+
+    <!-- Web Vitals (console only) -->
+    <script>
+      (function(){
+        const s=document.createElement('script');
+        s.src='https://unpkg.com/web-vitals@3/dist/web-vitals.iife.js';
+        s.defer=true; s.onload=function(){
+          const win = window as any;
+          const api = (win['web-vitals'] || win['webVitals'] || {}) as any;
+          const onCLS=api.onCLS,onFID=api.onFID,onLCP=api.onLCP,onFCP=api.onFCP,onINP=api.onINP;
+          function log(m: any){ try{ if(m) console.log('[WebVitals]', m.name, Number(m.value).toFixed(2)); }catch{} }
+          try{ onCLS && onCLS(log); onFID && onFID(log); onLCP && onLCP(log); onFCP && onFCP(log); onINP && onINP(log);}catch{}
+        };
+        document.head.appendChild(s);
+      })();
+    </script>
+
+    <!-- GA を Partytown 経由で読み込む -->
+    <script type="text/partytown" src="https://www.googletagmanager.com/gtag/js?id=G-N00YXTQZMH"></script>
+    <script type="text/partytown">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-N00YXTQZMH');
+    </script>
+   
     
     <!-- Page specific structured data slot -->
     <slot name="head" />
@@ -127,6 +159,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
     <!-- スタイルは src/styles/main.scss に集約 -->
   </head>
   <body class="flex flex-col min-h-screen bg-slate-900">
+    <a href="#swup" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[2000] bg-cyan-600 text-white px-3 py-2 rounded">本文へスキップ</a>
     <Header />
     <main class="flex-grow" id="swup">
       <slot />
@@ -140,6 +173,27 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
       const swup = new Swup({
         plugins: [new SwupScriptsPlugin()]
       });
+    </script>
+
+    <!-- Register Service Worker only in production to avoid HMR conflicts -->
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        // DEV: ensure any previous SW is unregistered to prevent HMR/WebSocket issues
+        if (import.meta.env.DEV) {
+          navigator.serviceWorker.getRegistrations().then((regs) => {
+            regs.forEach((r) => r.unregister());
+          });
+        }
+        // PROD: register SW for offline/PWA
+        if (import.meta.env.PROD) {
+          const register = () => navigator.serviceWorker.register('/sw.js');
+          if (document.readyState === 'complete') {
+            register();
+          } else {
+            window.addEventListener('load', register);
+          }
+        }
+      }
     </script>
   </body>
 </html>

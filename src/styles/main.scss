@@ -56,6 +56,258 @@
   z-index: 2;
 }
 
+/* === ブックマーク・リアクション機能のスタイル === */
+
+/* ブックマークボタン */
+.bookmark-btn {
+  @apply relative flex items-center gap-2 px-3 py-2 rounded-lg;
+  @apply bg-slate-800 hover:bg-slate-700 transition-all duration-200;
+  @apply border border-slate-600 hover:border-cyan-500;
+  @apply text-slate-300 hover:text-cyan-300;
+  @apply focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  
+  &.bookmarked {
+    @apply bg-cyan-900 border-cyan-500 text-cyan-300;
+    @apply shadow-lg shadow-cyan-500/20;
+    
+    .bookmark-icon {
+      @apply text-cyan-400;
+      filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.4));
+    }
+    
+    .bookmark-count {
+      @apply text-cyan-200 font-semibold;
+    }
+  }
+  
+  .bookmark-icon-wrapper {
+    @apply relative flex items-center justify-center;
+  }
+  
+  .bookmark-tooltip {
+    @apply absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2;
+    @apply px-2 py-1 bg-slate-900 text-white text-xs rounded;
+    @apply opacity-0 group-hover:opacity-100 transition-opacity duration-200;
+    @apply pointer-events-none whitespace-nowrap z-10;
+    
+    &::after {
+      @apply absolute top-full left-1/2 transform -translate-x-1/2;
+      @apply border-4 border-transparent border-t-slate-900;
+      content: '';
+    }
+  }
+}
+
+/* リアクションボタン群 */
+.reaction-buttons {
+  @apply flex gap-2 flex-wrap items-center w-full rounded-xl p-2 md:p-3 border border-slate-700/50 bg-slate-800/40 backdrop-blur-sm shadow-sm;
+
+  .reaction-btn {
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-full text-slate-200;
+    @apply bg-slate-800/70 hover:bg-slate-700/70 transition-all duration-200 ease-out;
+    @apply border border-slate-600/50 hover:shadow-lg hover:scale-[1.03];
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900;
+    @apply cursor-pointer select-none;
+
+    .reaction-emoji {
+      @apply text-base leading-none transition-transform duration-200;
+    }
+
+    .reaction-count {
+      @apply text-[11px] font-semibold px-1.5 py-[1px] rounded-full bg-slate-900/60 border border-slate-600/60 ml-1;
+    }
+
+    &:hover .reaction-emoji { @apply scale-110; }
+
+    /* 非リアクション時も淡い輪郭色を付与 */
+    &.like        { @apply border-blue-400/30 text-blue-300/90; }
+    &.helpful     { @apply border-yellow-400/30 text-yellow-300/90; }
+    &.insightful  { @apply border-purple-400/30 text-purple-300/90; }
+    &.inspiring   { @apply border-pink-400/30 text-pink-300/90; }
+
+    &.reacted {
+      @apply shadow-lg bg-opacity-20 text-white;
+      &.like       { @apply border-blue-400 bg-blue-400/20; }
+      &.helpful    { @apply border-yellow-400 bg-yellow-400/20; }
+      &.insightful { @apply border-purple-400 bg-purple-400/20; }
+      &.inspiring  { @apply border-pink-400 bg-pink-400/20; }
+    }
+  }
+
+  .total-reactions {
+    @apply ml-auto pl-2;
+    .total-count {
+      @apply text-xs text-slate-300 bg-slate-900/60 border border-slate-700/60 rounded-full px-2 py-0.5 shadow-sm;
+    }
+  }
+
+  /* micro interactions */
+  .reaction-loading .loading-spinner {
+    @apply w-4 h-4 border-2 border-cyan-400/70 border-t-transparent rounded-full animate-spin;
+  }
+
+  .reaction-effect {
+    @apply absolute -top-2 -right-2 pointer-events-none;
+    .effect-emoji { @apply text-lg animate-bounce; }
+  }
+}
+
+/* subtle bounce/pulse utilities for reactions */
+.bounce { animation: rb-bounce 0.5s ease-out; }
+.pulse  { animation: rb-pulse  0.6s ease-out; }
+
+@keyframes rb-bounce {
+  0% { transform: translateY(-10%); opacity: 0.6; }
+  60% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-4%); }
+}
+
+@keyframes rb-pulse {
+  0% { transform: scale(0.95); opacity: .8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* mobile density tweak */
+@media (max-width: 640px) {
+  .reaction-buttons {
+    @apply p-2 gap-1.5;
+    .reaction-btn { @apply px-2 py-1 text-sm; }
+    .total-reactions { @apply ml-0 pl-0 w-full; }
+  }
+}
+
+/* 記事アクション（ブックマーク+リアクション）エリア */
+.article-actions {
+  @apply flex items-center justify-between gap-4 pt-4 mt-4;
+  @apply border-t border-slate-700;
+  
+  .actions-left {
+    @apply flex items-center gap-3;
+  }
+  
+  .actions-right {
+    @apply flex items-center gap-2;
+  }
+}
+
+/* 読了時間表示 */
+.reading-time {
+  @apply flex items-center gap-1 text-sm text-slate-400;
+  @apply transition-colors duration-200;
+  
+  .reading-time-icon {
+    @apply w-4 h-4;
+  }
+  
+  &:hover {
+    @apply text-slate-300;
+  }
+}
+
+/* 読書進捗バー */
+.reading-progress-container {
+  @apply fixed top-0 left-0 right-0 z-50 h-1 bg-slate-800;
+  
+  .reading-progress-bar {
+    @apply h-full bg-gradient-to-r from-cyan-500 to-blue-500;
+    @apply transition-all duration-150 ease-out;
+    @apply shadow-sm shadow-cyan-500/50;
+  }
+}
+
+/* シェアボタン群 */
+.share-buttons-container {
+  @apply flex items-center gap-2 flex-wrap mt-1 rounded-xl p-2 md:p-3 border border-slate-700/50 bg-slate-800/40 backdrop-blur-sm shadow-sm;
+
+  .share-btn {
+    @apply inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-slate-200 justify-center min-h-[38px];
+    @apply bg-slate-800/60 hover:bg-slate-700/60 transition-all duration-200 ease-out;
+    @apply border border-slate-600/50 backdrop-blur-sm shadow-sm hover:shadow-lg hover:scale-[1.02];
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900;
+
+    .share-icon { @apply w-5 h-5; }
+    .share-label { @apply text-sm font-medium tracking-wide; }
+
+    /* pressed feedback */
+    &:active { transform: translateY(1px) scale(0.98); }
+
+    /* ripple effect */
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute; inset: 0; border-radius: 0.75rem;
+      background: radial-gradient(circle at center, rgba(255,255,255,.12), rgba(255,255,255,0) 60%);
+      opacity: 0; transform: scale(0.85);
+      transition: opacity .15s ease, transform .15s ease;
+      pointer-events: none;
+    }
+    &:active::before { opacity: 1; transform: scale(1); }
+
+    /* brand tint (base + hover + focus) */
+    &.twitter        { @apply border-cyan-400/30 text-cyan-200/90; }
+    &.twitter:hover  { @apply border-cyan-400 bg-cyan-400/15 text-cyan-200; }
+    &.twitter:focus-visible { @apply ring-cyan-400/60; }
+    &.linkedin       { @apply border-blue-500/30 text-blue-200/90; }
+    &.linkedin:hover { @apply border-blue-500 bg-blue-500/15 text-blue-200; }
+    &.linkedin:focus-visible { @apply ring-blue-500/60; }
+    &.copy           { @apply border-slate-400/30 text-slate-200/90; }
+    &.copy:hover     { @apply border-slate-400 bg-slate-400/15 text-slate-200; }
+    &.copy:focus-visible { @apply ring-slate-300/60; }
+
+    /* tooltip */
+    &::after {
+      content: attr(title);
+      @apply absolute -top-8 left-1/2 -translate-x-1/2 text-xs text-white bg-slate-900/90 px-2 py-1 rounded opacity-0 pointer-events-none whitespace-nowrap border border-slate-700/70 shadow;
+      transition: opacity .15s ease;
+    }
+    &:hover::after, &:focus-visible::after { opacity: 1; }
+    &.tip-show::after { opacity: 1; }
+  }
+}
+
+/* Mobile layout: ボタンを少しワイドにして押しやすく */
+@media (max-width: 640px) {
+  .share-buttons-container {
+    @apply justify-center gap-2.5;
+    .share-btn { @apply flex-1 min-w-[30%]; }
+  }
+}
+
+/* モバイル対応 */
+@media (max-width: 640px) {
+  .bookmark-btn {
+    @apply px-2 py-1.5 text-sm;
+    
+    .bookmark-count {
+      @apply text-xs;
+    }
+  }
+  
+  .reaction-buttons {
+    @apply gap-1;
+    
+    .reaction-btn {
+      @apply px-1.5 py-0.5 text-sm;
+    }
+  }
+  
+  .article-actions {
+    @apply flex-col gap-3;
+    @apply items-stretch;
+    
+    .actions-left,
+    .actions-right {
+      @apply justify-center;
+    }
+  }
+  
+  .share-buttons-container {
+    @apply justify-center flex-wrap;
+  }
+}
+
+
 
 .toc-h3 {
   margin: 0.375rem 0;
@@ -221,6 +473,19 @@ h6,
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Visually hidden utility (for skip link) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 @layer components {
   .article-card {
@@ -598,6 +863,9 @@ h6,
       border-bottom-left-radius: 0.7rem;
       border-bottom-right-radius: 0.7rem;
 
+    /* 個人ブログ用: 余白の最適化（ホーム/お問い合わせ削除後） */
+    .menu-item { margin-top: 0.25rem; }
+
       @media (max-width: 640px) {
         display: block;
       }
@@ -783,6 +1051,29 @@ h6,
   animation: fade-out 0.7s ease-out forwards;
 }
 
+/* 横方向スライド用キーフレーム */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-out-left {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-20px); }
+}
+@keyframes slide-out-right {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(20px); }
+}
+
+.animate-slide-in-right { animation: slide-in-right .7s ease-out forwards; }
+.animate-slide-in-left  { animation: slide-in-left  .7s ease-out forwards; }
+.animate-slide-out-left { animation: slide-out-left .7s ease-out forwards; }
+.animate-slide-out-right{ animation: slide-out-right .7s ease-out forwards; }
+
 /* 記事カードのアニメーション */
 @keyframes slideIn {
   from {
@@ -820,6 +1111,15 @@ h6,
   min-height: 5.5rem !important; /* Description非表示によりコンパクト化 */
   width: 100% !important;
   overflow: hidden !important;
+
+    /* アンカー内部を横並びにする */
+    > .article-card__link {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: stretch !important;
+      gap: 1rem !important;
+      width: 100% !important;
+    }
   
   /* スマートフォンサイズでも横長レイアウトを維持 - より見やすいサイズに調整 */
   @media (max-width: 640px) {
@@ -849,27 +1149,27 @@ h6,
     flex: 0 0 auto; /* flex-shrink: 0, flex-grow: 0 を確実に適用 */
     
     /* スマホ優先のレスポンシブ画像サイズ - より見やすいサイズに調整 */
-    width: 6rem !important;
-    height: 4.5rem !important;
+    width: 6.5rem !important;
+    height: 4.125rem !important; /* 16:10 付近で視認性を確保 */
     
     @media (min-width: 481px) {
-      width: 5.5rem !important;
-      height: 4rem !important;
+      width: 6rem !important;
+      height: 3.75rem !important;
     }
     
     @media (min-width: 641px) {
-      width: 6.5rem !important;
-      height: 4.5rem !important;
+      width: 7rem !important;
+      height: 4.375rem !important;
     }
     
     @media (min-width: 769px) {
-      width: 8rem !important;
-      height: 5.5rem !important;
+      width: 9rem !important;
+      height: 5.625rem !important;
     }
     
     @media (min-width: 1024px) {
-      width: 9rem !important;
-      height: 6rem !important;
+      width: 10rem !important;
+      height: 6.25rem !important;
     }
     
     .article-card__image--grid {
@@ -892,18 +1192,18 @@ h6,
     }
   }
   
-  .article-card__content {
-    /* コンテンツエリアを確実に右側に配置し、残り全体を占める */
-    flex: 1 1 0% !important;
-    @apply flex flex-col justify-between;
-    min-width: 0 !important; /* テキストオーバーフロー対応 */
-    padding: 0.3rem 0 !important; /* Description削除でよりコンパクト */
+    .article-card__content {
+      /* コンテンツエリアを確実に右側に配置し、残り全体を占める */
+      flex: 1 1 auto !important;
+      @apply flex flex-col justify-between;
+      min-width: 0 !important; /* テキストオーバーフロー対応 */
+      padding: 0.2rem 0 !important; /* コンパクトに調整 */
     
     /* スマホでテキストエリアの最小幅を確保 */
     @media (max-width: 640px) {
       padding: 0.3rem 0 !important; /* より見やすいパディングに調整 */
       /* 画像幅とgapを除いた残りの領域を確実に使用 */
-      width: calc(100% - 7rem) !important; /* 6rem(画像) + 1rem(gap) */
+      width: auto !important;
       flex: 1 1 auto !important;
       display: flex !important;
       flex-direction: column !important;
@@ -915,27 +1215,27 @@ h6,
     
     .article-card__title {
       @apply font-bold text-white hover:text-cyan-400 transition-colors leading-tight;
-      margin-bottom: 0.25rem !important; /* Description削除によりさらに間隔を詰める */
+      margin-bottom: 0.35rem !important;
       
       /* タイトルのレスポンシブフォントサイズ - より見やすいサイズに調整 */
       font-size: 1.1rem !important;
-      line-height: 1.3 !important;
+      line-height: 1.35 !important;
       color: #ffffff !important;
       display: block !important;
       
       @media (min-width: 481px) {
-        font-size: 1.2rem !important;
-        margin-bottom: 0.4rem !important;
+        font-size: 1.18rem !important;
+        margin-bottom: 0.45rem !important;
       }
       
       @media (min-width: 641px) {
-        font-size: 1.25rem !important;
+        font-size: 1.22rem !important;
         margin-bottom: 0.5rem !important;
       }
       
       @media (min-width: 769px) {
-        font-size: 1.35rem !important;
-        margin-bottom: 0.6rem !important;
+        font-size: 1.28rem !important;
+        margin-bottom: 0.55rem !important;
       }
       
       /* タイトルの行数制限 - 確実に表示 */
@@ -1115,6 +1415,30 @@ h6,
   &:focus-within {
     @apply transform scale-[1.02] -translate-y-1;
   }
+
+  /* 画像プレースホルダでCLS低減 */
+  .article-card__image-container {
+    background: linear-gradient(180deg, rgba(15,23,42,.6), rgba(15,23,42,.3));
+  }
+
+  /* モーションを控えめに */
+  @media (prefers-reduced-motion: reduce) {
+    transition: none !important;
+    animation: none !important;
+    &:hover { transform: none !important; }
+  }
+}
+
+/* share toast */
+.share-toast {
+  @apply fixed bottom-6 left-1/2 -translate-x-1/2 px-3 py-2 text-sm text-white rounded-lg shadow-lg z-[2000];
+  @apply bg-slate-900/90 border border-slate-700/60 backdrop-blur-sm;
+  animation: toastIn .15s ease-out; 
+}
+
+@keyframes toastIn {
+  from { transform: translate(-50%, 10px); opacity: 0; }
+  to   { transform: translate(-50%, 0);   opacity: 1; }
 }
 
 /* サイドバーのスタイリング改善 */

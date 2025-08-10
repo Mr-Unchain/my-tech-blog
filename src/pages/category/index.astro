@@ -1,0 +1,78 @@
+---
+// src/pages/category/index.astro
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import { getBlogs } from "../../lib/microcms";
+
+// すべての記事からカテゴリを集計（microCMS の 100 件制限に対応してページング）
+const categoryCountMap = new Map<string, number>();
+{
+  const PAGE_LIMIT = 100;
+  let offset = 0;
+  let total = 0;
+  do {
+    const { contents, totalCount } = await getBlogs({ limit: PAGE_LIMIT, offset, fields: "id,category" });
+    total = totalCount || contents.length;
+    for (const p of contents) {
+      const cats = Array.isArray(p.category) ? p.category : (p.category ? [p.category] : []);
+      for (const c of cats) {
+        categoryCountMap.set(c, (categoryCountMap.get(c) || 0) + 1);
+      }
+    }
+    offset += PAGE_LIMIT;
+  } while (offset < total);
+}
+
+const categories = Array.from(categoryCountMap.entries())
+  .map(([name, count]) => ({ name, count }))
+  .sort((a, b) => a.name.localeCompare(b.name, "ja"));
+
+const breadcrumbItems = [
+  { name: "ホーム", href: "/" },
+  { name: "カテゴリ" }
+];
+
+const pageTitle = "カテゴリ一覧";
+const pageDescription = "Monologger のカテゴリ一覧ページです。カテゴリ別に、気づきやメモをサクッと探せます。";
+---
+
+<BaseLayout pageTitle={pageTitle} pageDescription={pageDescription}>
+  <main class="min-h-screen bg-slate-900">
+    <div class="container mx-auto px-6 py-10 md:py-14 max-w-6xl">
+      <Breadcrumb items={breadcrumbItems} class="mb-6" />
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
+        <div class="lg:col-span-2">
+          <header class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent">カテゴリ一覧</h1>
+            <p class="text-slate-400 mt-2">カテゴリーを選んで記事を絞り込みできます。</p>
+          </header>
+
+          {categories.length > 0 ? (
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
+              {categories.map((cat) => (
+                <a
+                  href={`/category/${encodeURIComponent(cat.name)}`}
+                  class="group rounded-xl border border-slate-700/60 bg-slate-800/60 hover:border-cyan-400/60 hover:bg-slate-700/50 transition shadow-lg p-5 flex items-center justify-between"
+                >
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-300 font-bold">#</span>
+                    <span class="text-slate-100 font-semibold">{cat.name}</span>
+                  </div>
+                  <span class="text-slate-400 text-sm">{cat.count}</span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div class="text-slate-400">カテゴリがまだありません。</div>
+          )}
+        </div>
+
+        <Sidebar hideCategories={true} />
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+

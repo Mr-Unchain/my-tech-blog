@@ -51,13 +51,35 @@ const { contents: pagedPosts, totalCount } = await getBlogs({
   offset,
 });
 const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
+
+// ★ カテゴリチップ（型安全に抽出）
+const categoryChips: string[] = Array.from(
+  new Set(
+    (pagedPosts as Blog[]).flatMap((p: Blog) =>
+      Array.isArray(p.category)
+        ? (p.category as string[])
+        : (p.category ? [String(p.category)] : [])
+    )
+  )
+).slice(0, 6);
 ---
 
 <BaseLayout
-  pageTitle="技術ブログ - 最新の記事"
-  pageDescription="Monologgerは、テクノロジー、ガジェット、開発に関する最新情報を発信する技術ブログです。プログラミング、Web開発、最新技術トレンドなどの記事をお届けします。"
-  keywords="テクノロジー, ガジェット, 開発, プログラミング, Web開発, JavaScript, React, Astro, 技術ブログ"
+  pageTitle="気づきメモ - 最新の記事"
+  pageDescription="ITに触れて生まれた日々の気づきや備忘録をゆるくまとめています。ガジェットや開発の小ネタ、作業をラクにするヒントなど。"
+  keywords="テクノロジー, ガジェット, 開発, プログラミング, コーディング, AI, Web開発, JavaScript, React, Astro, 備忘録, 気づき"
 >
+  <Fragment slot="head">
+    {
+      // ファーストビューで使う画像を事前読み込み（最大6枚）
+      [
+        ...(heroPosts || []).slice(0,3).map((p: Blog) => p.eyecatch?.url).filter(Boolean),
+        ...(pagedPosts || []).slice(0,3).map((p: Blog) => p.eyecatch?.url).filter(Boolean)
+      ].slice(0,6).map((url: string) => (
+        <link rel="preload" as="image" href={`${url}?w=800&q=70`} />
+      ))
+    }
+  </Fragment>
   <!-- ホームページ用の構造化データ -->
   <script slot="head" type="application/ld+json">
     {
@@ -65,7 +87,7 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
         "@context": "https://schema.org",
         "@type": "Blog",
         "name": "Monologger",
-        "description": "テクノロジー、ガジェット、開発に関する技術ブログ",
+        "description": "ITの気づきや備忘録をゆるく残すブログ",
         "url": Astro.site,
         "author": {
           "@type": "Person",
@@ -100,11 +122,54 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
     }
   </script>
   <main class="min-h-screen bg-slate-900">
+    <!-- First View (FB) -->
+    <section class="relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-b from-slate-800/70 to-transparent" aria-hidden="true"></div>
+      <div class="container mx-auto px-6 pt-10 pb-8 md:pt-16 md:pb-12 max-w-7xl relative">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-7 space-y-6">
+            <h1 class="text-3xl md:text-5xl font-extrabold leading-tight bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent">
+              ひとりごとをログる。AIとガジェットの“気づき”がたまるブログ。
+            </h1>
+            <p class="text-slate-300 text-base md:text-lg leading-relaxed">
+              Monologger＝mono（ひとりごと）＋logger（記録）。試してよかった技術やツールを、ゆるくフラットにメモ。<br class="hidden md:block"/>
+              サクッと読めて、毎日がちょっとラクになるヒントをどうぞ。
+            </p>
+            <form id="fv-search" method="get" action="/search" class="flex w-full max-w-3xl rounded-xl overflow-hidden border border-slate-700/60 bg-slate-800/60 backdrop-blur-sm shadow-lg">
+              <input name="q" id="fv-q" list="fv-suggest" class="flex-1 px-4 py-3 bg-transparent text-slate-100 placeholder-slate-400 focus:outline-none" placeholder="なにを探しますか？（例: AI, ガジェット, 時短ツール）" />
+              <datalist id="fv-suggest"></datalist>
+              <button type="submit" class="px-5 md:px-6 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold hover:from-cyan-400 hover:to-blue-400">検索</button>
+            </form>
+            <div class="flex flex-wrap gap-2 pt-1">
+              {categoryChips.map((c) => (
+                <a href={`/category/${encodeURIComponent(c)}`} class="px-3 py-1 rounded-full text-sm border border-cyan-400/40 text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/20 transition">
+                  #{c}
+                </a>
+              ))}
+            </div>
+          </div>
+          <div class="lg:col-span-5 hidden lg:block">
+            <div class="rounded-2xl border border-slate-700/60 bg-slate-800/40 backdrop-blur-sm p-6 shadow-xl">
+              <div class="text-slate-300 text-sm">いま気になる</div>
+              <div class="mt-3 grid grid-cols-2 gap-3">
+                {pagedPosts.slice(0,4).map((p: Blog) => (
+                  <a href={`/blog/${p.id}/`} class="group rounded-xl border border-slate-700/50 bg-slate-800/50 hover:border-cyan-400/60 hover:bg-slate-700/40 transition overflow-hidden">
+                    <img src={(p.eyecatch?.url || '/placeholder.svg') + '?w=320&h=180&fit=crop'} alt={p.title} class="w-full h-24 object-cover" loading="lazy" decoding="async" />
+                    <div class="p-3 text-xs text-slate-200 group-hover:text-white line-clamp-2">{p.title}</div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     {/* ★★★ ヒーローセクションをスライドショーに置き換え（React Island） ★★★ */}
     {
       heroPosts.length > 0 && (
         <div class="mb-8 md:mb-12">
-          <HeroSlideshowReact client:load posts={heroPosts} />
+          <HeroSlideshowReact client:idle posts={heroPosts} />
         </div>
       )
     }
@@ -198,6 +263,7 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
                     href={`?page=${currentPage - 1}`}
                     class={`flex items-center justify-center h-12 w-12 bg-slate-800 border border-slate-700 rounded-xl shadow-lg transition-all duration-300 ${currentPage === 1 ? 'text-slate-600 pointer-events-none' : 'text-slate-300 hover:bg-slate-700 hover:text-cyan-400 hover:border-cyan-400'}`}
                     aria-label="前のページへ"
+                    rel="prev"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                   </a>
@@ -214,6 +280,8 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
                       <a
                         href={`?page=${page}`}
                         class="flex items-center justify-center h-12 w-12 bg-slate-800 border border-slate-700 text-slate-300 rounded-xl shadow-lg hover:bg-slate-700 hover:text-cyan-400 hover:border-cyan-400 transition-all duration-300"
+                        aria-label={`${page}ページ目へ`}
+                        rel={page === currentPage - 1 ? 'prev' : page === currentPage + 1 ? 'next' : undefined}
                       >
                         {page}
                       </a>
@@ -224,6 +292,7 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
                     href={`?page=${currentPage + 1}`}
                     class={`flex items-center justify-center h-12 w-12 bg-slate-800 border border-slate-700 rounded-xl shadow-lg transition-all duration-300 ${currentPage === totalPages ? 'text-slate-600 pointer-events-none' : 'text-slate-300 hover:bg-slate-700 hover:text-cyan-400 hover:border-cyan-400'}`}
                     aria-label="次のページへ"
+                    rel="next"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                   </a>
@@ -234,11 +303,6 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
             <!-- ブログ一覧へのリンク -->
             <div class="mt-12 md:mt-16 text-center">
               <div class="inline-flex flex-col items-center space-y-4">
-                <div class="flex items-center space-x-3 text-slate-400 text-sm">
-                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
-                  <span>もっと記事を見る</span>
-                  <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
-                </div>
                 
                 <a 
                   href="/blog"
@@ -252,10 +316,8 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                   </svg>
                 </a>
-                
-                <p class="text-slate-500 text-sm max-w-md leading-relaxed">
-                  ソート機能やカテゴリフィルターを使って、お探しの記事を見つけてみてください
-                </p>
+             
+
               </div>
             </div>
           </section>
@@ -351,4 +413,35 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
   document.addEventListener("astro:page-load", initializeViewToggle);
   document.addEventListener("swup:contentReplaced", initializeViewToggle);
   document.addEventListener("DOMContentLoaded", initializeViewToggle);
+
+  // First View: Search history suggestions (共有ロジックと同等)
+  (function(){
+    const STORAGE_KEY = 'search_history';
+    function getHistory(): string[] {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || '[]';
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed.map(String) : [];
+      } catch {
+        return [];
+      }
+    }
+    function setHistory(arr: string[]){
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(0,20))); }catch{}
+    }
+    const form = document.getElementById('fv-search') as HTMLFormElement | null;
+    const input = document.getElementById('fv-q') as HTMLInputElement | null;
+    const datalist = document.getElementById('fv-suggest');
+    const history = getHistory();
+    if (datalist && Array.isArray(history)) {
+      datalist.innerHTML = history.map((h)=>`<option value="${h}"></option>`).join('');
+    }
+    form?.addEventListener('submit', () => {
+      const q = (input?.value || '').trim();
+      if (!q) return;
+      const h = getHistory();
+      const next = [q, ...h.filter((x: string)=> x !== q)];
+      setHistory(next);
+    });
+  })();
 </script>

@@ -71,6 +71,7 @@ const pageTitle = categoryParam && categoryParam !== "all"
 const breadcrumbItems = [
   { name: "ホーム", href: "/" },
   { name: "ブログ", href: categoryParam && categoryParam !== "all" ? "/blog" : undefined },
+  ...(categoryParam && categoryParam !== "all" ? [{ name: "カテゴリ", href: "/category" }] : [])
 ];
 
 if (categoryParam && categoryParam !== "all") {
@@ -80,8 +81,8 @@ if (categoryParam && categoryParam !== "all") {
 
 <BaseLayout 
   pageTitle={pageTitle}
-  pageDescription="Monologgerのブログ記事一覧です。テクノロジー、ガジェット、開発に関する記事を掲載しています。"
-  keywords="ブログ, 記事一覧, テクノロジー, ガジェット, 開発, プログラミング"
+  pageDescription="Monologgerのブログ記事一覧です。ITに触れて気づいたことや、試してよかったツールのメモが並びます。"
+  keywords="ブログ, 記事一覧, テクノロジー, ガジェット, 開発, プログラミング, コーディング, AI, 備忘録, 気づき"
 >
   <div class="min-h-screen bg-slate-900 text-white">
     <!-- ヒーローセクション -->
@@ -102,7 +103,7 @@ if (categoryParam && categoryParam !== "all") {
         </h1>
         
         <p class="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-          テクノロジー、ガジェット、開発に関する記事を掲載しています
+          ITに触れて気づいたことや、試してよかったツールのメモをまとめています
         </p>
         
         {categoryParam && categoryParam !== "all" && (

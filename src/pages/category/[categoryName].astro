@@ -31,13 +31,13 @@ const { contents: posts }: { contents: Blog[] } = await getBlogs({
 
 // SEO用の情報準備
 const pageTitle = `${categoryName}の記事一覧`;
-const pageDescription = `${categoryName}に関連する記事の一覧ページです。${posts.length}件の記事があります。`;
-const keywords = `${categoryName}, テクノロジー, ブログ, 記事一覧`;
+const pageDescription = `${categoryName}にまつわる気づきやメモをまとめた一覧ページです。${posts.length}件あります。`;
+const keywords = `${categoryName}, テクノロジー, ブログ, 記事一覧, AI, コーディング`;
 
 // パンくずナビゲーション用のアイテム作成
 const breadcrumbItems = [
   { name: "ホーム", href: "/" },
-  { name: "カテゴリ", href: "/" },
+  { name: "カテゴリ", href: "/category" },
   { name: categoryName }
 ];
 ---

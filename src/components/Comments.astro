@@ -18,13 +18,27 @@ const giscus = {
 const disqusShortname = "shu-zhai-notetsukugia";
 ---
 
-<div
-  id="giscus-container"
-  data-repo={giscus.repo}
-  data-repo-id={giscus.repoId}
-  data-category={giscus.category}
-  data-category-id={giscus.categoryId}
->
+<div class="comments-container space-y-4">
+  <div class="flex items-center gap-2">
+    <h3 class="text-xl font-bold text-cyan-300">ディスカッション</h3>
+    <span class="text-xs text-slate-400">（Giscus）</span>
+  </div>
+  <div
+    id="giscus-container"
+    data-repo={giscus.repo}
+    data-repo-id={giscus.repoId}
+    data-category={giscus.category}
+    data-category-id={giscus.categoryId}
+    class="rounded-xl border border-slate-700/50 bg-slate-800/40 backdrop-blur-sm p-2"
+  >
+  </div>
+
+  <details class="group">
+    <summary class="cursor-pointer select-none text-slate-300 hover:text-white transition-colors">
+      うまく表示されない場合（クリックして再読み込み）
+    </summary>
+    <button id="reload-giscus" type="button" class="mt-2 px-3 py-1.5 text-sm rounded-lg bg-slate-700/70 border border-slate-600/60 text-slate-100 hover:bg-slate-700">再読み込み</button>
+  </details>
 </div>
 
 <script>
@@ -67,6 +81,10 @@ const disqusShortname = "shu-zhai-notetsukugia";
     container.appendChild(giscusScript);
   };
 
+  const manualReload = () => {
+    createGiscus();
+  };
+
   // Astroのページ読み込みイベントに処理を一本化
   document.addEventListener("astro:page-load", createGiscus);
   
@@ -75,4 +93,11 @@ const disqusShortname = "shu-zhai-notetsukugia";
   
   // 初回ページ読み込み時にも対応
   document.addEventListener("DOMContentLoaded", createGiscus);
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target && target.id === 'reload-giscus') {
+      manualReload();
+    }
+  });
 </script>
