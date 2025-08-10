@@ -65,9 +65,9 @@ const categoryChips: string[] = Array.from(
 ---
 
 <BaseLayout
-  pageTitle="技術ブログ - 最新の記事"
-  pageDescription="Monologgerは、テクノロジー、ガジェット、開発に関する最新情報を発信する技術ブログです。プログラミング、Web開発、最新技術トレンドなどの記事をお届けします。"
-  keywords="テクノロジー, ガジェット, 開発, プログラミング, Web開発, JavaScript, React, Astro, 技術ブログ"
+  pageTitle="気づきメモ - 最新の記事"
+  pageDescription="ITに触れて生まれた日々の気づきや備忘録をゆるくまとめています。ガジェットや開発の小ネタ、作業をラクにするヒントなど。"
+  keywords="テクノロジー, ガジェット, 開発, プログラミング, コーディング, AI, Web開発, JavaScript, React, Astro, 備忘録, 気づき"
 >
   <Fragment slot="head">
     {
@@ -87,7 +87,7 @@ const categoryChips: string[] = Array.from(
         "@context": "https://schema.org",
         "@type": "Blog",
         "name": "Monologger",
-        "description": "テクノロジー、ガジェット、開発に関する技術ブログ",
+        "description": "ITの気づきや備忘録をゆるく残すブログ",
         "url": Astro.site,
         "author": {
           "@type": "Person",
@@ -129,11 +129,11 @@ const categoryChips: string[] = Array.from(
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div class="lg:col-span-7 space-y-6">
             <h1 class="text-3xl md:text-5xl font-extrabold leading-tight bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent">
-              AIとガジェット、日々の“いいね”を残していくブログ。
+              ひとりごとをログる。AIとガジェットの“気づき”がたまるブログ。
             </h1>
             <p class="text-slate-300 text-base md:text-lg leading-relaxed">
-              気になった技術・ツールを試して、役に立ったことだけメモしています。<br class="hidden md:block"/>
-              ライトに読めて、ちょっと生活がラクになるヒントをどうぞ。
+              Monologger＝mono（ひとりごと）＋logger（記録）。試してよかった技術やツールを、ゆるくフラットにメモ。<br class="hidden md:block"/>
+              サクッと読めて、毎日がちょっとラクになるヒントをどうぞ。
             </p>
             <form id="fv-search" method="get" action="/search" class="flex w-full max-w-3xl rounded-xl overflow-hidden border border-slate-700/60 bg-slate-800/60 backdrop-blur-sm shadow-lg">
               <input name="q" id="fv-q" list="fv-suggest" class="flex-1 px-4 py-3 bg-transparent text-slate-100 placeholder-slate-400 focus:outline-none" placeholder="なにを探しますか？（例: AI, ガジェット, 時短ツール）" />

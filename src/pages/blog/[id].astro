@@ -53,7 +53,7 @@ const categoryNames = categories.filter(Boolean); // categoryは文字列の配�
 // 関連記事取得（同カテゴリ・自身除外・新しい順）
 const allBlogs = await getBlogs({ limit: 100, orders: "-publishedAt" });
 const relatedPosts = getRelatedPosts(post as any, allBlogs.contents as any[]);
-const seoKeywords = [...categoryNames, "テクノロジー", "プログラミング", "開発"].join(", ");
+const seoKeywords = [...categoryNames, "テクノロジー", "プログラミング", "コーディング", "AI", "開発"].join(", ");
 
 // パンくずナビゲーション用のアイテム作成
 const breadcrumbItems = [
