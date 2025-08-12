@@ -6,11 +6,57 @@ import vercel from "@astrojs/vercel"; // vercelをインポート
 // import partytown from "@astrojs/partytown";
 import { defineConfig } from "astro/config";
 
+// 追加: 動的URLをサイトマップに含める（microCMSから記事/カテゴリを取得）
+const BASE_URL = "https://monologger.dev";
+async function fetchDynamicSitemapPages() {
+  try {
+    const service = process.env.VITE_MICROCMS_SERVICE_DOMAIN || "";
+    const apiKey = process.env.MICROCMS_API_KEY || "";
+    if (!service || !apiKey) return [];
+    const endpoint = `https://${service}.microcms.io/api/v1/blogs?fields=id,category&limit=1000`;
+    const res = await fetch(endpoint, { headers: { "X-API-KEY": apiKey } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const ids = Array.isArray(data?.contents) ? data.contents : [];
+    const pages = [];
+    const categories = new Set();
+    for (const item of ids) {
+      if (item?.id) pages.push(`${BASE_URL}/blog/${item.id}/`);
+      const cats = Array.isArray(item?.category) ? item.category : [];
+      for (const c of cats) if (c) categories.add(String(c));
+    }
+    for (const c of categories) pages.push(`${BASE_URL}/category/${encodeURIComponent(c)}/`);
+    return pages;
+  } catch {
+    return [];
+  }
+}
+
+const dynamicPages = await fetchDynamicSitemapPages();
+
 export default defineConfig({
-  site: "https://monologger.dev", // 新しいドメインに変更
+  site: BASE_URL, // 新しいドメインに変更
   output: "server", // outputは"server"のまま
+  trailingSlash: 'ignore',
   adapter: vercel(), // adapterをvercel()に変更
-  integrations: [tailwind(), sitemap(), react()],
+  integrations: [
+    tailwind(),
+    sitemap({
+      customPages: dynamicPages,
+      exclude: [
+        '/search',
+        '/search/**',
+        '/404',
+        '/api/**'
+      ],
+      serialize: (item) => ({
+        ...item,
+        changefreq: 'weekly',
+        priority: item.url.includes('/blog/') ? 0.8 : 0.6,
+      })
+    }),
+    react()
+  ],
   image: {
     domains: ["images.microcms-assets.io"],
   },

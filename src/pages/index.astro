@@ -62,12 +62,20 @@ const categoryChips: string[] = Array.from(
     )
   )
 ).slice(0, 6);
+
+// カノニカルURL（ホーム）
+const canonicalHome = (() => {
+  const url = new URL('/', Astro.site);
+  if (currentPage > 1) url.searchParams.set('page', String(currentPage));
+  return url.href;
+})();
 ---
 
 <BaseLayout
   pageTitle="気づきメモ - 最新の記事"
   pageDescription="ITに触れて生まれた日々の気づきや備忘録をゆるくまとめています。ガジェットや開発の小ネタ、作業をラクにするヒントなど。"
   keywords="テクノロジー, ガジェット, 開発, プログラミング, コーディング, AI, Web開発, JavaScript, React, Astro, 備忘録, 気づき"
+  canonicalUrl={canonicalHome}
 >
   <Fragment slot="head">
     {
@@ -81,9 +89,7 @@ const categoryChips: string[] = Array.from(
     }
   </Fragment>
   <!-- ホームページ用の構造化データ -->
-  <script slot="head" type="application/ld+json">
-    {
-      JSON.stringify({
+  <script slot="head" type="application/ld+json" is:inline>{JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Blog",
         "name": "Monologger",
@@ -118,8 +124,7 @@ const categoryChips: string[] = Array.from(
           },
           "image": post.eyecatch?.url || new URL("/placeholder.svg", Astro.site).href
         }))
-      })
-    }
+      })}
   </script>
   <main class="min-h-screen bg-slate-900">
     <!-- First View (FB) -->

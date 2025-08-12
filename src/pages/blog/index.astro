@@ -77,12 +77,27 @@ const breadcrumbItems = [
 if (categoryParam && categoryParam !== "all") {
   breadcrumbItems.push({ name: categoryParam, href: undefined });
 }
+
+// 正規URL（カノニカル）を計算
+const canonicalUrlForList = (() => {
+  if (categoryParam && categoryParam !== 'all') {
+    const p = `/category/${encodeURIComponent(categoryParam)}/`;
+    const url = new URL(p, Astro.site);
+    const pageParamLocal = Astro.url.searchParams.get('page');
+    if (pageParamLocal && pageParamLocal !== '1') url.searchParams.set('page', pageParamLocal);
+    return url.href;
+  }
+  const url = new URL('/blog/', Astro.site);
+  if (currentPage > 1) url.searchParams.set('page', String(currentPage));
+  return url.href;
+})();
 ---
 
 <BaseLayout 
   pageTitle={pageTitle}
   pageDescription="Monologgerのブログ記事一覧です。ITに触れて気づいたことや、試してよかったツールのメモが並びます。"
   keywords="ブログ, 記事一覧, テクノロジー, ガジェット, 開発, プログラミング, コーディング, AI, 備忘録, 気づき"
+  canonicalUrl={canonicalUrlForList}
 >
   <div class="min-h-screen bg-slate-900 text-white">
     <!-- ヒーローセクション -->
