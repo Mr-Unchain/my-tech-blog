@@ -15,6 +15,8 @@ export interface Props {
   modifiedTime?: string;
   articleType?: string;
   noIndex?: boolean;
+  // 任意でページ側からカノニカルURLを上書き可能にする
+  canonicalUrl?: string;
 }
 
 const {
@@ -27,6 +29,7 @@ const {
   modifiedTime,
   articleType = "website",
   noIndex = false,
+  canonicalUrl: canonicalUrlOverride,
 } = Astro.props;
 
 const siteTitle = "Monologger";
@@ -34,8 +37,19 @@ const title = pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle;
 const ogpImageUrl =
   ogImageUrl || new URL("default-og-image.svg", Astro.site).href;
 
-// カノニカルURLの生成
-const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+// カノニカルURLの生成（末尾スラッシュを統一し、ページネーション(page)のみ反映）
+function buildDefaultCanonicalUrl() {
+  const rawPath = Astro.url.pathname || "/";
+  const normalizedPath = rawPath.endsWith("/") ? rawPath : `${rawPath}/`;
+  const url = new URL(normalizedPath, Astro.site);
+  const pageParam = Astro.url.searchParams.get("page");
+  if (pageParam && pageParam !== "1") {
+    url.searchParams.set("page", pageParam);
+  }
+  return url.href;
+}
+
+const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
 ---
 
 <!doctype html>
@@ -102,30 +116,26 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
     <link rel="prefetch" href="/search" />
     
     <!-- Structured Data - Website Schema -->
-    <script type="application/ld+json">
-      {
-        JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "name": siteTitle,
-          "url": Astro.site,
-          "description": pageDescription,
-          "publisher": {
-            "@type": "Organization",
-            "name": siteTitle,
-            "logo": {
-              "@type": "ImageObject",
-              "url": new URL("/logo.svg", Astro.site).href
-            }
-          },
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": new URL("/search?q={search_term_string}", Astro.site).href,
-            "query-input": "required name=search_term_string"
-          }
-        })
+    <script type="application/ld+json" is:inline>{JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": siteTitle,
+      "url": Astro.site,
+      "description": pageDescription,
+      "publisher": {
+        "@type": "Organization",
+        "name": siteTitle,
+        "logo": {
+          "@type": "ImageObject",
+          "url": new URL("/logo.svg", Astro.site).href
+        }
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": new URL("/search?q={search_term_string}", Astro.site).href,
+        "query-input": "required name=search_term_string"
       }
-    </script>
+    })}</script>
 
     <!-- Web Vitals (console only) -->
     <script>

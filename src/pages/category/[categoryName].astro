@@ -47,9 +47,7 @@ const breadcrumbItems = [
   pageDescription={pageDescription}
   keywords={keywords}
 >
-  <script slot="head" type="application/ld+json">
-    {
-      JSON.stringify({
+  <script slot="head" type="application/ld+json" is:inline>{JSON.stringify({
         "@context": "https://schema.org",
         "@type": "CollectionPage",
         "name": pageTitle,
@@ -71,8 +69,7 @@ const breadcrumbItems = [
             }
           }))
         }
-      })
-    }
+      })}
   </script>
   
   <main class="min-h-screen bg-slate-900">

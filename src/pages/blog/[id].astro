@@ -81,9 +81,7 @@ const breadcrumbItems = [
     />
     
     <!-- Article Specific Structured Data -->
-    <script type="application/ld+json">
-      {
-        JSON.stringify({
+    <script type="application/ld+json" is:inline>{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BlogPosting",
           "headline": post.title,
@@ -116,14 +114,10 @@ const breadcrumbItems = [
             "@type": "ReadAction",
             "target": [Astro.url.href]
           }
-        })
-      }
-    </script>
+    })}</script>
 
     <!-- Breadcrumb Structured Data -->
-    <script type="application/ld+json">
-      {
-        JSON.stringify({
+    <script type="application/ld+json" is:inline>{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           "itemListElement": [
@@ -152,9 +146,7 @@ const breadcrumbItems = [
               "item": Astro.url.href
             }
           ].filter(Boolean)
-        })
-      }
-    </script>
+    })}</script>
   </Fragment>
   
   <main class="min-h-screen bg-slate-900">
