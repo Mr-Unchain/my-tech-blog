@@ -1,0 +1,17 @@
+type(scope): <English subject>
+JA: <日本語サマリー>
+
+<English body – what changed, why, how>
+<日本語本文 – 変更内容/理由/影響/移行手順>
+
+# Optional sections (uncomment if needed):
+# BREAKING CHANGE: <English note>
+# 破壊的変更: <日本語メモ>
+# Refs: #123, PR #456
+# Co-authored-by: Name <email@example.com>
+
+# Guidelines
+# - Follow Conventional Commits for the header.
+# - Keep the English subject concise (imperative mood, <= 72 chars).
+# - Add the Japanese summary after `JA:`.
+# - Provide details in both languages when the change is non-trivial.
