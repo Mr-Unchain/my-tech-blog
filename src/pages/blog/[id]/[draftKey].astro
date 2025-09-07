@@ -1,0 +1,13 @@
+---
+// /blog/{id}/{draftKey} → /blog/{id}?draftKey=... にリダイレクト
+const { id, draftKey } = Astro.params;
+
+if (!id || !draftKey) {
+  return new Response(null, { status: 404 });
+}
+
+const target = new URL(`/blog/${encodeURIComponent(id)}?draftKey=${encodeURIComponent(draftKey)}`, Astro.url);
+return Response.redirect(target.href, 302);
+---
+
+
