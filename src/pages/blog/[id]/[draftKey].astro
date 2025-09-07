@@ -7,7 +7,14 @@ if (!id || !draftKey) {
 }
 
 const target = new URL(`/blog/${encodeURIComponent(id)}?draftKey=${encodeURIComponent(draftKey)}`, Astro.url);
-return Response.redirect(target.href, 302);
+// Response.redirect は immutable ヘッダーのため、Astro が追記する際にエラーとなる。
+// 明示的に Location ヘッダーを持つ Response を返す。
+return new Response(null, {
+  status: 302,
+  headers: {
+    Location: target.href,
+  },
+});
 ---
 
 
