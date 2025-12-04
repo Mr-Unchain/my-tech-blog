@@ -1,97 +1,92 @@
-# Monologger - 技術ブログ
+# Monologger – Tech Blog for Product-minded Engineers
 
-Modern tech blog built with Astro, featuring a sleek dark theme design and comprehensive SEO optimization.
+Astro + React + microCMS で構築した個人技術ブログです。高速な表示と運用しやすい編集体験を両立し、記事を書くだけで SEO・分析・配信まで完結することを狙いました。技術選定理由や設計意図を明示し、採用担当や技術面接官にもプロダクト視点が伝わる構成に整理しています。
 
-![Monologger](./public/default-og-image.svg)
+## プロジェクト概要（課題と解決アプローチ）
+- **課題感**: 「記事更新のたびにビルドやデプロイを意識したくない」「速さとアクセシビリティを犠牲にしないでリッチな表現を使いたい」「読まれる・改善できるブログ運用を仕組み化したい」。
+- **解決策**: Astro の静的生成をベースに、microCMS をヘッドレス CMS として採用し、Firebase でリアルタイム分析を付与。Swup による高速ページトランジションや LQIP によるプレースホルダー生成で体感速度を最適化。型安全な API クライアントとユニットテストで継続的な改善がしやすい基盤を用意しています。
 
-## 🚀 Features
+## 機能一覧
+- ブログ記事・プロフィール・プロジェクト紹介の **コンテンツ管理**（microCMS）
+- **SEO 最適化**: OGP/Twitter カード、構造化データ、サイトマップ、自動 canonical
+- **高速 UX**: Swup によるスムーズなページ遷移、画像の遅延読み込み、LQIP プレースホルダー生成
+- **閲覧データ取得**: Firebase Firestore でビューカウントとエンゲージメントを追跡
+- **レスポンシブ & アクセシブル**: ARIA 属性、キーボード操作考慮、Tailwind/SCSS での一貫したデザイン
+- **コンポーネント分割**: Astro Islands + React コンポーネントで必要な箇所だけをインタラクティブ化
 
-- **Modern Dark Design**: Refined dark-themed UI with cyan/blue gradients
-- **SEO Optimized**: Complete SEO setup with structured data, OGP, and Twitter Cards
-- **CMS Integration**: Seamless integration with microCMS for content management
-- **Real-time Analytics**: Firebase integration for view tracking and comments
-- **Responsive Design**: Mobile-first responsive design with Tailwind CSS
-- **Performance**: Optimized images, lazy loading, and fast page transitions
-- **Accessibility**: ARIA labels, keyboard navigation, and screen reader support
-
-## 🛠️ Technology Stack
-
-- **Framework**: [Astro](https://astro.build/) - Static Site Generator with SSR support
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- **CMS**: [microCMS](https://microcms.io/) - Headless CMS for content management
-- **Database**: [Firebase Firestore](https://firebase.google.com/products/firestore) - Real-time database
-- **Deployment**: [Vercel](https://vercel.com/) - Edge deployment platform
-- **UI Components**: React components with Astro Islands architecture
-
-## 📁 Project Structure
-
+## アーキテクチャ概要
 ```
-my-tech-blog/
-├── public/                 # Static assets
-│   ├── favicon.svg
-│   ├── logo.svg
-│   ├── default-og-image.svg
-│   └── robots.txt
-├── src/
-│   ├── components/         # Reusable components
-│   │   ├── ArticleCard.astro
-│   │   ├── Header.astro
-│   │   ├── Footer.astro
-│   │   ├── Sidebar.astro
-│   │   └── HeroSlideshowReact.tsx
-│   ├── layouts/           # Page layouts
-│   │   └── BaseLayout.astro
-│   ├── lib/               # Utility libraries
-│   │   ├── firebase.ts
-│   │   └── microcms.ts
-│   ├── pages/             # Route pages
-│   │   ├── index.astro
-│   │   ├── blog/
-│   │   ├── category/
-│   │   ├── search.astro
-│   │   └── profile.astro
-│   └── styles/            # Global styles
-│       ├── global.css
-│       └── main.scss
-├── astro.config.mjs       # Astro configuration
-├── tailwind.config.mjs    # Tailwind configuration
-├── vercel.json           # Vercel deployment config
-└── package.json
+┌─────────────────────────────────────────┐
+│                  Client (Astro)          │
+│  - 静的生成された HTML/CSS/JS            │
+│  - Islands: ArticleCard, HeroSlideshow    │
+│  - Swup によるページトランジション       │
+└───────────────▲─────────────────────────┘
+                │ fetch (build & runtime)
+┌───────────────┴─────────────────────────┐
+│              Backend Services            │
+│  microCMS: 記事/プロフィール/案件データ    │
+│  Firebase Firestore: 閲覧数・コメント等    │
+└───────────────▲─────────────────────────┘
+                │ deploy (CI/CD)
+┌───────────────┴─────────────────────────┐
+│                 Vercel                   │
+│  - Preview/Production デプロイ           │
+│  - Edge Network 配信                     │
+└─────────────────────────────────────────┘
 ```
 
-## 🔧 Setup & Installation
+### データフローの要点
+- ビルド時に microCMS から記事・プロフィール・プロジェクト情報を取得し静的ページを生成。
+- Firebase Firestore で閲覧数をリアルタイムに計測し、将来のコメント/リアクション機能に拡張可能。
+- Swup + Astro Islands でページ遷移を高速化しつつ、必要最小限の JS だけを配信。
 
-### Prerequisites
+## 技術スタックと選定理由
+- **Astro + React**: 静的生成による高速配信と、必要箇所のみのインタラクティブ化が可能。React 資産を再利用しつつ、SSR/SSG を場面に応じて選択できる柔軟性を重視。
+- **microCMS**: 日本語ドキュメントと UI が優秀で、非エンジニアでも編集しやすい。Webhook/Preview 連携で運用コストを削減。
+- **Firebase (Firestore)**: スキーマレスで小規模プロダクトに適したリアルタイム DB。将来的なコメント・リアクション機能をサーバーレスで追加しやすい。
+- **Tailwind CSS + SCSS**: ユーティリティで初速を上げつつ、SCSS で共通トークン管理。ダークテーマやアクセントカラーの統一を容易に。
+- **Swup**: 既存ページ構造を保ったまま、体感速度の高いトランジションを実現。SPA ほど複雑にせずに UX を向上。
+- **Vercel**: Git 連携によるプレビュー環境、Edge Network 配信、Astro 公式アダプター対応でデプロイがシンプル。
 
-- Node.js 18.0.0 or higher
-- npm or yarn package manager
-- microCMS account
-- Firebase project
-- Vercel account (for deployment)
+## 実装で工夫したポイント
+- **パフォーマンス**: `src/lib/blur.ts` で LQIP を生成し、ファーストビューのチラつきを低減。画像は `astro:assets` で最適化し、`sizes`/`loading="lazy"` を適切に設定。
+- **型安全なデータ取得**: `src/lib/microcms.ts` でコンテンツ型を定義し、カテゴリフィールドをビルド時に正規化して UI 側の条件分岐を単純化。
+- **アクセシビリティ**: `ArticleCard.astro` で `aria-labelledby` や `time` 要素を使用し、読み上げと SEO 両面をケア。
+- **運用効率**: scripts と CI/CD を Vercel に集約し、環境変数だけでプレビューを切り替え可能。Tailwind プリセットでダークテーマを統一。
 
-### Local Development
+## 課題と今後の改善ロードマップ
+1. **検索・レコメンド強化**: Algolia もしくは自前の全文検索インデックス導入。
+2. **エンゲージメント機能**: Firestore を活用したリアクション・コメント・ブックマークの実装。
+3. **パフォーマンス計測の自動化**: Lighthouse CI でのスコア計測と PR 時のレポート化。
+4. **国際化対応**: Astro の i18n で英語版を追加し、ルーティング/OGP を多言語化。
+5. **エディタ拡張**: microCMS のプレビュー・ドラフト連携を強化し、MD ベースの執筆体験を提供。
 
-1. **Clone the repository**
+## セットアップ方法
+### 前提
+- Node.js 18+、npm
+- microCMS プロジェクトと API キー
+- Firebase プロジェクト（Firestore 有効）
+- Vercel アカウント（デプロイ用）
+
+### 手順
+1. リポジトリを取得
    ```bash
    git clone https://github.com/your-username/my-tech-blog.git
    cd my-tech-blog
    ```
-
-2. **Install dependencies**
+2. 依存関係をインストール
    ```bash
    npm install
    ```
-
-3. **Environment Variables Setup**
-   
-   Create a `.env` file in the root directory:
+3. 環境変数を設定（`.env`）
    ```bash
-   # microCMS Configuration
+   # microCMS
    VITE_MICROCMS_SERVICE_DOMAIN=your-service-domain
    MICROCMS_API_KEY=your-api-key
    VITE_MICROCMS_API_URL=https://your-service-domain.microcms.io/api/v1
-   
-   # Firebase Configuration (Client-side)
+
+   # Firebase (client)
    VITE_FIREBASE_API_KEY=your-api-key
    VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
    VITE_FIREBASE_PROJECT_ID=your-project-id
@@ -100,140 +95,48 @@ my-tech-blog/
    VITE_FIREBASE_APP_ID=your-app-id
    VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
    ```
-
-4. **Start development server**
+4. 開発サーバー起動
    ```bash
    npm run dev
    ```
-
-   The site will be available at `http://localhost:4321`
-
-## 📝 Content Management
-
-### microCMS Schema Setup
-
-Create the following content types in your microCMS dashboard:
-
-#### Blog Content Type
-```json
-{
-  "title": "Text Field",
-  "description": "Text Field",
-  "content": "Rich Editor",
-  "eyecatch": "Image",
-  "category": "Select Field (Multiple)"
-}
-```
-
-#### Profile Content Type
-```json
-{
-  "name": "Text Field",
-  "description": "Text Area",
-  "avatar": "Image",
-  "xUrl": "Text Field",
-  "githubUrl": "Text Field",
-  "portfolio_intro": "Rich Editor",
-  "skills": "Text Area",
-  "work_history": "Rich Editor",
-  "contact_email": "Text Field"
-}
-```
-
-### Firebase Setup
-
-1. Create a new Firebase project
-2. Enable Firestore Database
-3. Create a `views` collection for tracking article views
-4. Set up Firebase Authentication (optional)
-5. Configure security rules as needed
-
-## 🚀 Deployment
-
-### Vercel Deployment
-
-1. **Connect to Vercel**
+   `http://localhost:4321` でプレビューできます。
+5. 本番ビルド・プレビュー
    ```bash
-   npm install -g vercel
-   vercel login
-   vercel
+   npm run build
+   npm run preview
    ```
 
-2. **Environment Variables**
-   
-   Add all environment variables to your Vercel project settings:
-   - Go to Project Settings → Environment Variables
-   - Add all variables from your local `.env` file
-
-3. **Automatic Deployments**
-   
-   Push to your main branch to trigger automatic deployments.
-
-### Custom Domain Setup
-
-1. Add your custom domain in Vercel project settings
-2. Update `astro.config.mjs` with your production domain:
-   ```javascript
-   export default defineConfig({
-     site: "https://your-domain.com",
-     // ... other config
-   });
-   ```
-3. Update `robots.txt` with your domain
-
-## 🎨 Customization
-
-### Theme Colors
-
-The project uses a dark theme with customizable accent colors defined in `tailwind.config.mjs`:
-
-```javascript
-colors: {
-  primary: {
-    50: '#f0f9ff',
-    500: '#06b6d4',  // Main accent color
-    600: '#0891b2',
-    // ... other shades
-  }
-}
+## プロジェクト構成
+```
+my-tech-blog/
+├── public/                 # 静的アセット（OGP 画像・ロゴ等）
+├── src/
+│   ├── components/         # UI コンポーネント（Astro/React）
+│   ├── layouts/            # ページ共通レイアウト
+│   ├── lib/                # API クライアント・LQIP 生成などのユーティリティ
+│   ├── pages/              # ルーティングページ（ブログ、検索、プロフィール等）
+│   ├── styles/             # グローバルスタイル（Tailwind + SCSS）
+│   └── utils/              # 共有ロジック（例: 読了時間計算）
+├── tests/                  # Vitest ベースのユニット/コンポーネントテスト
+├── astro.config.mjs        # Astro 設定（sitemap, vercel adapter など）
+└── vercel.json             # Vercel デプロイ設定
 ```
 
-### Logo and Branding
+## スクリーンショット / デモ
+- `public/` にデモ画像を追加し、以下に貼り付けてください。
+- 例: `![Home](./public/demo-home.png)`
 
-- Replace `/public/logo.svg` with your logo
-- Update `/public/favicon.svg` with your favicon
-- Modify the OGP image at `/public/default-og-image.svg`
-
-## 📊 SEO Features
-
-- **Structured Data**: JSON-LD schema for articles and website
-- **Open Graph**: Complete OGP meta tags for social sharing
-- **Twitter Cards**: Optimized Twitter card configuration
-- **Sitemap**: Automatic sitemap generation
-- **Robots.txt**: Search engine crawling instructions
-- **Canonical URLs**: Proper canonical URL handling
-
-## 🔧 Available Scripts
-
+## スクリプトと開発フロー
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build |
-| `npm run astro -- --help` | Show Astro CLI help |
+| `npm run dev` | 開発サーバー起動 |
+| `npm run build` | 本番ビルド |
+| `npm run preview` | ビルド済みサイトをローカル確認 |
+| `npm run test` | Vitest で単体・コンポーネントテスト |
+| `npm run e2e` | Playwright による E2E テスト |
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📞 Support
-
-If you have any questions or need help with setup, please open an issue on GitHub.
+## ライセンス
+MIT License
 
 ---
-
-Built with ❤️ using [Astro](https://astro.build/) and modern web technologies.
+Astro / React / Tailwind による高速フロントエンドと、microCMS・Firebase を組み合わせた柔軟な運用を実践することで、**「書くこと」に集中できる開発体験**を実現しています。プロダクト視点と継続的改善を両立するワークフローを示すサンプルとしてご覧ください。
