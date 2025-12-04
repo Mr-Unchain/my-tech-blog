@@ -1,0 +1,298 @@
+---
+// src/pages/portfolio.astro
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ArticleCard from "../components/ArticleCard.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getBlogs, getProfile, getProjects } from "../lib/microcms";
+import * as cheerio from "cheerio";
+
+const [profile, projectData, blogData] = await Promise.all([
+  getProfile(),
+  getProjects({ orders: "-publishedAt" }),
+  getBlogs({ limit: 3, orders: "-publishedAt" }),
+]);
+
+const projects = projectData.contents || [];
+const recentBlogs = blogData.contents || [];
+
+const parseSkills = (html: string | undefined): string[] => {
+  if (!html) return [];
+  const $ = cheerio.load(html);
+  if ($("ul").length) {
+    return $("li")
+      .map((_, el) => $(el).text())
+      .get();
+  }
+  return ($("p").text() || "")
+    .split(/[,、\s]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const skills = parseSkills(profile.skills);
+const primarySkills = skills.slice(0, 6);
+const heroSkills = skills.slice(0, 3);
+const pageTitle = `${profile.name} | Portfolio`;
+const pageDescription = `${profile.name}のポートフォリオです。主要スキルや代表プロジェクト、経歴、問い合わせ先をまとめています。`;
+---
+
+<BaseLayout
+  pageTitle={pageTitle}
+  pageDescription={pageDescription}
+  keywords={`${profile.name}, ポートフォリオ, プロジェクト, スキル, 経歴`}
+  author={profile.name}
+>
+  <main class="min-h-screen bg-slate-950 text-slate-100">
+    <div class="relative overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,211,238,0.12),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.12),transparent_30%),radial-gradient(circle_at_50%_100%,rgba(99,102,241,0.08),transparent_30%)]"></div>
+      <div class="container mx-auto px-4 py-16 md:py-20 relative z-10 space-y-16">
+        <section class="grid lg:grid-cols-[1.2fr_0.8fr] gap-10 items-center bg-gradient-to-br from-slate-900/80 to-slate-900/50 border border-slate-800/70 rounded-3xl p-8 md:p-12 shadow-2xl shadow-cyan-500/10">
+          <div class="space-y-6">
+            <p class="text-sm uppercase tracking-[0.2em] text-cyan-200/80">Portfolio</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold leading-tight text-white">
+              転職向けポートフォリオ
+              <span class="block text-2xl md:text-3xl mt-3 text-cyan-200/90">{profile.name}</span>
+            </h1>
+            {profile.description && (
+              <p class="text-lg text-slate-200 leading-relaxed">
+                {profile.description}
+              </p>
+            )}
+            {heroSkills.length > 0 && (
+              <div class="flex flex-wrap gap-3">
+                {heroSkills.map((skill) => (
+                  <span class="px-4 py-2 rounded-full bg-cyan-500/15 text-cyan-100 border border-cyan-400/30 text-sm font-semibold">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div class="flex flex-wrap gap-4 pt-2">
+              <a
+                href="#projects"
+                class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow-lg shadow-cyan-500/25 hover:shadow-cyan-400/40 transition-all"
+              >
+                プロジェクトを見る
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
+              <a
+                href="#contact"
+                class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-700 text-slate-100 bg-slate-800/80 hover:border-cyan-400/70 transition-all"
+              >
+                お問い合わせ
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18 8h18a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
+            <div class="flex items-center gap-4">
+              {profile.avatar && (
+                <img
+                  src={profile.avatar.url}
+                  alt={`${profile.name}のアバター`}
+                  class="w-20 h-20 rounded-full ring-4 ring-cyan-500/30 shadow-lg"
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+              <div>
+                <p class="text-sm text-slate-300">Software Engineer / Content Creator</p>
+                <p class="text-2xl font-bold text-white">{profile.name}</p>
+                <div class="flex gap-3 mt-3">
+                  {profile.xUrl && (
+                    <a
+                      href={profile.xUrl}
+                      class="text-slate-400 hover:text-cyan-400 transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Xプロフィール"
+                    >
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                    </a>
+                  )}
+                  {profile.githubUrl && (
+                    <a
+                      href={profile.githubUrl}
+                      class="text-slate-400 hover:text-cyan-400 transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="GitHubプロフィール"
+                    >
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.378.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.942.359.308.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" /></svg>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="rounded-xl bg-slate-800/80 border border-slate-700/70 p-4">
+                <p class="text-sm text-slate-400">経験年数</p>
+                <p class="text-2xl font-bold text-white">8+ yrs</p>
+              </div>
+              <div class="rounded-xl bg-slate-800/80 border border-slate-700/70 p-4">
+                <p class="text-sm text-slate-400">得意領域</p>
+                <p class="text-2xl font-bold text-white">Web / SaaS</p>
+              </div>
+              <div class="rounded-xl bg-slate-800/80 border border-slate-700/70 p-4">
+                <p class="text-sm text-slate-400">最近の関心</p>
+                <p class="text-2xl font-bold text-white">AI / DX</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="projects" class="space-y-6">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Projects</p>
+              <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">代表プロジェクト</h2>
+              <p class="text-slate-300 mt-2">成果・役割・技術スタックをまとめています。</p>
+            </div>
+            <div class="hidden md:flex items-center gap-2 text-sm text-slate-300 bg-slate-800/70 border border-slate-700/70 rounded-full px-4 py-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              {projects.length}件のプロジェクト
+            </div>
+          </div>
+          {projects.length === 0 ? (
+            <div class="rounded-2xl border border-slate-700/70 bg-slate-800/70 p-8 text-center text-slate-300">
+              現在表示できるプロジェクトがありません。更新をお待ちください。
+            </div>
+          ) : (
+            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {projects.map((project) => (
+                <ProjectCard project={project} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {primarySkills.length > 0 && (
+          <section class="space-y-4">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Skills</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">主要スキル</h2>
+                <p class="text-slate-300 mt-2">頻度の高い順にピックアップしています。</p>
+              </div>
+              <span class="text-sm text-slate-400">{skills.length} skills</span>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {primarySkills.map((skill) => (
+                <div class="flex items-center gap-3 rounded-xl border border-slate-700/70 bg-slate-800/80 p-4 shadow-sm shadow-cyan-500/5">
+                  <div class="w-10 h-10 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-100 font-semibold flex items-center justify-center">
+                    ★
+                  </div>
+                  <span class="font-semibold text-slate-100">{skill}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {profile.work_history && (
+          <section class="space-y-4">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Experience</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">経歴サマリー</h2>
+              </div>
+            </div>
+            <div class="prose prose-invert max-w-none bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6 prose-headings:text-white prose-p:text-slate-200 prose-strong:text-white prose-a:text-cyan-300">
+              <Fragment set:html={profile.work_history} />
+            </div>
+          </section>
+        )}
+
+        <section id="contact" class="space-y-4">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Contact</p>
+              <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">お問い合わせ</h2>
+              <p class="text-slate-300 mt-2">案件の相談やカジュアル面談のご連絡はこちらから。</p>
+            </div>
+          </div>
+          {profile.contact_email ? (
+            <div class="relative max-w-2xl flex items-center bg-slate-900/70 border border-slate-800/70 rounded-2xl p-5 backdrop-blur-sm">
+              <a
+                id="contact-email"
+                href={`mailto:${profile.contact_email}`}
+                class="text-cyan-300 hover:text-cyan-100 hover:underline flex-grow font-medium"
+              >
+                {profile.contact_email}
+              </a>
+              <button
+                id="copy-button"
+                class="ml-3 px-3 py-2 rounded-lg text-slate-200 bg-slate-800/80 border border-slate-700/70 hover:border-cyan-400/70 hover:text-cyan-200 transition-all"
+                aria-label="メールアドレスをコピー"
+              >
+                コピー
+              </button>
+              <span
+                id="copy-feedback"
+                class="ml-3 text-sm text-cyan-200 opacity-0 transition-opacity duration-300"
+              >
+                コピーしました！
+              </span>
+            </div>
+          ) : (
+            <p class="text-slate-300">現在公開している連絡先はありません。</p>
+          )}
+        </section>
+
+        {recentBlogs.length > 0 && (
+          <section class="space-y-6">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Articles</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-white mt-1">最近の技術記事</h2>
+                <p class="text-slate-300 mt-2">最新のアウトプットから技術的な関心をチェックできます。</p>
+              </div>
+              <a href="/blog" class="text-sm text-cyan-300 hover:text-cyan-100 font-semibold">すべての記事を見る →</a>
+            </div>
+            <div class="grid gap-6 md:grid-cols-3">
+              {recentBlogs.map((blog) => (
+                <ArticleCard
+                  id={blog.id}
+                  category={blog.category}
+                  title={blog.title}
+                  description={blog.description}
+                  date={blog.publishedAt ?? blog.createdAt}
+                  imageUrl={blog.eyecatch?.url || "/placeholder.svg"}
+                  imageUrlList={blog.eyecatch?.url || "/placeholder.svg"}
+                  class="h-full"
+                  showReadingTime
+                  content={blog.content}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const copyButton = document.getElementById("copy-button");
+  const contactEmail = document.getElementById("contact-email");
+  const copyFeedback = document.getElementById("copy-feedback");
+
+  if (copyButton && contactEmail && copyFeedback) {
+    const email = contactEmail.innerText;
+
+    copyButton.addEventListener("click", () => {
+      if (!email) return;
+
+      navigator.clipboard.writeText(email).then(() => {
+        copyFeedback.classList.remove("opacity-0");
+        setTimeout(() => {
+          copyFeedback.classList.add("opacity-0");
+        }, 2000);
+      });
+    });
+  }
+</script>
