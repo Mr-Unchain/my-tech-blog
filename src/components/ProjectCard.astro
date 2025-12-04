@@ -1,0 +1,90 @@
+---
+// src/components/ProjectCard.astro
+import type { Project } from "../lib/microcms";
+
+export interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const techStack = project.techStack || [];
+const hasThumbnail = Boolean(project.thumbnail?.url);
+const hasAchievements = Boolean(project.achievements);
+const linkLabel = project.link?.includes("github.com") ? "GitHub" : "詳細を見る";
+---
+
+<article
+  class="group relative flex flex-col bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-slate-700/60 rounded-2xl p-6 shadow-xl shadow-cyan-500/5 hover:shadow-cyan-500/15 transition-all duration-300 overflow-hidden"
+>
+  <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+  <div class="relative z-10 space-y-4">
+    <div class="flex items-start gap-4">
+      {hasThumbnail ? (
+        <img
+          src={project.thumbnail!.url}
+          alt={`${project.title}のサムネイル`}
+          class="w-16 h-16 rounded-xl object-cover ring-2 ring-cyan-500/30 shadow-lg"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <div class="w-16 h-16 rounded-xl bg-slate-700/70 border border-slate-600/70 flex items-center justify-center text-slate-300 font-semibold">
+          {project.title.slice(0, 2)}
+        </div>
+      )}
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          {project.period && (
+            <span class="text-xs px-3 py-1 rounded-full bg-slate-700/70 border border-slate-600/70 text-slate-200">
+              {project.period}
+            </span>
+          )}
+          {project.role && (
+            <span class="text-xs px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-200 font-semibold">
+              {project.role}
+            </span>
+          )}
+        </div>
+        <h3 class="mt-2 text-xl font-semibold text-white tracking-tight group-hover:text-cyan-100 transition-colors">
+          {project.title}
+        </h3>
+        {project.summary && <p class="mt-2 text-slate-300 text-sm leading-relaxed line-clamp-3">{project.summary}</p>}
+      </div>
+    </div>
+
+    {techStack.length > 0 && (
+      <div class="flex flex-wrap gap-2">
+        {techStack.map((tech) => (
+          <span class="text-xs px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/70 text-slate-200">
+            {tech}
+          </span>
+        ))}
+      </div>
+    )}
+
+    {hasAchievements && (
+      <div class="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4 text-sm text-cyan-50 shadow-inner shadow-cyan-500/20">
+        <p class="font-semibold text-cyan-100 mb-1">成果</p>
+        <p class="leading-relaxed text-cyan-50/90">{project.achievements}</p>
+      </div>
+    )}
+
+    {project.link && (
+      <div class="flex items-center justify-between pt-2">
+        <a
+          href={project.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-sm text-cyan-300 hover:text-cyan-100 font-semibold"
+          aria-label={`${project.title} の詳細リンク`}
+        >
+          <span>{linkLabel}</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5h6v6m0-6L10 14l-3 3m12-12L14 10" />
+          </svg>
+        </a>
+        <div class="text-xs text-slate-400">更新: {new Date(project.updatedAt || project.createdAt || new Date()).toLocaleDateString('ja-JP')}</div>
+      </div>
+    )}
+  </div>
+</article>

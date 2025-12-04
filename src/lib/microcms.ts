@@ -31,6 +31,18 @@ export type Profile = {
   contact_email?: string;
 } & MicroCMSDate;
 
+export type Project = {
+  id: string;
+  title: string;
+  summary?: string;
+  role?: string;
+  techStack?: string[];
+  achievements?: string;
+  period?: string;
+  link?: string;
+  thumbnail?: MicroCMSImage;
+} & MicroCMSDate;
+
 // SSR用: API取得用のクライアントを作成
 const serverClient = createClient({
   serviceDomain: import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN,
@@ -88,6 +100,13 @@ export const getBlogDetail = async (
 export const getProfile = async (queries?: MicroCMSQueries) => {
   return await serverClient.get<Profile>({
     endpoint: "profile",
+    queries,
+  });
+};
+
+export const getProjects = async (queries?: MicroCMSQueries) => {
+  return await serverClient.get<{ contents: Project[] }>({
+    endpoint: "projects",
     queries,
   });
 };
