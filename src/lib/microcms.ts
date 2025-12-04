@@ -5,6 +5,7 @@ import type {
   MicroCMSImage,
   MicroCMSDate,
 } from "microcms-js-sdk";
+import * as cheerio from "cheerio";
 
 // ブログ記事の型定義
 export type Blog = {
@@ -105,10 +106,36 @@ export const getProfile = async (queries?: MicroCMSQueries) => {
 };
 
 export const getProjects = async (queries?: MicroCMSQueries) => {
-  return await serverClient.get<{ contents: Project[] }>({
+  const data = await serverClient.get<{ contents: Project[] }>({
     endpoint: "projects",
     queries,
   });
+
+  // NOTE: microCMS SDKに起因する可能性のある、プロジェクトデータ間での意図しない参照共有を
+  // 防ぐため、取得したプロジェクトコンテンツをディープコピーして、参照を完全に断ち切ります。
+  const contents = JSON.parse(JSON.stringify(data.contents));
+
+  // techStackフィールドを常に配列として扱うように正規化します。
+  const shapedContents = contents.map((content: any) => {
+    const originalTechStack = content.techStack;
+    let newTechStack = [];
+
+    if (Array.isArray(originalTechStack)) {
+      newTechStack = originalTechStack;
+    } else if (typeof originalTechStack === "string" && originalTechStack) {
+      newTechStack = [originalTechStack];
+    }
+
+    return {
+      ...content,
+      techStack: newTechStack,
+    };
+  });
+
+  return {
+    ...data,
+    contents: shapedContents,
+  };
 };
 
 /**
