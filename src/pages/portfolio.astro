@@ -1,0 +1,575 @@
+---
+// src/pages/portfolio.astro
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ArticleCard from "../components/ArticleCard.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getBlogs, getProfile, getProjects } from "../lib/microcms";
+import * as cheerio from "cheerio";
+
+const [profile, projectData, blogData] = await Promise.all([
+  getProfile(),
+  getProjects({ orders: "-publishedAt" }),
+  getBlogs({ limit: 3, orders: "-publishedAt" }),
+]);
+
+const projects = projectData.contents || [];
+const recentBlogs = blogData.contents || [];
+
+const parseSkills = (html: string | undefined): string[] => {
+  if (!html) return [];
+  const $ = cheerio.load(html);
+  if ($("ul").length) {
+    return $("li")
+      .map((_, el) => $(el).text())
+      .get();
+  }
+  return ($("p").text() || "")
+    .split(/[,、\s]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const skills = parseSkills(profile.skills);
+const primarySkills = skills.slice(0, 6);
+const heroSkills = skills.slice(0, 3);
+
+const strengths = [
+  {
+    title: "AI活用で実装速度2-3倍",
+    detail:
+      "Copilot/ChatGPT/Codex/MCPでストアドやバッチ処理のひな型を即時生成し、レビュー時間を最小化。",
+  },
+  {
+    title: "レガシー×モダンの橋渡し",
+    detail:
+      "IBM i(RPG/CL/DDS)とJava SPAを段階リプレイス。Java→RPG呼び出しやRPG→Java移植の挙動差異を吸収。",
+  },
+  {
+    title: "改善を待たずに実行",
+    detail:
+      "基盤外でもテスト環境予約/Teams運用を立案し定着。MCPサーバーの不具合を特定しPRで解消。",
+  },
+];
+
+const impactHighlights = [
+  {
+    label: "運用自動化",
+    title: "Teams整備で環境予約の衝突を0件に",
+    points: ["利用率・期限・責任者を見える化し、予約ミスをゼロ化", "導入から1ヶ月で調整工数▲6時間/週"],
+  },
+  {
+    label: "性能改善",
+    title: "Java⇄RPG間のI/O最適化",
+    points: ["ストアド呼び出しのバッチ化でレスポンス20%改善", "移植時の挙動差異をテストコードで吸収"],
+  },
+  {
+    label: "AIプロダクト",
+    title: "生成AIで仕様復元→ドキュメント化",
+    points: ["RPG業務ロジックをChatGPTでMarkdown化し、Obsidian→PDFで共有", "属人化した手順を2日で整理"],
+  },
+];
+
+const deepCaseStudies = [
+  {
+    id: "case-enterprise",
+    title: "レガシー基幹の段階リプレイス",
+    role: "IBM i × Java SPA エンジニア",
+    summary:
+      "現品票/出荷承認の周辺をRPGとJavaで並行開発。バッチとオンラインを分離しつつ、API境界を再設計。",
+    steps: [
+      "課題: RPG/CLに密結合した業務ロジックで変更が遅い。画面とバッチが一体化し障害時の切り分けが困難。",
+      "打ち手: Java→RPGストアド呼び出しを設計し、逆向きの呼び出しも検証。差分吸収用のWrapperを準備。",
+      "成果: オンラインの改修リードタイムを30%短縮。性能劣化なしで段階移行できる道筋を提示。",
+    ],
+    tags: ["IBM i", "RPG", "Java", "SPA", "分割リリース"],
+  },
+  {
+    id: "case-blog",
+    title: "my-tech-blogの設計と運用",
+    role: "個人開発 / Astro + Next Stack",
+    summary:
+      "技術検証を最短で届けるため、Astro+microCMSで高速描画と執筆効率を両立。自作の検索/分類で回遊性を向上。",
+    steps: [
+      "課題: 検索しにくい技術メモが散在。執筆と配信の切り替えコストが高い。",
+      "打ち手: Astro×microCMSでSSGを採用し、カード/タグ導線を最適化。Swupでページ遷移を高速化。",
+      "成果: 初期LCP 1.6sを維持しつつ記事数50本超を管理。AI関連記事で月間PVを継続増加。",
+    ],
+    tags: ["Astro", "microCMS", "Search UX", "Performance"],
+  },
+];
+
+const personalProjects = [
+  {
+    name: "AI-News-Media",
+    description: "生成AIニュースを即時キュレーションし、短い要約と一次情報リンクを提示。",
+    focus: "更新コスト削減と情報鮮度の維持を重視。",
+  },
+  {
+    name: "nowtune",
+    description: "音楽と作業ログを紐づける個人ツール。UIの簡潔さとレスポンス重視。",
+    focus: "Next.jsと軽量APIでミニマルに構成。",
+  },
+];
+
+const skillCategories = [
+  {
+    title: "Backend / Legacy",
+    items: [
+      "IBM i (RPG / CL / DDS)の改修・ストアド新設",
+      "Java(Spring)×RPG連携・I/O最適化",
+      "バッチ分離・オンライン併存の段階移行設計",
+    ],
+  },
+  {
+    title: "Frontend",
+    items: [
+      "Astro / Next.js / ReactでのSPA+SSGハイブリッド",
+      "TailwindでのミニマルUI、LCP/CLSチューニング",
+      "Swup導入による滑らかなページ遷移",
+    ],
+  },
+  {
+    title: "AI / Automation",
+    items: [
+      "Copilot / ChatGPT / Codex / MCPでコード生成と仕様復元",
+      "Markdown→Obsidian→PDFでナレッジ共有",
+      "テストデータ・ドキュメント作成の半自動化",
+    ],
+  },
+  {
+    title: "Collaboration / Ops",
+    items: [
+      "Teams運用設計で環境予約・依頼を標準化",
+      "GitHub PRでMCPサーバー不具合を修正・マージ",
+      "改善提案を即実行するリードタイム短縮",
+    ],
+  },
+];
+
+const pageTitle = `${profile.name} | レガシー×モダンをつなぐポートフォリオ`;
+const pageDescription =
+  "IBM i × Java × SPAで段階リプレイスを推進し、AI活用で実装速度を高めるエンジニアのポートフォリオ。実績と思考プロセスを短くまとめました。";
+---
+
+<BaseLayout
+  pageTitle={pageTitle}
+  pageDescription={pageDescription}
+  keywords={`${profile.name}, ポートフォリオ, レガシー, Java, IBM i, SPA, AI活用`}
+  author={profile.name}
+  ogImageUrl={profile.avatar?.url || undefined}
+  articleType="profile"
+>
+  <main class="min-h-screen bg-slate-950 text-slate-100">
+    <div class="relative overflow-hidden">
+      <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,211,238,0.12),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.12),transparent_30%),radial-gradient(circle_at_50%_100%,rgba(99,102,241,0.08),transparent_30%)]"
+        aria-hidden="true"
+      ></div>
+
+      <div class="container mx-auto px-4 py-16 md:py-20 relative z-10 space-y-16">
+        <section
+          class="grid lg:grid-cols-[1.2fr_0.8fr] gap-10 items-center bg-gradient-to-br from-slate-900/80 to-slate-900/50 border border-slate-800/70 rounded-3xl p-8 md:p-12 shadow-2xl shadow-cyan-500/10"
+        >
+          <div class="space-y-6">
+            <p class="text-sm uppercase tracking-[0.2em] text-cyan-200/80 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true"></span>
+              Portfolio
+            </p>
+            <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
+              <span class="bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent">
+                レガシー×モダンをつなぐエンジニア
+              </span>
+              <span class="block text-2xl md:text-3xl mt-3 bg-gradient-to-r from-cyan-200 to-blue-200 bg-clip-text text-transparent">
+                {profile.name}
+              </span>
+            </h1>
+            <p class="text-lg text-slate-200 leading-relaxed">
+              IBM i(RPG/CL/DDS)×Java×SPAのハイブリッド。AIで実装速度を上げつつ、現行運用を崩さない段階リプレイスを設計・推進します。
+            </p>
+            <div class="grid sm:grid-cols-3 gap-3">
+              {strengths.map((item) => (
+                <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-4 shadow-lg hover:border-cyan-500/40 hover:shadow-cyan-500/10 transition-colors duration-300">
+                  <p class="text-sm text-cyan-200/90 font-semibold">{item.title}</p>
+                  <p class="mt-2 text-sm text-slate-200 leading-relaxed">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+            {heroSkills.length > 0 && (
+              <div class="flex flex-wrap gap-3" aria-label="主要スキル">
+                {heroSkills.map((skill) => (
+                  <span class="px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/15 to-blue-500/15 text-cyan-100 border border-cyan-400/30 text-sm font-semibold shadow-sm shadow-cyan-500/10">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div class="flex flex-wrap gap-3 pt-2">
+              {profile.githubUrl && (
+                <a
+                  href={profile.githubUrl}
+                  class="group inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow-lg shadow-cyan-500/25 hover:shadow-cyan-400/40 transition-transform duration-300 hover:translate-y-[-2px]"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GitHubを見る
+                  <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                  </svg>
+                </a>
+              )}
+              {profile.contact_email && (
+                <a
+                  href={`mailto:${profile.contact_email}`}
+                  class="group inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-700 text-slate-100 bg-slate-800/80 hover:border-cyan-400/70 hover:bg-slate-700/80 transition-colors duration-300"
+                >
+                  メールで相談
+                  <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18 8h18a2 2 0 002-2V8a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                  </svg>
+                </a>
+              )}
+              <a
+                href="/profile"
+                class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-cyan-100 hover:text-white hover:underline"
+              >
+                プロフィール要約
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
+            <div class="flex items-center gap-4">
+              {profile.avatar && (
+                <div class="relative">
+                  <img
+                    src={profile.avatar.url}
+                    alt={`${profile.name}のアバター`}
+                    class="w-20 h-20 rounded-full ring-4 ring-cyan-500/30 shadow-lg"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div class="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20" aria-hidden="true" />
+                </div>
+              )}
+              <div>
+                <p class="text-sm text-slate-300">Software Engineer / Content Creator</p>
+                <p class="text-2xl font-bold text-white">{profile.name}</p>
+                <div class="flex gap-3 mt-3">
+                  {profile.xUrl && (
+                    <a
+                      href={profile.xUrl}
+                      class="text-slate-400 hover:text-cyan-400 transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Xプロフィール"
+                    >
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.24 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                      </svg>
+                    </a>
+                  )}
+                  {profile.githubUrl && (
+                    <a
+                      href={profile.githubUrl}
+                      class="text-slate-400 hover:text-cyan-400 transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="GitHubプロフィール"
+                    >
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.378.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.942.359.308.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z"
+                        />
+                      </svg>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="group rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/70 p-4 shadow-lg">
+                <p class="text-sm text-slate-400">経験年数</p>
+                <p class="text-2xl font-bold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent">4+ yrs</p>
+              </div>
+              <div class="group rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/70 p-4 shadow-lg">
+                <p class="text-sm text-slate-400">得意領域</p>
+                <p class="text-2xl font-bold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent">Legacy × SPA</p>
+              </div>
+              <div class="group rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/70 p-4 shadow-lg">
+                <p class="text-sm text-slate-400">最近の関心</p>
+                <p class="text-2xl font-bold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent">AI活用</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="space-y-6" aria-labelledby="impact-heading">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-400/30" aria-hidden="true"></div>
+              <div>
+                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Highlights</p>
+                <h2 id="impact-heading" class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mt-1">
+                  直近のインパクト
+                </h2>
+                <p class="text-slate-300 mt-2">数字と効果がわかる短いカードでまとめています。</p>
+              </div>
+            </div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-3">
+            {impactHighlights.map((item) => (
+              <div class="relative overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg">
+                <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5" aria-hidden="true" />
+                <p class="text-sm text-cyan-200/90 font-semibold">{item.label}</p>
+                <h3 class="mt-2 text-lg font-bold text-white leading-snug">{item.title}</h3>
+                <ul class="mt-3 space-y-2 text-sm text-slate-200">
+                  {item.points.map((point) => (
+                    <li class="flex gap-2">
+                      <span aria-hidden="true">•</span>
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section class="space-y-8" aria-labelledby="case-heading">
+          <div class="flex items-center gap-4">
+            <div class="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-400/30" aria-hidden="true"></div>
+            <div>
+              <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Case Studies</p>
+              <h2 id="case-heading" class="text-2xl md:text-3xl font-bold text-white mt-1">課題→打ち手→成果のケース</h2>
+              <p class="text-slate-300 mt-2">実務と個人開発の両軸で、思考プロセスを短く可視化。</p>
+            </div>
+          </div>
+          <div class="grid gap-6 lg:grid-cols-2">
+            {deepCaseStudies.map((item) => (
+              <article id={item.id} class="rounded-3xl border border-slate-700/70 bg-gradient-to-br from-slate-900/80 to-slate-900/60 p-6 shadow-xl">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="text-sm text-cyan-200/90 font-semibold">{item.role}</p>
+                    <h3 class="text-xl font-bold text-white mt-1">{item.title}</h3>
+                  </div>
+                  <span class="px-3 py-1 rounded-full text-xs border border-cyan-400/40 text-cyan-100">プロセス公開</span>
+                </div>
+                <p class="mt-3 text-slate-200 leading-relaxed">{item.summary}</p>
+                <ol class="mt-4 space-y-2 text-sm text-slate-200 list-decimal list-inside">
+                  {item.steps.map((step) => (
+                    <li>{step}</li>
+                  ))}
+                </ol>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  {item.tags.map((tag) => (
+                    <span class="px-3 py-1 rounded-full bg-slate-800/70 border border-slate-700/70 text-xs text-cyan-100">{tag}</span>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+          <div class="grid gap-4 md:grid-cols-2">
+            {personalProjects.map((project) => (
+              <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg">
+                <h3 class="text-lg font-semibold text-white">{project.name}</h3>
+                <p class="mt-2 text-sm text-slate-200">{project.description}</p>
+                <p class="mt-2 text-xs text-cyan-200">{project.focus}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="projects" class="space-y-6" aria-labelledby="projects-heading">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-400/30" aria-hidden="true"></div>
+              <div>
+                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Projects</p>
+                <h2 id="projects-heading" class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mt-1">
+                  プロジェクト一覧
+                </h2>
+                <p class="text-slate-300 mt-2">役割・成果・技術スタックを短く整理。</p>
+              </div>
+            </div>
+            <div class="hidden md:flex items-center gap-2 text-sm text-slate-300 bg-slate-800/70 border border-slate-700/70 rounded-full px-4 py-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true"></span>
+              {projects.length}件のプロジェクト
+            </div>
+          </div>
+          {projects.length === 0 ? (
+            <div class="rounded-2xl border border-slate-700/70 bg-slate-800/70 p-8 text-center text-slate-300">
+              現在表示できるプロジェクトがありません。更新をお待ちください。
+            </div>
+          ) : (
+            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {projects.map((project) => (
+                <ProjectCard project={project} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {primarySkills.length > 0 && (
+          <section class="space-y-6" aria-labelledby="skills-heading">
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-4">
+                <div class="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-400/30" aria-hidden="true" />
+                <div>
+                  <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Skills</p>
+                  <h2 id="skills-heading" class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mt-1">
+                    使って価値を出した技術
+                  </h2>
+                  <p class="text-slate-300 mt-2">単なる羅列ではなく、成果を出した場面に紐づけています。</p>
+                </div>
+              </div>
+              <span class="text-sm text-slate-400 bg-slate-800/70 border border-slate-700/70 rounded-full px-4 py-2">{skills.length} skills</span>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
+              {skillCategories.map((category) => (
+                <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true"></div>
+                    <h3 class="text-lg font-semibold text-white">{category.title}</h3>
+                  </div>
+                  <ul class="mt-3 space-y-2 text-sm text-slate-200 list-disc list-inside">
+                    {category.items.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {profile.work_history && (
+          <section class="space-y-4" aria-labelledby="history-heading">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Experience</p>
+                <h2 id="history-heading" class="text-2xl md:text-3xl font-bold text-white mt-1">経歴サマリー</h2>
+              </div>
+            </div>
+            <div class="prose prose-invert max-w-none bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6 prose-headings:text-white prose-p:text-slate-200 prose-strong:text-white prose-a:text-cyan-300">
+              <Fragment set:html={profile.work_history} />
+            </div>
+          </section>
+        )}
+
+        {recentBlogs.length > 0 && (
+          <section class="space-y-6" aria-labelledby="articles-heading">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Writing / Output</p>
+                <h2 id="articles-heading" class="text-2xl md:text-3xl font-bold text-white mt-1">代表記事</h2>
+                <p class="text-slate-300 mt-2">AI / Next.js / AS400 など、得意領域の記事をピックアップ。</p>
+              </div>
+              <a href="/blog" class="text-sm text-cyan-300 hover:text-cyan-100 font-semibold">すべての記事を見る →</a>
+            </div>
+            <div class="grid gap-6 md:grid-cols-3">
+              {recentBlogs.map((blog) => (
+                <ArticleCard
+                  id={blog.id}
+                  category={blog.category}
+                  title={blog.title}
+                  description={blog.description}
+                  date={blog.publishedAt ?? blog.createdAt}
+                  imageUrl={blog.eyecatch?.url || "/placeholder.svg"}
+                  imageUrlList={blog.eyecatch?.url || "/placeholder.svg"}
+                  class="h-full"
+                  showReadingTime
+                  content={blog.content}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section id="contact" class="space-y-4" aria-labelledby="contact-heading">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Contact</p>
+              <h2 id="contact-heading" class="text-2xl md:text-3xl font-bold text-white mt-1">コンタクト / CTA</h2>
+              <p class="text-slate-300 mt-2">面談・相談はメールかGitHubから。職務要約はプロフィールにも掲載中。</p>
+            </div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-[1.5fr_1fr]">
+            {profile.contact_email ? (
+              <div class="relative flex items-center bg-slate-900/70 border border-slate-800/70 rounded-2xl p-5 backdrop-blur-sm">
+                <a
+                  id="contact-email"
+                  href={`mailto:${profile.contact_email}`}
+                  class="text-cyan-300 hover:text-cyan-100 hover:underline flex-grow font-medium"
+                >
+                  {profile.contact_email}
+                </a>
+                <button
+                  id="copy-button"
+                  class="ml-3 px-3 py-2 rounded-lg text-slate-200 bg-slate-800/80 border border-slate-700/70 hover:border-cyan-400/70 hover:text-cyan-200 transition-all"
+                  aria-label="メールアドレスをコピー"
+                >
+                  コピー
+                </button>
+                <span id="copy-feedback" class="ml-3 text-sm text-cyan-200 opacity-0 transition-opacity duration-300">
+                  コピーしました！
+                </span>
+              </div>
+            ) : (
+              <p class="text-slate-300">現在公開している連絡先はありません。</p>
+            )}
+            <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 space-y-3">
+              <p class="text-sm text-slate-200">リンク</p>
+              <div class="flex flex-wrap gap-3">
+                <a href="/profile" class="px-4 py-2 rounded-full bg-slate-800/70 text-cyan-100 border border-slate-700/70 hover:border-cyan-400/50">職務サマリー</a>
+                {profile.githubUrl && (
+                  <a
+                    href={profile.githubUrl}
+                    class="px-4 py-2 rounded-full bg-slate-800/70 text-cyan-100 border border-slate-700/70 hover:border-cyan-400/50"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub
+                  </a>
+                )}
+                {profile.xUrl && (
+                  <a
+                    href={profile.xUrl}
+                    class="px-4 py-2 rounded-full bg-slate-800/70 text-cyan-100 border border-slate-700/70 hover:border-cyan-400/50"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    X
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const copyButton = document.getElementById("copy-button");
+  const contactEmail = document.getElementById("contact-email");
+  const copyFeedback = document.getElementById("copy-feedback");
+
+  if (copyButton && contactEmail && copyFeedback) {
+    const email = contactEmail.innerText;
+
+    copyButton.addEventListener("click", () => {
+      if (!email) return;
+
+      navigator.clipboard.writeText(email).then(() => {
+        copyFeedback.classList.remove("opacity-0");
+        setTimeout(() => {
+          copyFeedback.classList.add("opacity-0");
+        }, 2000);
+      });
+    });
+  }
+</script>
