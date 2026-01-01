@@ -1,0 +1,20 @@
+---
+// /blog/{id}/{draftKey} → /blog/{id}?draftKey=... にリダイレクト
+const { id, draftKey } = Astro.params;
+
+if (!id || !draftKey) {
+  return new Response(null, { status: 404 });
+}
+
+const target = new URL(`/blog/${encodeURIComponent(id)}?draftKey=${encodeURIComponent(draftKey)}`, Astro.url);
+// Response.redirect は immutable ヘッダーのため、Astro が追記する際にエラーとなる。
+// 明示的に Location ヘッダーを持つ Response を返す。
+return new Response(null, {
+  status: 302,
+  headers: {
+    Location: target.href,
+  },
+});
+---
+
+
