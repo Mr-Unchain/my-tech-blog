@@ -176,8 +176,9 @@ export const GET: APIRoute = async ({ params, url }) => {
 };
 
 // ヘルパー関数群
+// NOTE: 以下の関数は POST ハンドラ内の null チェック後にのみ呼ばれる
 async function addReaction(blogId: string, userId: string, reactionType: ReactionType) {
-  const reactionsRef = collection(db, COLLECTIONS.REACTIONS);
+  const reactionsRef = collection(db!, COLLECTIONS.REACTIONS);
   
   // 重複チェック
   const existingQuery = query(
@@ -218,7 +219,7 @@ async function addReaction(blogId: string, userId: string, reactionType: Reactio
 }
 
 async function removeReaction(blogId: string, userId: string, reactionType: ReactionType) {
-  const reactionsRef = collection(db, COLLECTIONS.REACTIONS);
+  const reactionsRef = collection(db!, COLLECTIONS.REACTIONS);
   const q = query(
     reactionsRef,
     where('userId', '==', userId),
@@ -252,7 +253,7 @@ async function removeReaction(blogId: string, userId: string, reactionType: Reac
 }
 
 async function toggleReaction(blogId: string, userId: string, reactionType: ReactionType) {
-  const reactionsRef = collection(db, COLLECTIONS.REACTIONS);
+  const reactionsRef = collection(db!, COLLECTIONS.REACTIONS);
   const q = query(
     reactionsRef,
     where('userId', '==', userId),
@@ -272,9 +273,9 @@ async function toggleReaction(blogId: string, userId: string, reactionType: Reac
 }
 
 async function updateReactionStats(blogId: string, reactionType: ReactionType, countChange: number) {
-  const statsRef = doc(db, COLLECTIONS.BLOG_STATS, blogId);
-  
-  await runTransaction(db, async (transaction) => {
+  const statsRef = doc(db!, COLLECTIONS.BLOG_STATS, blogId);
+
+  await runTransaction(db!, async (transaction) => {
     const statsDoc = await transaction.get(statsRef);
     
     if (statsDoc.exists()) {

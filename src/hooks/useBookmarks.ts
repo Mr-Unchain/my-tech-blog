@@ -1,29 +1,19 @@
 // src/hooks/useBookmarks.ts
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  deleteDoc, 
-  query, 
-  where, 
+import {
+  collection,
+  doc,
+  addDoc,
+  deleteDoc,
+  query,
+  where,
   getDocs,
   runTransaction,
   Timestamp
 } from 'firebase/firestore';
 import { COLLECTIONS, type Bookmark, type BlogStats } from '../lib/firebase-collections';
-
-// ユーザーセッションID生成（匿名ユーザー用）
-function generateSessionId(): string {
-  const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
-  if (!isBrowser) return 'session_ssr';
-  const existingId = localStorage.getItem('user_session_id');
-  if (existingId) return existingId;
-  const newId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  localStorage.setItem('user_session_id', newId);
-  return newId;
-}
+import { generateSessionId } from '../lib/utils';
 
 export function useBookmarks() {
   const [bookmarks, setBookmarks] = useState<string[]>([]);
@@ -107,27 +97,28 @@ export function useBookmarks() {
     }
   };
 
+  // NOTE: 以下のヘルパー関数は toggleBookmark 内の null チェック後にのみ呼ばれる
   const addBookmark = async (blogId: string, metadata?: { title: string; category: string[]; eyecatch: string }) => {
-    const bookmarksRef = collection(db, COLLECTIONS.BOOKMARKS);
-    
+    const bookmarksRef = collection(db!, COLLECTIONS.BOOKMARKS);
+
     const newBookmark: Omit<Bookmark, 'id'> = {
       userId,
       blogId,
       createdAt: Timestamp.now(),
       metadata
     };
-    
+
     await addDoc(bookmarksRef, newBookmark);
   };
 
   const removeBookmark = async (blogId: string) => {
-    const bookmarksRef = collection(db, COLLECTIONS.BOOKMARKS);
+    const bookmarksRef = collection(db!, COLLECTIONS.BOOKMARKS);
     const q = query(
-      bookmarksRef, 
+      bookmarksRef,
       where('userId', '==', userId),
       where('blogId', '==', blogId)
     );
-    
+
     const querySnapshot = await getDocs(q);
     querySnapshot.docs.forEach(async (docSnapshot) => {
       await deleteDoc(docSnapshot.ref);
@@ -135,9 +126,9 @@ export function useBookmarks() {
   };
 
   const updateBlogStats = async (blogId: string, countChange: number) => {
-    const statsRef = doc(db, COLLECTIONS.BLOG_STATS, blogId);
-    
-    await runTransaction(db, async (transaction) => {
+    const statsRef = doc(db!, COLLECTIONS.BLOG_STATS, blogId);
+
+    await runTransaction(db!, async (transaction) => {
       const statsDoc = await transaction.get(statsRef);
       
       if (statsDoc.exists()) {

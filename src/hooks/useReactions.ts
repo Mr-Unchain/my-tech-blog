@@ -1,19 +1,20 @@
 // src/hooks/useReactions.ts
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  deleteDoc, 
-  query, 
-  where, 
+import {
+  collection,
+  doc,
+  addDoc,
+  deleteDoc,
+  query,
+  where,
   getDocs,
   getDoc,
   runTransaction,
   Timestamp
 } from 'firebase/firestore';
 import { COLLECTIONS, REACTIONS, type Reaction, type BlogStats } from '../lib/firebase-collections';
+import { generateSessionId } from '../lib/utils';
 
 export type ReactionType = Lowercase<keyof typeof REACTIONS>;
 
@@ -31,20 +32,6 @@ interface UseReactionsReturn {
   toggleReaction: (reactionType: ReactionType) => Promise<void>;
   hasReacted: (reactionType: ReactionType) => boolean;
   getTotalReactions: () => number;
-}
-
-// ユーザーセッションID生成（匿名ユーザー用） - SSR安全
-function generateSessionId(): string {
-  const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
-  if (!isBrowser) {
-    // SSR中は一時ID（保存しない）
-    return 'session_ssr';
-  }
-  const existingId = localStorage.getItem('user_session_id');
-  if (existingId) return existingId;
-  const newId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  localStorage.setItem('user_session_id', newId);
-  return newId;
 }
 
 export function useReactions(blogId: string): UseReactionsReturn {
@@ -142,9 +129,10 @@ export function useReactions(blogId: string): UseReactionsReturn {
     }
   };
 
+  // NOTE: 以下のヘルパー関数は toggleReaction 内の null チェック後にのみ呼ばれる
   const addReaction = async (reactionType: ReactionType) => {
-    const reactionsRef = collection(db, COLLECTIONS.REACTIONS);
-    
+    const reactionsRef = collection(db!, COLLECTIONS.REACTIONS);
+
     // 重複チェック
     const existingQuery = query(
       reactionsRef,
@@ -152,7 +140,7 @@ export function useReactions(blogId: string): UseReactionsReturn {
       where('blogId', '==', blogId),
       where('reactionType', '==', reactionType)
     );
-    
+
     const existingDocs = await getDocs(existingQuery);
     if (!existingDocs.empty) {
       return; // すでに存在する場合は何もしない
@@ -165,28 +153,28 @@ export function useReactions(blogId: string): UseReactionsReturn {
       reactionType,
       createdAt: Timestamp.now()
     };
-    
+
     await addDoc(reactionsRef, newReaction);
   };
 
   const removeReaction = async (reactionType: ReactionType) => {
-    const reactionsRef = collection(db, COLLECTIONS.REACTIONS);
+    const reactionsRef = collection(db!, COLLECTIONS.REACTIONS);
     const q = query(
       reactionsRef,
       where('userId', '==', userId),
       where('blogId', '==', blogId),
       where('reactionType', '==', reactionType)
     );
-    
+
     const querySnapshot = await getDocs(q);
     const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
     await Promise.all(deletePromises);
   };
 
   const updateReactionStats = async (reactionType: ReactionType, countChange: number) => {
-    const statsRef = doc(db, COLLECTIONS.BLOG_STATS, blogId);
-    
-    await runTransaction(db, async (transaction) => {
+    const statsRef = doc(db!, COLLECTIONS.BLOG_STATS, blogId);
+
+    await runTransaction(db!, async (transaction) => {
       const statsDoc = await transaction.get(statsRef);
       
       if (statsDoc.exists()) {

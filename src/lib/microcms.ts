@@ -6,6 +6,7 @@ import type {
   MicroCMSDate,
 } from "microcms-js-sdk";
 import * as cheerio from "cheerio";
+import { deepCopy, normalizeToArray } from "./utils";
 
 // ブログ記事の型定義
 export type Blog = {
@@ -59,25 +60,14 @@ export const getBlogs = async (queries?: MicroCMSQueries) => {
 
   // NOTE: microCMS SDKに起因する可能性のある、記事データ間での意図しない参照共有を
   // 防ぐため、取得した記事コンテンツをディープコピーして、参照を完全に断ち切ります。
-  const contents = JSON.parse(JSON.stringify(data.contents));
+  const contents = deepCopy(data.contents);
 
   // カテゴリフィールドを常に配列として扱うように正規化します。
   // これにより、スキーマが単数選択か複数選択かに関わらず、コンポーネント側で安定して処理できます。
-  const shapedContents = contents.map((content: any) => {
-    const originalCategory = content.category;
-    let newCategory = [];
-
-    if (Array.isArray(originalCategory)) {
-      newCategory = originalCategory;
-    } else if (typeof originalCategory === "string" && originalCategory) {
-      newCategory = [originalCategory];
-    }
-
-    return {
-      ...content,
-      category: newCategory,
-    };
-  });
+  const shapedContents = contents.map((content: Blog) => ({
+    ...content,
+    category: normalizeToArray(content.category),
+  }));
 
   return {
     ...data,
@@ -113,24 +103,13 @@ export const getProjects = async (queries?: MicroCMSQueries) => {
 
   // NOTE: microCMS SDKに起因する可能性のある、プロジェクトデータ間での意図しない参照共有を
   // 防ぐため、取得したプロジェクトコンテンツをディープコピーして、参照を完全に断ち切ります。
-  const contents = JSON.parse(JSON.stringify(data.contents));
+  const contents = deepCopy(data.contents);
 
   // techStackフィールドを常に配列として扱うように正規化します。
-  const shapedContents = contents.map((content: any) => {
-    const originalTechStack = content.techStack;
-    let newTechStack = [];
-
-    if (Array.isArray(originalTechStack)) {
-      newTechStack = originalTechStack;
-    } else if (typeof originalTechStack === "string" && originalTechStack) {
-      newTechStack = [originalTechStack];
-    }
-
-    return {
-      ...content,
-      techStack: newTechStack,
-    };
-  });
+  const shapedContents = contents.map((content: Project) => ({
+    ...content,
+    techStack: normalizeToArray(content.techStack),
+  }));
 
   return {
     ...data,

@@ -153,9 +153,10 @@ export const GET: APIRoute = async ({ params, url }) => {
 };
 
 // ヘルパー関数群
+// NOTE: 以下の関数は POST ハンドラ内の null チェック後にのみ呼ばれる
 async function addBookmark(blogId: string, userId: string, metadata?: any) {
-  const bookmarksRef = collection(db, COLLECTIONS.BOOKMARKS);
-  
+  const bookmarksRef = collection(db!, COLLECTIONS.BOOKMARKS);
+
   // 重複チェック
   const existingQuery = query(
     bookmarksRef,
@@ -193,7 +194,7 @@ async function addBookmark(blogId: string, userId: string, metadata?: any) {
 }
 
 async function removeBookmark(blogId: string, userId: string) {
-  const bookmarksRef = collection(db, COLLECTIONS.BOOKMARKS);
+  const bookmarksRef = collection(db!, COLLECTIONS.BOOKMARKS);
   const q = query(
     bookmarksRef,
     where('userId', '==', userId),
@@ -225,7 +226,7 @@ async function removeBookmark(blogId: string, userId: string) {
 }
 
 async function toggleBookmark(blogId: string, userId: string, metadata?: any) {
-  const bookmarksRef = collection(db, COLLECTIONS.BOOKMARKS);
+  const bookmarksRef = collection(db!, COLLECTIONS.BOOKMARKS);
   const q = query(
     bookmarksRef,
     where('userId', '==', userId),
@@ -244,9 +245,9 @@ async function toggleBookmark(blogId: string, userId: string, metadata?: any) {
 }
 
 async function updateBlogStats(blogId: string, countChange: number) {
-  const statsRef = doc(db, COLLECTIONS.BLOG_STATS, blogId);
-  
-  await runTransaction(db, async (transaction) => {
+  const statsRef = doc(db!, COLLECTIONS.BLOG_STATS, blogId);
+
+  await runTransaction(db!, async (transaction) => {
     const statsDoc = await transaction.get(statsRef);
     
     if (statsDoc.exists()) {
