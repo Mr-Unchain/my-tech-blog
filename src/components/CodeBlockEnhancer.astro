@@ -1,0 +1,232 @@
+---
+/**
+ * CodeBlockEnhancer - コードブロック強化スクリプト
+ *
+ * 記事内のコードブロックに以下の機能を追加:
+ * - コピーボタン
+ * - ファイル名表示（言語名から推測）
+ * - ホバー時のハイライト効果
+ *
+ * 使用方法: 記事ページのhead内またはbody末尾で読み込む
+ */
+---
+
+<script is:inline>
+  /**
+   * コードブロックを強化する
+   */
+  function enhanceCodeBlocks() {
+    // 既に強化済みのブロックはスキップ
+    const codeBlocks = document.querySelectorAll('pre:not([data-enhanced])');
+
+    codeBlocks.forEach((pre) => {
+      // 強化済みマーク
+      pre.setAttribute('data-enhanced', 'true');
+
+      // コードブロックをラッパーで囲む
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+
+      // ヘッダー部分（言語名 + コピーボタン）
+      const header = document.createElement('div');
+      header.className = 'code-block-header';
+
+      // 言語名を取得（codeタグのclass名から）
+      const codeEl = pre.querySelector('code');
+      let language = '';
+      if (codeEl) {
+        const classList = codeEl.className.split(' ');
+        const langClass = classList.find(c => c.startsWith('language-'));
+        if (langClass) {
+          language = langClass.replace('language-', '');
+        }
+      }
+
+      // 言語名表示
+      if (language) {
+        const langLabel = document.createElement('span');
+        langLabel.className = 'code-block-lang';
+        langLabel.textContent = getLanguageDisplayName(language);
+        header.appendChild(langLabel);
+      }
+
+      // コピーボタン
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'code-copy-btn';
+      copyBtn.setAttribute('aria-label', 'コードをコピー');
+      copyBtn.setAttribute('title', 'コードをコピー');
+      copyBtn.innerHTML = `
+        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span class="copy-text">コピー</span>
+      `;
+
+      // コピー処理
+      copyBtn.addEventListener('click', async () => {
+        const code = codeEl ? codeEl.textContent : pre.textContent;
+
+        try {
+          await navigator.clipboard.writeText(code || '');
+
+          // 成功表示
+          copyBtn.classList.add('copied');
+          const copyIcon = copyBtn.querySelector('.copy-icon');
+          const checkIcon = copyBtn.querySelector('.check-icon');
+          const copyText = copyBtn.querySelector('.copy-text');
+
+          if (copyIcon) copyIcon.style.display = 'none';
+          if (checkIcon) checkIcon.style.display = 'block';
+          if (copyText) copyText.textContent = 'コピー完了';
+
+          // 2秒後に元に戻す
+          setTimeout(() => {
+            copyBtn.classList.remove('copied');
+            if (copyIcon) copyIcon.style.display = 'block';
+            if (checkIcon) checkIcon.style.display = 'none';
+            if (copyText) copyText.textContent = 'コピー';
+          }, 2000);
+        } catch (err) {
+          console.error('コピーに失敗しました:', err);
+        }
+      });
+
+      header.appendChild(copyBtn);
+
+      // DOMの組み立て
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(header);
+      wrapper.appendChild(pre);
+    });
+  }
+
+  /**
+   * 言語名を表示用に変換
+   */
+  function getLanguageDisplayName(lang) {
+    const displayNames = {
+      'js': 'JavaScript',
+      'javascript': 'JavaScript',
+      'ts': 'TypeScript',
+      'typescript': 'TypeScript',
+      'jsx': 'JSX',
+      'tsx': 'TSX',
+      'py': 'Python',
+      'python': 'Python',
+      'rb': 'Ruby',
+      'ruby': 'Ruby',
+      'go': 'Go',
+      'rust': 'Rust',
+      'rs': 'Rust',
+      'java': 'Java',
+      'kotlin': 'Kotlin',
+      'kt': 'Kotlin',
+      'swift': 'Swift',
+      'c': 'C',
+      'cpp': 'C++',
+      'cs': 'C#',
+      'csharp': 'C#',
+      'php': 'PHP',
+      'html': 'HTML',
+      'css': 'CSS',
+      'scss': 'SCSS',
+      'sass': 'Sass',
+      'less': 'Less',
+      'json': 'JSON',
+      'yaml': 'YAML',
+      'yml': 'YAML',
+      'xml': 'XML',
+      'md': 'Markdown',
+      'markdown': 'Markdown',
+      'sh': 'Shell',
+      'bash': 'Bash',
+      'zsh': 'Zsh',
+      'powershell': 'PowerShell',
+      'ps1': 'PowerShell',
+      'sql': 'SQL',
+      'graphql': 'GraphQL',
+      'dockerfile': 'Dockerfile',
+      'docker': 'Docker',
+      'nginx': 'Nginx',
+      'apache': 'Apache',
+      'vim': 'Vim',
+      'diff': 'Diff',
+      'plaintext': 'Text',
+      'text': 'Text',
+      'astro': 'Astro',
+      'vue': 'Vue',
+      'svelte': 'Svelte',
+    };
+
+    return displayNames[lang.toLowerCase()] || lang.toUpperCase();
+  }
+
+  // ページ読み込み時に実行
+  document.addEventListener('DOMContentLoaded', enhanceCodeBlocks);
+  document.addEventListener('astro:page-load', enhanceCodeBlocks);
+</script>
+
+<style is:global>
+  /* コードブロックラッパー */
+  .code-block-wrapper {
+    @apply relative rounded-xl overflow-hidden my-6;
+    @apply border border-slate-700/50;
+    @apply bg-[#0d1220];
+  }
+
+  /* コードブロックヘッダー */
+  .code-block-header {
+    @apply flex items-center justify-between;
+    @apply px-4 py-2;
+    @apply bg-slate-800/80 border-b border-slate-700/50;
+  }
+
+  /* 言語名ラベル */
+  .code-block-lang {
+    @apply text-xs font-medium text-slate-400;
+    @apply px-2 py-0.5 rounded;
+    @apply bg-slate-700/50;
+  }
+
+  /* コピーボタン */
+  .code-copy-btn {
+    @apply flex items-center gap-1.5;
+    @apply px-2.5 py-1 rounded-md;
+    @apply text-xs font-medium text-slate-400;
+    @apply bg-slate-700/50 hover:bg-slate-600/50;
+    @apply border border-slate-600/50 hover:border-slate-500/50;
+    @apply transition-all duration-200;
+    @apply cursor-pointer;
+
+    &:hover {
+      @apply text-slate-200;
+    }
+
+    &.copied {
+      @apply text-emerald-400 border-emerald-500/50 bg-emerald-500/10;
+    }
+
+    .copy-icon,
+    .check-icon {
+      @apply w-3.5 h-3.5;
+    }
+
+    .copy-text {
+      @apply hidden sm:inline;
+    }
+  }
+
+  /* コードブロック本体の調整 */
+  .code-block-wrapper pre {
+    @apply m-0 rounded-none border-none;
+    @apply bg-transparent !important;
+  }
+
+  .code-block-wrapper pre code {
+    @apply bg-transparent !important;
+  }
+</style>

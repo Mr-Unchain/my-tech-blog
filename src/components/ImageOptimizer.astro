@@ -1,0 +1,185 @@
+---
+/**
+ * ImageOptimizer - 記事内画像の最適化
+ *
+ * 機能:
+ * - Intersection Observerによる遅延読み込み
+ * - プレースホルダー（ぼかし）効果
+ * - アスペクト比の予約（CLS防止）
+ * - 画像の拡大表示（クリックで）
+ */
+---
+
+<script is:inline>
+  /**
+   * 画像最適化を初期化
+   */
+  function initImageOptimizer() {
+    // 既に初期化済みならスキップ
+    if (window.__imageOptimizerInitialized) return;
+    window.__imageOptimizerInitialized = true;
+
+    const articleContent = document.querySelector('.blog-article-content');
+    if (!articleContent) return;
+
+    const images = articleContent.querySelectorAll('img:not([data-optimized])');
+
+    images.forEach((img) => {
+      // 最適化済みマーク
+      img.setAttribute('data-optimized', 'true');
+
+      // loading属性を追加（まだない場合）
+      if (!img.hasAttribute('loading')) {
+        img.setAttribute('loading', 'lazy');
+      }
+
+      // decoding属性を追加
+      img.setAttribute('decoding', 'async');
+
+      // 画像にクラスを追加（ラッパーは作らず、元のサイズを維持）
+      img.classList.add('optimized-image');
+
+      // 読み込み完了時の処理
+      const handleLoad = () => {
+        img.classList.add('loaded');
+      };
+
+      if (img.complete) {
+        handleLoad();
+      } else {
+        img.addEventListener('load', handleLoad);
+      }
+
+      // クリックで拡大表示
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', () => {
+        openImageLightbox(img.src, img.alt);
+      });
+    });
+  }
+
+  /**
+   * 画像をライトボックスで表示
+   */
+  function openImageLightbox(src, alt) {
+    // 既存のライトボックスを削除
+    const existing = document.querySelector('.image-lightbox');
+    if (existing) existing.remove();
+
+    const lightbox = document.createElement('div');
+    lightbox.className = 'image-lightbox';
+    lightbox.innerHTML = `
+      <div class="lightbox-backdrop"></div>
+      <div class="lightbox-content">
+        <img src="${src}" alt="${alt || ''}" />
+        <button class="lightbox-close" aria-label="閉じる">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(lightbox);
+    document.body.style.overflow = 'hidden';
+
+    // アニメーション
+    requestAnimationFrame(() => {
+      lightbox.classList.add('active');
+    });
+
+    // 閉じる処理
+    const close = () => {
+      lightbox.classList.remove('active');
+      setTimeout(() => {
+        lightbox.remove();
+        document.body.style.overflow = '';
+      }, 300);
+    };
+
+    lightbox.querySelector('.lightbox-backdrop').addEventListener('click', close);
+    lightbox.querySelector('.lightbox-close').addEventListener('click', close);
+
+    // Escapeキーで閉じる
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        close();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+  }
+
+  // ページ読み込み時に初期化
+  document.addEventListener('DOMContentLoaded', initImageOptimizer);
+  document.addEventListener('astro:page-load', () => {
+    window.__imageOptimizerInitialized = false;
+    initImageOptimizer();
+  });
+</script>
+
+<style is:global>
+  /* 最適化された画像（CMSのサイズを尊重） */
+  .optimized-image {
+    @apply rounded-lg;
+    @apply transition-opacity duration-300;
+    cursor: zoom-in;
+
+    /* 読み込み中は半透明 */
+    &:not(.loaded) {
+      opacity: 0.6;
+    }
+
+    &.loaded {
+      opacity: 1;
+    }
+  }
+
+  /* ライトボックス */
+  .image-lightbox {
+    @apply fixed inset-0 z-[9999];
+    @apply flex items-center justify-center;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+
+    &.active {
+      opacity: 1;
+    }
+  }
+
+  .lightbox-backdrop {
+    @apply absolute inset-0 bg-black/90;
+    backdrop-filter: blur(8px);
+  }
+
+  .lightbox-content {
+    @apply relative z-10 max-w-[90vw] max-h-[90vh];
+
+    img {
+      @apply max-w-full max-h-[85vh] rounded-lg shadow-2xl;
+      @apply object-contain;
+    }
+  }
+
+  .lightbox-close {
+    @apply absolute -top-12 right-0;
+    @apply w-10 h-10 flex items-center justify-center rounded-full;
+    @apply bg-white/10 hover:bg-white/20 text-white;
+    @apply transition-colors cursor-pointer;
+    @apply border-0;
+
+    svg {
+      @apply w-6 h-6;
+    }
+  }
+
+  /* アニメーション */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+</style>

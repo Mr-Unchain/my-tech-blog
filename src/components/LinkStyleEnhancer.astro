@@ -1,0 +1,155 @@
+---
+/**
+ * LinkStyleEnhancer - 記事内リンクのスタイル強化
+ *
+ * 記事内の独立したリンク（段落内に単独で存在するリンク）を
+ * カード風のスタイルで表示する
+ *
+ * OGPの取得は行わず、URLの情報のみで表示を改善
+ */
+---
+
+<script is:inline>
+  /**
+   * 記事内のリンクをスタイル強化
+   */
+  function enhanceLinks() {
+    // 記事コンテンツ内のリンクを取得
+    const articleContent = document.querySelector('.blog-article-content');
+    if (!articleContent) return;
+
+    // 段落内の単独リンクを検出
+    const paragraphs = articleContent.querySelectorAll('p');
+
+    paragraphs.forEach((p) => {
+      // 段落内にリンクが1つだけで、他のテキストがほとんどない場合
+      const links = p.querySelectorAll('a');
+      if (links.length !== 1) return;
+
+      const link = links[0];
+      const textContent = p.textContent?.trim() || '';
+      const linkText = link.textContent?.trim() || '';
+
+      // リンクテキストと段落テキストがほぼ同じ（単独リンク）
+      // または、リンクがURL形式のテキストを持つ場合
+      const isStandaloneLink =
+        textContent === linkText ||
+        /^https?:\/\//.test(linkText);
+
+      if (!isStandaloneLink) return;
+
+      // 既に強化済みならスキップ
+      if (link.classList.contains('enhanced-link')) return;
+
+      // 外部リンクのみ対象
+      try {
+        const url = new URL(link.href);
+        if (url.hostname === window.location.hostname) return;
+
+        // リンクを強化
+        link.classList.add('enhanced-link');
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+
+        // ドメイン名を取得
+        const hostname = url.hostname.replace('www.', '');
+
+        // ファビコンとドメイン名を追加
+        const favicon = document.createElement('img');
+        favicon.src = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
+        favicon.alt = '';
+        favicon.className = 'enhanced-link-favicon';
+        favicon.width = 16;
+        favicon.height = 16;
+
+        const domain = document.createElement('span');
+        domain.className = 'enhanced-link-domain';
+        domain.textContent = hostname;
+
+        const arrow = document.createElement('span');
+        arrow.className = 'enhanced-link-arrow';
+        arrow.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>`;
+
+        // 既存のコンテンツをラップ
+        const textSpan = document.createElement('span');
+        textSpan.className = 'enhanced-link-text';
+        textSpan.textContent = link.textContent;
+        link.textContent = '';
+
+        // 要素を追加
+        link.appendChild(favicon);
+        link.appendChild(textSpan);
+        link.appendChild(domain);
+        link.appendChild(arrow);
+
+        // 段落にもクラスを追加
+        p.classList.add('has-enhanced-link');
+      } catch (e) {
+        // 無効なURLはスキップ
+      }
+    });
+  }
+
+  // ページ読み込み時に実行
+  document.addEventListener('DOMContentLoaded', enhanceLinks);
+  document.addEventListener('astro:page-load', enhanceLinks);
+</script>
+
+<style is:global>
+  /* 強化されたリンクを含む段落 */
+  .has-enhanced-link {
+    @apply my-6;
+  }
+
+  /* 強化されたリンク */
+  .enhanced-link {
+    @apply flex items-center gap-3 p-4 rounded-xl;
+    @apply bg-slate-800/60 hover:bg-slate-700/60;
+    @apply border border-slate-700/50 hover:border-cyan-500/30;
+    @apply transition-all duration-200;
+    @apply no-underline !important;
+    text-decoration: none !important;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+      .enhanced-link-text {
+        @apply text-cyan-400;
+      }
+
+      .enhanced-link-arrow {
+        transform: translate(2px, -2px);
+      }
+    }
+  }
+
+  .enhanced-link-favicon {
+    @apply w-5 h-5 rounded flex-shrink-0;
+  }
+
+  .enhanced-link-text {
+    @apply flex-1 text-sm font-medium text-white truncate;
+    @apply transition-colors duration-200;
+  }
+
+  .enhanced-link-domain {
+    @apply text-xs text-slate-500 flex-shrink-0;
+  }
+
+  .enhanced-link-arrow {
+    @apply w-4 h-4 text-slate-500 flex-shrink-0;
+    @apply transition-transform duration-200;
+
+    svg {
+      @apply w-full h-full;
+    }
+  }
+
+  /* 通常のインラインリンク（強化されないもの）のスタイル */
+  .blog-article-content a:not(.enhanced-link) {
+    @apply text-cyan-400 hover:text-cyan-300;
+    @apply underline decoration-cyan-400/30 hover:decoration-cyan-400/60;
+    @apply transition-colors duration-200;
+  }
+</style>

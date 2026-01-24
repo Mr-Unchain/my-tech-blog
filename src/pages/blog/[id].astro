@@ -4,13 +4,22 @@ import { Image } from "astro:assets";
 import * as cheerio from "cheerio";
 import { doc, increment, setDoc } from "firebase/firestore";
 import ArticleCard from "../../components/ArticleCard.astro";
+import ArticleNavigation from "../../components/ArticleNavigation.astro";
+import AuthorCard from "../../components/AuthorCard.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import CodeBlockEnhancer from "../../components/CodeBlockEnhancer.astro";
 import Comments from "../../components/Comments.astro";
+import ImageOptimizer from "../../components/ImageOptimizer.astro";
+import KeyboardNavigation from "../../components/KeyboardNavigation.astro";
+import LinkStyleEnhancer from "../../components/LinkStyleEnhancer.astro";
 import ReactionButtons from "../../components/ReactionButtons";
+import StickyReactionBar from "../../components/StickyReactionBar";
+import TableOfContents from "../../components/TableOfContents";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { db } from "../../lib/firebase";
 import { getBlogDetail, getBlogs } from "../../lib/microcms";
 import { getRelatedPosts } from "../../utils/recommend";
+import { getCategoryBadgeClasses, getCategoryIconClass } from "../../utils/categoryColors";
 
 const { id } = Astro.params;
 const draftKey = Astro.url.searchParams.get("draftKey");
@@ -168,7 +177,13 @@ const breadcrumbItems = [
       <!-- パンくずナビゲーション -->
       <Breadcrumb items={breadcrumbItems} class="mb-6" />
       
-      <div class="grid grid-cols-1 lg:grid-cols-6 lg:gap-6">
+      <div class="relative flex gap-4 lg:gap-6">
+        <!-- 左サイドバー（リアクションバー） - PC表示のみ -->
+        <aside class="hidden lg:block flex-shrink-0 w-14">
+          <StickyReactionBar client:load blogId={post.id} title={post.title} />
+        </aside>
+
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-6 lg:gap-6">
         <!-- メインコンテンツ -->
         <article class="lg:col-span-4" itemscope itemtype="https://schema.org/BlogPosting">
           <div
@@ -282,6 +297,18 @@ const breadcrumbItems = [
               <Fragment set:html={post.content} />
             </div>
 
+            <!-- コードブロック強化（コピーボタン等） -->
+            <CodeBlockEnhancer />
+
+            <!-- リンクスタイル強化（カード風表示） -->
+            <LinkStyleEnhancer />
+
+            <!-- 画像最適化（遅延読み込み、ライトボックス） -->
+            <ImageOptimizer />
+
+            <!-- キーボードナビゲーション -->
+            <KeyboardNavigation />
+
             <!-- リアクション + シェア -->
             <div class="mt-6 px-4 md:px-8">
               <div class="flex flex-col gap-4">
@@ -316,48 +343,35 @@ const breadcrumbItems = [
             </div>
           </div>
 
-          {/* 記事末尾のカテゴリハッシュタグ表示（洗練デザイン） */}
+          {/* 記事末尾のカテゴリハッシュタグ表示（Zenn風カラフルバッジ） */}
           <div class="mt-8 flex flex-wrap gap-3">
             {
               Array.isArray(post.category)
                 ? post.category.map((cat) => (
                     <a
                       href={`/category/${cat}/`}
-                      class="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 text-xs font-semibold shadow-sm hover:from-emerald-500/30 hover:to-teal-500/30 hover:text-emerald-200 transition-all border border-emerald-400/30"
+                      class={getCategoryBadgeClasses(cat)}
                       style="text-decoration: none;"
                     >
-                      <svg
-                        class="w-4 h-4 mr-1 text-emerald-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <text x="0" y="15" font-size="16">
-                          #
-                        </text>
-                      </svg>
+                      <span class={`${getCategoryIconClass(cat)} text-base`}>#</span>
                       {cat}
                     </a>
                   ))
                 : post.category && (
                     <a
                       href={`/category/${post.category}/`}
-                      class="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 text-xs font-semibold shadow-sm hover:from-emerald-500/30 hover:to-teal-500/30 hover:text-emerald-200 transition-all border border-emerald-400/30"
+                      class={getCategoryBadgeClasses(post.category)}
                       style="text-decoration: none;"
                     >
-                      <svg
-                        class="w-4 h-4 mr-1 text-emerald-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <text x="0" y="15" font-size="16">
-                          #
-                        </text>
-                      </svg>
+                      <span class={`${getCategoryIconClass(post.category)} text-base`}>#</span>
                       {post.category}
                     </a>
                   )
             }
           </div>
+
+          {/* 前後の記事ナビゲーション */}
+          <ArticleNavigation currentId={post.id} allArticles={allBlogs.contents} />
 
           {!draftKey && (
             <div
@@ -373,27 +387,24 @@ const breadcrumbItems = [
           )}
         </article>
 
-        <!-- サイドバー (目次) PCのみ -->
+        <!-- サイドバー (著者カード + 目次) PCのみ -->
         <aside
           class="lg:col-span-2 lg:sticky lg:top-28 self-start hidden lg:block"
         >
+          {/* 著者情報カード */}
+          <AuthorCard />
+
+          {/* 目次 - React Islandでスクロール連動ハイライト */}
           <div
             class="toc-container bg-slate-700/60 p-6 rounded-xl border border-slate-600/50 shadow-xl backdrop-blur-sm"
           >
             <h3 class="font-bold text-lg mb-4 text-cyan-300 flex-shrink-0">目次</h3>
             <div class="toc-scroll-area">
-              <ul class="toc-list">
-                {
-                  headings.map((heading) => (
-                    <li class={heading.tagName === "h2" ? "toc-h2" : "toc-h3"}>
-                      <a href={`#${heading.id}`}>{heading.text}</a>
-                    </li>
-                  ))
-                }
-              </ul>
+              <TableOfContents client:load headings={headings} />
             </div>
           </div>
         </aside>
+        </div>
       </div>
 
       <!-- Related Posts -->
@@ -494,4 +505,65 @@ const breadcrumbItems = [
 
   document.addEventListener('DOMContentLoaded', setupShareButtons);
   document.addEventListener('astro:page-load', setupShareButtons);
+</script>
+
+<!-- 読了プログレスバーのスクリプト -->
+<script is:inline>
+  /**
+   * 読了プログレスバーの初期化
+   * スクロール位置から記事の読了進捗を計算し、プログレスバーを更新
+   */
+  function setupReadingProgress() {
+    const progressBar = document.getElementById('reading-progress');
+    if (!progressBar) return;
+
+    // 記事本文の要素を取得
+    const article = document.querySelector('.blog-article-content');
+    if (!article) return;
+
+    /**
+     * プログレスバーを更新
+     */
+    function updateProgress() {
+      // 記事の位置情報を取得
+      const articleRect = article.getBoundingClientRect();
+      const articleTop = window.scrollY + articleRect.top;
+      const articleHeight = articleRect.height;
+
+      // 現在のスクロール位置
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+
+      // 記事の読了進捗を計算（記事開始から終了まで）
+      // 記事の開始位置を0%、記事の終了位置を100%とする
+      const readableStart = articleTop - windowHeight * 0.3; // 記事が画面に30%入ったところから開始
+      const readableEnd = articleTop + articleHeight - windowHeight * 0.5; // 記事の50%が画面に残っているところで終了
+      const readableLength = readableEnd - readableStart;
+
+      let progress = 0;
+      if (scrollTop <= readableStart) {
+        progress = 0;
+      } else if (scrollTop >= readableEnd) {
+        progress = 100;
+      } else {
+        progress = ((scrollTop - readableStart) / readableLength) * 100;
+      }
+
+      // プログレスバーの幅を更新
+      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+    }
+
+    // スクロールイベントでプログレスバーを更新（パッシブリスナー）
+    window.addEventListener('scroll', updateProgress, { passive: true });
+
+    // リサイズ時も更新
+    window.addEventListener('resize', updateProgress, { passive: true });
+
+    // 初期状態を設定
+    updateProgress();
+  }
+
+  // ページ読み込み時に初期化
+  document.addEventListener('DOMContentLoaded', setupReadingProgress);
+  document.addEventListener('astro:page-load', setupReadingProgress);
 </script>

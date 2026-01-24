@@ -1,0 +1,154 @@
+---
+/**
+ * LinkCard - 外部リンクカード
+ *
+ * OGP情報を使用して外部リンクをカード形式で表示
+ * Zenn.devのリンクカードを参考にしたデザイン
+ */
+
+import { fetchOGP, type OGPData } from '../lib/ogp';
+
+interface Props {
+  url: string;
+}
+
+const { url } = Astro.props;
+
+// OGP情報を取得
+let ogpData: OGPData | null = null;
+try {
+  ogpData = await fetchOGP(url);
+} catch (error) {
+  console.warn(`LinkCard: OGP取得失敗 - ${url}`, error);
+}
+
+// URLからドメイン名を取得
+let hostname = '';
+try {
+  hostname = new URL(url).hostname;
+} catch {
+  hostname = url;
+}
+---
+
+{ogpData ? (
+  <a href={url} target="_blank" rel="noopener noreferrer" class="link-card">
+    <div class="link-card-content">
+      <div class="link-card-text">
+        <span class="link-card-title">{ogpData.title || hostname}</span>
+        {ogpData.description && (
+          <span class="link-card-description">{ogpData.description}</span>
+        )}
+        <span class="link-card-meta">
+          <img
+            src={ogpData.favicon}
+            alt=""
+            class="link-card-favicon"
+            width="16"
+            height="16"
+            loading="lazy"
+          />
+          <span class="link-card-hostname">{ogpData.siteName || hostname}</span>
+        </span>
+      </div>
+      {ogpData.image && (
+        <div class="link-card-image">
+          <img
+            src={ogpData.image}
+            alt=""
+            loading="lazy"
+          />
+        </div>
+      )}
+    </div>
+  </a>
+) : (
+  <a href={url} target="_blank" rel="noopener noreferrer" class="link-card link-card-simple">
+    <div class="link-card-content">
+      <div class="link-card-text">
+        <span class="link-card-title">{url}</span>
+        <span class="link-card-meta">
+          <span class="link-card-hostname">{hostname}</span>
+        </span>
+      </div>
+    </div>
+  </a>
+)}
+
+<style>
+  /* リンクカード */
+  .link-card {
+    @apply block my-6 rounded-xl overflow-hidden;
+    @apply bg-slate-800/60 hover:bg-slate-700/60;
+    @apply border border-slate-700/50 hover:border-cyan-500/30;
+    @apply transition-all duration-200;
+    @apply no-underline;
+    text-decoration: none !important;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .link-card-content {
+    @apply flex items-stretch;
+    min-height: 120px;
+  }
+
+  .link-card-text {
+    @apply flex-1 flex flex-col justify-center gap-2 p-4;
+    min-width: 0; /* テキストの切り詰めを有効にする */
+  }
+
+  .link-card-title {
+    @apply font-semibold text-white text-sm leading-snug;
+    @apply line-clamp-2;
+  }
+
+  .link-card-description {
+    @apply text-xs text-slate-400 leading-relaxed;
+    @apply line-clamp-2;
+  }
+
+  .link-card-meta {
+    @apply flex items-center gap-2 mt-1;
+  }
+
+  .link-card-favicon {
+    @apply w-4 h-4 rounded;
+  }
+
+  .link-card-hostname {
+    @apply text-xs text-slate-500;
+  }
+
+  .link-card-image {
+    @apply flex-shrink-0 w-32 sm:w-40;
+    @apply bg-slate-900/50;
+
+    img {
+      @apply w-full h-full object-cover;
+    }
+  }
+
+  /* シンプルバージョン（OGP取得失敗時） */
+  .link-card-simple {
+    .link-card-content {
+      min-height: 60px;
+    }
+
+    .link-card-title {
+      @apply text-cyan-400;
+      word-break: break-all;
+    }
+  }
+
+  /* テキストクランプ */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

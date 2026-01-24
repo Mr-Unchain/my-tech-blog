@@ -1,0 +1,396 @@
+---
+/**
+ * KeyboardNavigation - キーボードナビゲーション
+ *
+ * 記事ページでのキーボード操作を改善
+ *
+ * ショートカットキー:
+ * - j: 次のセクション（見出し）へ移動
+ * - k: 前のセクション（見出し）へ移動
+ * - Escape: ページトップへスクロール
+ * - t: 目次にフォーカス
+ * - ?: ショートカットヘルプを表示
+ */
+---
+
+<script is:inline>
+  /**
+   * キーボードナビゲーションを初期化
+   */
+  function initKeyboardNavigation() {
+    // 既に初期化済みならスキップ
+    if (window.__keyboardNavInitialized) return;
+    window.__keyboardNavInitialized = true;
+
+    // 記事内の見出しを取得
+    let headings = [];
+    let currentHeadingIndex = -1;
+    let helpModal = null;
+
+    /**
+     * 見出しリストを更新
+     */
+    function updateHeadings() {
+      const article = document.querySelector('.blog-article-content');
+      if (!article) return;
+
+      headings = Array.from(article.querySelectorAll('h2, h3'));
+    }
+
+    /**
+     * 現在表示されている見出しのインデックスを取得
+     */
+    function getCurrentHeadingIndex() {
+      const scrollTop = window.scrollY;
+      const offset = 150; // ヘッダーの高さを考慮
+
+      for (let i = headings.length - 1; i >= 0; i--) {
+        const heading = headings[i];
+        const rect = heading.getBoundingClientRect();
+        const headingTop = rect.top + scrollTop;
+
+        if (scrollTop >= headingTop - offset) {
+          return i;
+        }
+      }
+
+      return -1;
+    }
+
+    /**
+     * 指定した見出しへスクロール
+     */
+    function scrollToHeading(index) {
+      if (index < 0 || index >= headings.length) return;
+
+      const heading = headings[index];
+      const offset = 100; // ヘッダーの高さ
+      const elementTop = heading.getBoundingClientRect().top + window.scrollY;
+
+      window.scrollTo({
+        top: elementTop - offset,
+        behavior: 'smooth'
+      });
+
+      currentHeadingIndex = index;
+
+      // 視覚的フィードバック
+      showNavigationFeedback(heading.textContent, index + 1, headings.length);
+    }
+
+    /**
+     * 次の見出しへ移動
+     */
+    function goToNextHeading() {
+      updateHeadings();
+      if (headings.length === 0) return;
+
+      const current = getCurrentHeadingIndex();
+      const nextIndex = Math.min(current + 1, headings.length - 1);
+
+      if (nextIndex !== current || current === -1) {
+        scrollToHeading(nextIndex === current ? 0 : nextIndex);
+      }
+    }
+
+    /**
+     * 前の見出しへ移動
+     */
+    function goToPrevHeading() {
+      updateHeadings();
+      if (headings.length === 0) return;
+
+      const current = getCurrentHeadingIndex();
+      const prevIndex = Math.max(current - 1, 0);
+
+      if (current > 0) {
+        scrollToHeading(prevIndex);
+      } else if (current === 0) {
+        // 最初の見出しにいる場合はページトップへ
+        scrollToTop();
+      }
+    }
+
+    /**
+     * ページトップへスクロール
+     */
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      showNavigationFeedback('ページトップ', 0, 0);
+    }
+
+    /**
+     * 目次にフォーカス
+     */
+    function focusToc() {
+      const toc = document.querySelector('.toc-scroll-area');
+      if (toc) {
+        const firstLink = toc.querySelector('a');
+        if (firstLink) {
+          firstLink.focus();
+          showNavigationFeedback('目次にフォーカス', 0, 0);
+        }
+      }
+    }
+
+    /**
+     * ナビゲーションフィードバックを表示
+     */
+    function showNavigationFeedback(text, current, total) {
+      // 既存のフィードバックを削除
+      const existing = document.querySelector('.keyboard-nav-feedback');
+      if (existing) existing.remove();
+
+      const feedback = document.createElement('div');
+      feedback.className = 'keyboard-nav-feedback';
+      feedback.innerHTML = `
+        <span class="feedback-text">${text}</span>
+        ${total > 0 ? `<span class="feedback-count">${current} / ${total}</span>` : ''}
+      `;
+
+      document.body.appendChild(feedback);
+
+      // アニメーション後に削除
+      setTimeout(() => {
+        feedback.classList.add('fade-out');
+        setTimeout(() => feedback.remove(), 300);
+      }, 1500);
+    }
+
+    /**
+     * ヘルプモーダルを表示/非表示
+     */
+    function toggleHelpModal() {
+      if (helpModal) {
+        helpModal.remove();
+        helpModal = null;
+        return;
+      }
+
+      helpModal = document.createElement('div');
+      helpModal.className = 'keyboard-help-modal';
+      helpModal.innerHTML = `
+        <div class="keyboard-help-content">
+          <div class="keyboard-help-header">
+            <h3>キーボードショートカット</h3>
+            <button class="keyboard-help-close" aria-label="閉じる">&times;</button>
+          </div>
+          <div class="keyboard-help-body">
+            <div class="shortcut-group">
+              <h4>ナビゲーション</h4>
+              <div class="shortcut-item">
+                <kbd>j</kbd>
+                <span>次のセクションへ</span>
+              </div>
+              <div class="shortcut-item">
+                <kbd>k</kbd>
+                <span>前のセクションへ</span>
+              </div>
+              <div class="shortcut-item">
+                <kbd>Esc</kbd>
+                <span>ページトップへ</span>
+              </div>
+              <div class="shortcut-item">
+                <kbd>t</kbd>
+                <span>目次にフォーカス</span>
+              </div>
+            </div>
+            <div class="shortcut-group">
+              <h4>その他</h4>
+              <div class="shortcut-item">
+                <kbd>?</kbd>
+                <span>このヘルプを表示</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(helpModal);
+
+      // 閉じるボタンのイベント
+      helpModal.querySelector('.keyboard-help-close').addEventListener('click', () => {
+        toggleHelpModal();
+      });
+
+      // 背景クリックで閉じる
+      helpModal.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+          toggleHelpModal();
+        }
+      });
+    }
+
+    /**
+     * キーボードイベントハンドラ
+     */
+    function handleKeyDown(e) {
+      // 入力フィールドにフォーカスがある場合は無視
+      const activeElement = document.activeElement;
+      const isInputFocused =
+        activeElement?.tagName === 'INPUT' ||
+        activeElement?.tagName === 'TEXTAREA' ||
+        activeElement?.isContentEditable;
+
+      if (isInputFocused) return;
+
+      // モーダルが開いている場合はEscapeで閉じる
+      if (helpModal && e.key === 'Escape') {
+        toggleHelpModal();
+        return;
+      }
+
+      switch (e.key) {
+        case 'j':
+          e.preventDefault();
+          goToNextHeading();
+          break;
+        case 'k':
+          e.preventDefault();
+          goToPrevHeading();
+          break;
+        case 'Escape':
+          e.preventDefault();
+          scrollToTop();
+          break;
+        case 't':
+          e.preventDefault();
+          focusToc();
+          break;
+        case '?':
+          e.preventDefault();
+          toggleHelpModal();
+          break;
+      }
+    }
+
+    // イベントリスナーを登録
+    document.addEventListener('keydown', handleKeyDown);
+
+    // 初期化時に見出しを取得
+    updateHeadings();
+  }
+
+  // ページ読み込み時に初期化
+  document.addEventListener('DOMContentLoaded', initKeyboardNavigation);
+  document.addEventListener('astro:page-load', () => {
+    window.__keyboardNavInitialized = false;
+    initKeyboardNavigation();
+  });
+</script>
+
+<style is:global>
+  /* ナビゲーションフィードバック */
+  .keyboard-nav-feedback {
+    @apply fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999];
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl;
+    @apply bg-slate-900/95 text-white text-sm font-medium;
+    @apply border border-slate-700/60;
+    @apply shadow-lg backdrop-blur-sm;
+    animation: feedbackIn 0.2s ease-out;
+  }
+
+  .keyboard-nav-feedback.fade-out {
+    animation: feedbackOut 0.3s ease-out forwards;
+  }
+
+  .feedback-text {
+    @apply truncate max-w-xs;
+  }
+
+  .feedback-count {
+    @apply text-xs text-slate-400 px-2 py-0.5 rounded-full bg-slate-800;
+  }
+
+  @keyframes feedbackIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 10px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
+  @keyframes feedbackOut {
+    from {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, 10px);
+    }
+  }
+
+  /* ヘルプモーダル */
+  .keyboard-help-modal {
+    @apply fixed inset-0 z-[9999];
+    @apply flex items-center justify-center;
+    @apply bg-black/60 backdrop-blur-sm;
+    animation: modalIn 0.2s ease-out;
+  }
+
+  .keyboard-help-content {
+    @apply bg-slate-800 rounded-2xl shadow-2xl;
+    @apply border border-slate-700/50;
+    @apply w-full max-w-md mx-4;
+    @apply overflow-hidden;
+  }
+
+  .keyboard-help-header {
+    @apply flex items-center justify-between;
+    @apply px-6 py-4 border-b border-slate-700/50;
+    @apply bg-slate-800/80;
+
+    h3 {
+      @apply text-lg font-bold text-white m-0;
+    }
+  }
+
+  .keyboard-help-close {
+    @apply w-8 h-8 flex items-center justify-center rounded-lg;
+    @apply text-slate-400 hover:text-white hover:bg-slate-700;
+    @apply text-xl font-light transition-colors;
+    @apply cursor-pointer border-0 bg-transparent;
+  }
+
+  .keyboard-help-body {
+    @apply px-6 py-5 space-y-5;
+  }
+
+  .shortcut-group {
+    h4 {
+      @apply text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3;
+    }
+  }
+
+  .shortcut-item {
+    @apply flex items-center justify-between py-2;
+    @apply border-b border-slate-700/30 last:border-b-0;
+
+    kbd {
+      @apply px-2.5 py-1 rounded-md;
+      @apply bg-slate-700 text-slate-200 text-sm font-mono;
+      @apply border border-slate-600;
+      @apply shadow-sm;
+    }
+
+    span {
+      @apply text-sm text-slate-300;
+    }
+  }
+
+  @keyframes modalIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>
