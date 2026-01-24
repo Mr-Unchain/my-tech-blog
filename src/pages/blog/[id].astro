@@ -1,15 +1,14 @@
 ---
 // src/pages/blog/[id].astro
 import { Image } from "astro:assets";
-import CategoryList from "../../components/CategoryList";
-import ArticleCard from "../../components/ArticleCard.astro";
 import * as cheerio from "cheerio";
 import { doc, increment, setDoc } from "firebase/firestore";
-import Comments from "../../components/Comments.astro";
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleCard from "../../components/ArticleCard.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
-import { db } from "../../lib/firebase";
+import Comments from "../../components/Comments.astro";
 import ReactionButtons from "../../components/ReactionButtons";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { db } from "../../lib/firebase";
 import { getBlogDetail, getBlogs } from "../../lib/microcms";
 import { getRelatedPosts } from "../../utils/recommend";
 
@@ -22,7 +21,7 @@ if (!id) {
 }
 
 // 閲覧数をインクリメント（プレビュー時は抑止）
-if (!draftKey) {
+if (!draftKey && db) {
   const viewRef = doc(db, "views", id);
   await setDoc(viewRef, { count: increment(1) }, { merge: true });
 }
@@ -169,9 +168,9 @@ const breadcrumbItems = [
       <!-- パンくずナビゲーション -->
       <Breadcrumb items={breadcrumbItems} class="mb-6" />
       
-      <div class="grid grid-cols-1 lg:grid-cols-4 lg:gap-12">
+      <div class="grid grid-cols-1 lg:grid-cols-6 lg:gap-6">
         <!-- メインコンテンツ -->
-        <article class="lg:col-span-3" itemscope itemtype="https://schema.org/BlogPosting">
+        <article class="lg:col-span-4" itemscope itemtype="https://schema.org/BlogPosting">
           <div
             class="bg-gradient-to-b from-slate-800/90 to-slate-800/95 rounded-xl border border-slate-700/50 shadow-xl backdrop-blur-sm overflow-hidden"
           >
@@ -376,21 +375,23 @@ const breadcrumbItems = [
 
         <!-- サイドバー (目次) PCのみ -->
         <aside
-          class="lg:col-span-1 lg:sticky lg:top-28 self-start hidden lg:block"
+          class="lg:col-span-2 lg:sticky lg:top-28 self-start hidden lg:block"
         >
           <div
-            class="bg-slate-700/60 p-6 rounded-xl border border-slate-600/50 shadow-xl backdrop-blur-sm"
+            class="toc-container bg-slate-700/60 p-6 rounded-xl border border-slate-600/50 shadow-xl backdrop-blur-sm"
           >
-            <h3 class="font-bold text-lg mb-4 text-cyan-300">目次</h3>
-            <ul class="toc-list">
-              {
-                headings.map((heading) => (
-                  <li class={heading.tagName === "h2" ? "toc-h2" : "toc-h3"}>
-                    <a href={`#${heading.id}`}>{heading.text}</a>
-                  </li>
-                ))
-              }
-            </ul>
+            <h3 class="font-bold text-lg mb-4 text-cyan-300 flex-shrink-0">目次</h3>
+            <div class="toc-scroll-area">
+              <ul class="toc-list">
+                {
+                  headings.map((heading) => (
+                    <li class={heading.tagName === "h2" ? "toc-h2" : "toc-h3"}>
+                      <a href={`#${heading.id}`}>{heading.text}</a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
           </div>
         </aside>
       </div>
