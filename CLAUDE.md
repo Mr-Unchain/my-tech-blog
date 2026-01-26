@@ -4,7 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Personal tech blog built with Astro + React + microCMS. Static-first architecture with Islands for interactivity, deployed on Vercel. Japanese content with SEO optimization.
+Personal tech blog built with **Astro 5 + React 19 + microCMS**. Static-first architecture with Islands for interactivity, deployed on Vercel. Japanese content with SEO optimization. Domain: `monologger.dev`
+
+### Tech Stack
+- **Framework**: Astro 5.10 (server output mode)
+- **UI**: React 19 (Islands), Tailwind CSS 3.4
+- **CMS**: microCMS (headless)
+- **Database**: Firebase Firestore (runtime features)
+- **Deployment**: Vercel with Edge Network
+- **Page Transitions**: Swup 4.8
 
 ## Commands
 
@@ -27,26 +35,60 @@ npm run e2e:ui           # Run E2E tests with Playwright UI
 ## Architecture
 
 ### Data Flow
-- **Build time**: Astro fetches content from microCMS API and generates static pages
+- **Build time**: Astro fetches content from microCMS API and generates pages
 - **Runtime**: Firebase Firestore handles reactions, bookmarks, and view counts
-- **Deployment**: Vercel with Edge Network distribution
+- **Deployment**: Vercel with automatic sitemap generation (includes dynamic blog/category URLs)
 
 ### Key Directories
-- `src/lib/` - API clients and utilities
-  - `microcms.ts` - Type-safe microCMS client with category normalization
-  - `firebase.ts` - Firebase initialization
-  - `firebase-collections.ts` - Firestore collection types and constants
-  - `blur.ts` - LQIP (Low Quality Image Placeholder) generation
-- `src/pages/api/` - Server endpoints for bookmarks, reactions, webhooks
-- `src/hooks/` - React hooks for client-side features (useBookmarks, useReactions)
-- `src/components/` - Mixed Astro and React components (React `.tsx` for interactive Islands)
+
+```
+src/
+├── components/          # Mixed Astro and React components
+│   ├── *.astro         # Static Astro components
+│   └── *.tsx           # React Islands (interactive)
+├── hooks/              # React hooks for client-side features
+├── layouts/            # Base layouts (BaseLayout.astro)
+├── lib/                # API clients and utilities
+├── pages/              # File-based routing
+│   ├── api/            # Server endpoints
+│   └── blog/           # Blog pages with dynamic routes
+└── utils/              # Helper functions
+
+tests/                  # Vitest unit tests
+e2e/                    # Playwright E2E tests
+docs/                   # Project documentation
+```
+
+### Library Files (`src/lib/`)
+
+| File | Purpose |
+|------|---------|
+| `microcms.ts` | Type-safe microCMS client with category normalization |
+| `firebase.ts` | Firebase initialization |
+| `firebase-collections.ts` | Firestore collection types, constants, reaction configs |
+| `blur.ts` | LQIP (Low Quality Image Placeholder) generation |
+| `utils.ts` | Shared utilities (sessionId generation, array normalization) |
+| `ogp.ts` | OGP metadata extraction for link cards (build-time) |
 
 ### Content Types (microCMS)
-- `blogs` - Blog posts with `id`, `title`, `description`, `content`, `eyecatch`, `category[]`
-- `profile` - Single profile entry
-- `projects` - Portfolio projects with `techStack[]`
+
+| Type | Fields |
+|------|--------|
+| `blogs` | `id`, `title`, `description`, `content`, `eyecatch`, `category[]` |
+| `profile` | Single profile entry |
+| `projects` | Portfolio projects with `techStack[]` |
+
+### Firebase Collections
+
+| Collection | Purpose |
+|------------|---------|
+| `bookmarks` | User bookmarks with metadata |
+| `blog_stats` | Aggregated stats (bookmarks, views, reactions) |
+| `reactions` | Individual reactions (like, helpful, insightful, inspiring) |
+| `views` | Page view tracking |
 
 ### Environment Variables
+
 ```bash
 # microCMS
 VITE_MICROCMS_SERVICE_DOMAIN=
@@ -66,19 +108,96 @@ VITE_FIREBASE_MEASUREMENT_ID=
 ## Code Patterns
 
 ### Category Normalization
-microCMS category fields are normalized to arrays in `getBlogs()` and `getProjects()`. Always treat `category` and `techStack` as `string[]`.
+microCMS category fields are normalized to arrays in `getBlogs()` and `getProjects()`. Always treat `category` and `techStack` as `string[]`. Use `normalizeToArray()` from `src/lib/utils.ts` when working with potentially non-array values.
 
-### Astro Islands
-React components (`.tsx`) are used only where client-side interactivity is needed:
-- `HeroSlideshowReact.tsx` - Homepage slideshow
-- `ReactionButtons.tsx` - Article reactions
-- `CategoryList.tsx` - Dynamic category filtering
+### Astro Islands Architecture
+React components (`.tsx`) are used **only** where client-side interactivity is required:
+
+| Component | Purpose |
+|-----------|---------|
+| `HeroSlideshowReact.tsx` | Homepage slideshow with auto-play |
+| `ReactionButtons.tsx` | Article reactions (like, helpful, etc.) |
+| `CategoryList.tsx` | Dynamic category filtering |
+| `TableOfContents.tsx` | Scroll-aware TOC with active section highlighting |
+| `StickyReactionBar.tsx` | Fixed sidebar with reactions and share buttons |
 
 ### Page Transitions
 Swup handles smooth page transitions. Main content is wrapped in `#swup` container in `BaseLayout.astro`.
 
+### Session Management
+Anonymous users are tracked via `localStorage` session IDs generated by `generateSessionId()` in `src/lib/utils.ts`. SSR-safe implementation returns fallback value on server.
+
+### Reaction System
+Four reaction types defined in `REACTIONS` constant:
+- `like` (thumbs up)
+- `helpful` (light bulb)
+- `insightful` (target)
+- `inspiring` (sparkles)
+
+The `useReactions` hook manages reaction state and toggle functionality.
+
+### Related Posts Algorithm
+`src/utils/recommend.ts` implements TF-IDF-like cosine similarity to find related posts based on title (weight: 3), description (weight: 2), content (weight: 1), and categories (weight: 4).
+
+### OGP Link Cards
+External URLs can be rendered as rich link cards using `src/lib/ogp.ts` which fetches Open Graph metadata at build time with caching.
+
+## API Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/bookmarks/[blogId]` | GET/POST/DELETE | Manage bookmarks |
+| `/api/reactions/[blogId]` | GET/POST | Manage reactions |
+| `/api/webhook/microcms-sync` | POST | microCMS webhook handler |
+| `/api/sync/firebase-cleanup` | POST | Firebase data cleanup |
+
 ## Testing
 
-- **Unit tests**: `tests/` directory, uses Vitest with jsdom environment
-- **E2E tests**: `e2e/` directory, uses Playwright (Chromium, Firefox, WebKit)
-- Test setup in `vitest.setup.ts`, Playwright config expects dev server on port 4321
+### Unit Tests (Vitest)
+- Location: `tests/` directory
+- Environment: jsdom
+- Config: `vitest.config.ts`, setup in `vitest.setup.ts`
+- Coverage: V8 provider
+
+Test files:
+- `tests/hooks/` - React hooks tests
+- `tests/components/` - Component tests
+- `tests/lib/` - Library function tests
+- `tests/pages/api/` - API endpoint tests
+- `tests/utils/` - Utility function tests
+
+### E2E Tests (Playwright)
+- Location: `e2e/` directory
+- Browsers: Chromium, Firefox, WebKit
+- Config: `playwright.config.ts`
+- Dev server expected on port 4321
+
+## Build Optimizations
+
+### Critical CSS
+Critters plugin inlines critical CSS in production builds (configured in `astro.config.mjs` rollup plugins).
+
+### Image Optimization
+- External images from `images.microcms-assets.io` are allowed
+- Sharp library used for image processing
+- LQIP placeholders generated via `blur.ts`
+
+### Sitemap
+Auto-generated with dynamic blog and category pages fetched from microCMS at build time. Excludes `/search`, `/404`, and `/api/**`.
+
+## Style Guide
+
+### Language
+- UI text: Japanese
+- Code comments: Japanese preferred for complex logic
+- Variable/function names: English
+
+### Component Naming
+- Astro components: PascalCase (e.g., `ArticleCard.astro`)
+- React Islands: PascalCase with `.tsx` (e.g., `ReactionButtons.tsx`)
+- Hooks: camelCase with `use` prefix (e.g., `useReactions.ts`)
+
+### CSS
+- Tailwind CSS for utility classes
+- Custom styles in component-scoped `<style>` tags for Astro components
+- BEM-like class names for complex React components (e.g., `sticky-reaction-bar`, `toc-list`)
