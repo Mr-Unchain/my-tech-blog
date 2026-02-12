@@ -43,12 +43,10 @@ export default defineConfig({
     tailwind(),
     sitemap({
       customPages: dynamicPages,
-      exclude: [
-        '/search',
-        '/search/**',
-        '/404',
-        '/api/**'
-      ],
+      filter: (page) =>
+        !page.includes('/search') &&
+        !page.includes('/404') &&
+        !page.includes('/api/'),
       serialize: (item) => ({
         ...item,
         changefreq: 'weekly',

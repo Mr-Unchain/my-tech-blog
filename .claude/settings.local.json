@@ -13,7 +13,15 @@
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_take_screenshot",
       "mcp__playwright__browser_snapshot",
-      "mcp__playwright__browser_press_key"
+      "mcp__playwright__browser_press_key",
+      "Bash(npm audit:*)",
+      "Bash(npx astro check:*)",
+      "Bash(npx vitest run)",
+      "Bash(npm outdated:*)",
+      "Bash(npm run build:*)",
+      "Bash(git -C C:Gitmy-tech-blog ls-files)",
+      "Bash(npx update-browserslist-db@latest:*)",
+      "Bash(node -e:*)"
     ]
   }
 }

@@ -2,92 +2,146 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## プロジェクト概要
 
-Personal tech blog built with **Astro 5 + React 19 + microCMS**. Static-first architecture with Islands for interactivity, deployed on Vercel. Japanese content with SEO optimization. Domain: `monologger.dev`
+**Astro 5 + React 19 + microCMS** で構築した個人技術ブログ。静的生成ベースに Islands パターンでインタラクティブ機能を追加。Vercel にデプロイ。日本語コンテンツ、ドメインは `monologger.dev`。
 
-### Tech Stack
-- **Framework**: Astro 5.10 (server output mode)
-- **UI**: React 19 (Islands), Tailwind CSS 3.4
-- **CMS**: microCMS (headless)
-- **Database**: Firebase Firestore (runtime features)
-- **Deployment**: Vercel with Edge Network
-- **Page Transitions**: Swup 4.8
+### 技術スタック
+- **フレームワーク**: Astro 5.10（`output: "server"` モード、Vercel アダプター）
+- **UI**: React 19（Islands）、Tailwind CSS 3.4
+- **CMS**: microCMS（ヘッドレス）
+- **DB**: Firebase Firestore（リアクション・ブックマーク・閲覧数）
+- **ページ遷移**: Swup 4.8
 
-## Commands
+## コマンド
 
 ```bash
-# Development
-npm run dev              # Start dev server at localhost:4321
+npm run dev              # 開発サーバー起動（localhost:4321）
+npm run build            # 本番ビルド
+npm run preview          # ビルド済みサイトのプレビュー
 
-# Build
-npm run build            # Production build
-npm run preview          # Preview production build locally
+npm run test             # Vitest ユニットテスト実行
+npm run test:watch       # ウォッチモード
+npm run test:coverage    # カバレッジ付き実行
 
-# Testing
-npm run test             # Run Vitest unit tests
-npm run test:watch       # Run tests in watch mode
-npm run test:coverage    # Run tests with coverage report
-npm run e2e              # Run Playwright E2E tests (starts dev server)
-npm run e2e:ui           # Run E2E tests with Playwright UI
+# 単一テストファイルの実行
+npx vitest run tests/lib/utils.test.ts
+
+npm run e2e              # Playwright E2E テスト（開発サーバー自動起動）
+npm run e2e:ui           # Playwright UI モード
 ```
 
-## Architecture
+## アーキテクチャ
 
-### Data Flow
-- **Build time**: Astro fetches content from microCMS API and generates pages
-- **Runtime**: Firebase Firestore handles reactions, bookmarks, and view counts
-- **Deployment**: Vercel with automatic sitemap generation (includes dynamic blog/category URLs)
+### データフロー
+- **ビルド時**: Astro が microCMS API からコンテンツを取得し静的ページを生成
+- **ランタイム**: Firebase Firestore がリアクション・ブックマーク・閲覧数を管理
+- **サイトマップ**: ビルド時に microCMS からブログ・カテゴリ URL を動的取得して生成（`/search`、`/404`、`/api/**` は除外）
 
-### Key Directories
+### ディレクトリ構成
 
 ```
 src/
-├── components/          # Mixed Astro and React components
-│   ├── *.astro         # Static Astro components
-│   └── *.tsx           # React Islands (interactive)
-├── hooks/              # React hooks for client-side features
-├── layouts/            # Base layouts (BaseLayout.astro)
-├── lib/                # API clients and utilities
-├── pages/              # File-based routing
-│   ├── api/            # Server endpoints
-│   └── blog/           # Blog pages with dynamic routes
-└── utils/              # Helper functions
+├── components/    # Astro (.astro) と React Islands (.tsx) の混在
+├── hooks/         # React カスタムフック（クライアント機能）
+├── layouts/       # BaseLayout.astro（Swup の #swup コンテナを含む）
+├── lib/           # API クライアント・ユーティリティ
+├── pages/         # ファイルベースルーティング
+│   ├── api/       # サーバーエンドポイント
+│   └── blog/      # ブログ動的ルート
+└── utils/         # ヘルパー関数
 
-tests/                  # Vitest unit tests
-e2e/                    # Playwright E2E tests
-docs/                   # Project documentation
+tests/             # Vitest ユニットテスト（jsdom 環境）
+e2e/               # Playwright E2E テスト
 ```
 
-### Library Files (`src/lib/`)
+### 主要ライブラリファイル（`src/lib/`）
 
-| File | Purpose |
-|------|---------|
-| `microcms.ts` | Type-safe microCMS client with category normalization |
-| `firebase.ts` | Firebase initialization |
-| `firebase-collections.ts` | Firestore collection types, constants, reaction configs |
-| `blur.ts` | LQIP (Low Quality Image Placeholder) generation |
-| `utils.ts` | Shared utilities (sessionId generation, array normalization) |
-| `ogp.ts` | OGP metadata extraction for link cards (build-time) |
+| ファイル | 役割 |
+|---------|------|
+| `microcms.ts` | 型安全な microCMS クライアント、カテゴリ正規化処理 |
+| `firebase.ts` | Firebase 初期化 |
+| `firebase-collections.ts` | Firestore コレクション型定義、リアクション設定 |
+| `blur.ts` | LQIP（低品質画像プレースホルダー）生成 |
+| `utils.ts` | セッション ID 生成、配列正規化（`normalizeToArray()`） |
+| `ogp.ts` | OGP メタデータ取得（ビルド時、キャッシュ付き） |
 
-### Content Types (microCMS)
+## コードパターン
 
-| Type | Fields |
-|------|--------|
+### カテゴリ正規化
+microCMS のカテゴリフィールドは `getBlogs()` / `getProjects()` で配列に正規化される。`category` と `techStack` は常に `string[]` として扱うこと。非配列値を扱う場合は `src/lib/utils.ts` の `normalizeToArray()` を使用。
+
+### Astro Islands
+React コンポーネント（`.tsx`）はクライアントサイドのインタラクティブ機能が必要な箇所のみで使用。静的な部分は Astro コンポーネント（`.astro`）で実装する。
+
+### ページ遷移（Swup）
+`BaseLayout.astro` の `#swup` コンテナ内でメインコンテンツをラップ。Swup がスムーズなページ遷移を処理する。
+
+### セッション管理
+匿名ユーザーは `localStorage` のセッション ID で追跡。`generateSessionId()`（`src/lib/utils.ts`）は SSR セーフ（サーバー側ではフォールバック値を返す）。
+
+### リアクションシステム
+4種類のリアクション（`REACTIONS` 定数で定義）:
+- `like`（👍）、`helpful`（💡）、`insightful`（🎯）、`inspiring`（✨）
+
+`useReactions` フックが状態管理とトグル機能を提供。
+
+### 関連記事アルゴリズム
+`src/utils/recommend.ts` が TF-IDF ベースのコサイン類似度で関連記事を算出。重み: カテゴリ(4) > タイトル(3) > 説明(2) > 本文(1)。
+
+## API エンドポイント
+
+| エンドポイント | メソッド | 用途 |
+|-------------|---------|------|
+| `/api/bookmarks/[blogId]` | GET/POST/DELETE | ブックマーク管理 |
+| `/api/reactions/[blogId]` | GET/POST | リアクション管理 |
+| `/api/webhook/microcms-sync` | POST | microCMS Webhook ハンドラー |
+| `/api/sync/firebase-cleanup` | POST | Firebase データクリーンアップ |
+
+## microCMS コンテンツ型
+
+| 型 | 主なフィールド |
+|----|-------------|
 | `blogs` | `id`, `title`, `description`, `content`, `eyecatch`, `category[]` |
-| `profile` | Single profile entry |
-| `projects` | Portfolio projects with `techStack[]` |
+| `profile` | 単一プロフィール |
+| `projects` | ポートフォリオ、`techStack[]` |
 
-### Firebase Collections
+## Firebase コレクション
 
-| Collection | Purpose |
-|------------|---------|
-| `bookmarks` | User bookmarks with metadata |
-| `blog_stats` | Aggregated stats (bookmarks, views, reactions) |
-| `reactions` | Individual reactions (like, helpful, insightful, inspiring) |
-| `views` | Page view tracking |
+| コレクション | 用途 |
+|------------|------|
+| `bookmarks` | ブックマーク（メタデータ付き） |
+| `blog_stats` | 集計統計（ブックマーク数・閲覧数・リアクション数） |
+| `reactions` | 個別リアクション |
+| `views` | ページビュー追跡 |
 
-### Environment Variables
+## テスト
+
+### ユニットテスト（Vitest）
+- テストファイル: `tests/` 配下（hooks, components, lib, pages/api, utils）
+- 環境: jsdom、セットアップ: `vitest.setup.ts`
+- カバレッジ: V8 プロバイダー
+
+### E2E テスト（Playwright）
+- テストファイル: `e2e/` 配下
+- ブラウザ: Chromium, Firefox, WebKit
+- 開発サーバー（port 4321）を自動起動
+
+## ビルド最適化
+
+- **Critical CSS**: Critters プラグインが本番ビルド時に CSS をインライン化（`astro.config.mjs` の rollup プラグイン）
+- **画像最適化**: `images.microcms-assets.io` からの外部画像を許可、Sharp で処理、LQIP プレースホルダー生成
+- **OGP リンクカード**: `src/lib/ogp.ts` が外部 URL の OGP メタデータをビルド時に取得・キャッシュ
+
+## スタイルガイド
+
+- **UI テキスト**: 日本語
+- **コードコメント**: 複雑なロジックは日本語
+- **変数・関数名**: 英語
+- **コンポーネント命名**: PascalCase（Astro: `.astro`、React: `.tsx`）、フック: `use` プレフィックス
+- **CSS**: Tailwind ユーティリティクラス優先、Astro コンポーネントでは `<style>` タグでスコープ付きスタイル
+
+## 環境変数
 
 ```bash
 # microCMS
@@ -104,100 +158,3 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 VITE_FIREBASE_MEASUREMENT_ID=
 ```
-
-## Code Patterns
-
-### Category Normalization
-microCMS category fields are normalized to arrays in `getBlogs()` and `getProjects()`. Always treat `category` and `techStack` as `string[]`. Use `normalizeToArray()` from `src/lib/utils.ts` when working with potentially non-array values.
-
-### Astro Islands Architecture
-React components (`.tsx`) are used **only** where client-side interactivity is required:
-
-| Component | Purpose |
-|-----------|---------|
-| `HeroSlideshowReact.tsx` | Homepage slideshow with auto-play |
-| `ReactionButtons.tsx` | Article reactions (like, helpful, etc.) |
-| `CategoryList.tsx` | Dynamic category filtering |
-| `TableOfContents.tsx` | Scroll-aware TOC with active section highlighting |
-| `StickyReactionBar.tsx` | Fixed sidebar with reactions and share buttons |
-
-### Page Transitions
-Swup handles smooth page transitions. Main content is wrapped in `#swup` container in `BaseLayout.astro`.
-
-### Session Management
-Anonymous users are tracked via `localStorage` session IDs generated by `generateSessionId()` in `src/lib/utils.ts`. SSR-safe implementation returns fallback value on server.
-
-### Reaction System
-Four reaction types defined in `REACTIONS` constant:
-- `like` (thumbs up)
-- `helpful` (light bulb)
-- `insightful` (target)
-- `inspiring` (sparkles)
-
-The `useReactions` hook manages reaction state and toggle functionality.
-
-### Related Posts Algorithm
-`src/utils/recommend.ts` implements TF-IDF-like cosine similarity to find related posts based on title (weight: 3), description (weight: 2), content (weight: 1), and categories (weight: 4).
-
-### OGP Link Cards
-External URLs can be rendered as rich link cards using `src/lib/ogp.ts` which fetches Open Graph metadata at build time with caching.
-
-## API Endpoints
-
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/bookmarks/[blogId]` | GET/POST/DELETE | Manage bookmarks |
-| `/api/reactions/[blogId]` | GET/POST | Manage reactions |
-| `/api/webhook/microcms-sync` | POST | microCMS webhook handler |
-| `/api/sync/firebase-cleanup` | POST | Firebase data cleanup |
-
-## Testing
-
-### Unit Tests (Vitest)
-- Location: `tests/` directory
-- Environment: jsdom
-- Config: `vitest.config.ts`, setup in `vitest.setup.ts`
-- Coverage: V8 provider
-
-Test files:
-- `tests/hooks/` - React hooks tests
-- `tests/components/` - Component tests
-- `tests/lib/` - Library function tests
-- `tests/pages/api/` - API endpoint tests
-- `tests/utils/` - Utility function tests
-
-### E2E Tests (Playwright)
-- Location: `e2e/` directory
-- Browsers: Chromium, Firefox, WebKit
-- Config: `playwright.config.ts`
-- Dev server expected on port 4321
-
-## Build Optimizations
-
-### Critical CSS
-Critters plugin inlines critical CSS in production builds (configured in `astro.config.mjs` rollup plugins).
-
-### Image Optimization
-- External images from `images.microcms-assets.io` are allowed
-- Sharp library used for image processing
-- LQIP placeholders generated via `blur.ts`
-
-### Sitemap
-Auto-generated with dynamic blog and category pages fetched from microCMS at build time. Excludes `/search`, `/404`, and `/api/**`.
-
-## Style Guide
-
-### Language
-- UI text: Japanese
-- Code comments: Japanese preferred for complex logic
-- Variable/function names: English
-
-### Component Naming
-- Astro components: PascalCase (e.g., `ArticleCard.astro`)
-- React Islands: PascalCase with `.tsx` (e.g., `ReactionButtons.tsx`)
-- Hooks: camelCase with `use` prefix (e.g., `useReactions.ts`)
-
-### CSS
-- Tailwind CSS for utility classes
-- Custom styles in component-scoped `<style>` tags for Astro components
-- BEM-like class names for complex React components (e.g., `sticky-reaction-bar`, `toc-list`)
