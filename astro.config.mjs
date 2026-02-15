@@ -8,6 +8,14 @@ import { defineConfig } from "astro/config";
 
 // 追加: 動的URLをサイトマップに含める（microCMSから記事/カテゴリを取得）
 const BASE_URL = "https://monologger.dev";
+const HIDDEN_BLOG_IDS = new Set([
+  "ip2e0cllvfwb",
+  "docker-intro-part1",
+  "docker-intro-part2",
+  "docker-intro-part3",
+  "docker-intro-part4",
+]);
+
 async function fetchDynamicSitemapPages() {
   try {
     const service = process.env.VITE_MICROCMS_SERVICE_DOMAIN || "";
@@ -21,7 +29,9 @@ async function fetchDynamicSitemapPages() {
     const pages = [];
     const categories = new Set();
     for (const item of ids) {
-      if (item?.id) pages.push(`${BASE_URL}/blog/${item.id}/`);
+      if (item?.id && !HIDDEN_BLOG_IDS.has(item.id)) {
+        pages.push(`${BASE_URL}/blog/${item.id}/`);
+      }
       const cats = Array.isArray(item?.category) ? item.category : [];
       for (const c of cats) if (c) categories.add(String(c));
     }

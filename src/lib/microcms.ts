@@ -51,6 +51,24 @@ const serverClient = createClient({
   apiKey: import.meta.env.MICROCMS_API_KEY,
 });
 
+const DEFAULT_HIDDEN_BLOG_IDS = [
+  "ip2e0cllvfwb",
+  "docker-intro-part1",
+  "docker-intro-part2",
+  "docker-intro-part3",
+  "docker-intro-part4",
+];
+
+const ENV_HIDDEN_BLOG_IDS = (import.meta.env.VITE_HIDDEN_BLOG_IDS || "")
+  .split(",")
+  .map((id: string) => id.trim())
+  .filter(Boolean);
+
+const HIDDEN_BLOG_IDS = new Set<string>([
+  ...DEFAULT_HIDDEN_BLOG_IDS,
+  ...ENV_HIDDEN_BLOG_IDS,
+]);
+
 // ブログ一覧を取得
 export const getBlogs = async (queries?: MicroCMSQueries) => {
   const data = await serverClient.get({
@@ -71,7 +89,7 @@ export const getBlogs = async (queries?: MicroCMSQueries) => {
 
   return {
     ...data,
-    contents: shapedContents,
+    contents: shapedContents.filter((content: Blog) => !HIDDEN_BLOG_IDS.has(content.id)),
   };
 };
 
@@ -80,6 +98,9 @@ export const getBlogDetail = async (
   contentId: string,
   queries?: MicroCMSQueries
 ) => {
+  if (!queries?.draftKey && HIDDEN_BLOG_IDS.has(contentId)) {
+    return null;
+  }
   return await serverClient.get<Blog>({
     endpoint: "blogs",
     contentId,
