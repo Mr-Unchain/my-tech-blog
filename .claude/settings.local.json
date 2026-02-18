@@ -21,7 +21,12 @@
       "Bash(npm run build:*)",
       "Bash(git -C C:Gitmy-tech-blog ls-files)",
       "Bash(npx update-browserslist-db@latest:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(npm update:*)",
+      "Bash(powershell -Command \"Set-Location 'C:\\\\Git\\\\my-tech-blog'; npm install:*)",
+      "Bash(powershell -Command \"Test-Path ''C:\\\\Git\\\\my-tech-blog\\\\node_modules\\\\@eslint\\\\js''\")",
+      "Bash(powershell -Command \"Set-Location ''C:\\\\Git\\\\my-tech-blog''; npx eslint src/pages/rss.xml.ts 2>&1\")",
+      "Bash(powershell -Command \"Set-Location ''C:\\\\Git\\\\my-tech-blog''; npm run lint 2>&1\")"
     ]
   }
 }

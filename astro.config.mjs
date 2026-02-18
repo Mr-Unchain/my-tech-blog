@@ -3,7 +3,7 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwind from "@astrojs/tailwind";
 import vercel from "@astrojs/vercel"; // vercelをインポート
-// import partytown from "@astrojs/partytown";
+import partytown from "@astrojs/partytown";
 import { defineConfig } from "astro/config";
 
 // 追加: 動的URLをサイトマップに含める（microCMSから記事/カテゴリを取得）
@@ -20,29 +20,33 @@ async function fetchDynamicSitemapPages() {
   try {
     const service = process.env.VITE_MICROCMS_SERVICE_DOMAIN || "";
     const apiKey = process.env.MICROCMS_API_KEY || "";
-    if (!service || !apiKey) return [];
-    const endpoint = `https://${service}.microcms.io/api/v1/blogs?fields=id,category&limit=1000`;
+    if (!service || !apiKey) return { pages: [], dates: new Map() };
+    const endpoint = `https://${service}.microcms.io/api/v1/blogs?fields=id,category,publishedAt,updatedAt&limit=1000`;
     const res = await fetch(endpoint, { headers: { "X-API-KEY": apiKey } });
-    if (!res.ok) return [];
+    if (!res.ok) return { pages: [], dates: new Map() };
     const data = await res.json();
     const ids = Array.isArray(data?.contents) ? data.contents : [];
     const pages = [];
+    const dates = new Map();
     const categories = new Set();
     for (const item of ids) {
       if (item?.id && !HIDDEN_BLOG_IDS.has(item.id)) {
-        pages.push(`${BASE_URL}/blog/${item.id}/`);
+        const url = `${BASE_URL}/blog/${item.id}/`;
+        pages.push(url);
+        const lastmod = item.updatedAt || item.publishedAt;
+        if (lastmod) dates.set(url, new Date(lastmod));
       }
       const cats = Array.isArray(item?.category) ? item.category : [];
       for (const c of cats) if (c) categories.add(String(c));
     }
     for (const c of categories) pages.push(`${BASE_URL}/category/${encodeURIComponent(c)}/`);
-    return pages;
+    return { pages, dates };
   } catch {
-    return [];
+    return { pages: [], dates: new Map() };
   }
 }
 
-const dynamicPages = await fetchDynamicSitemapPages();
+const { pages: dynamicPages, dates: pageDates } = await fetchDynamicSitemapPages();
 
 export default defineConfig({
   site: BASE_URL, // 新しいドメインに変更
@@ -61,9 +65,11 @@ export default defineConfig({
         ...item,
         changefreq: 'weekly',
         priority: item.url.includes('/blog/') ? 0.8 : 0.6,
+        lastmod: pageDates.get(item.url) ?? new Date(),
       })
     }),
-    react()
+    react(),
+    partytown({ config: { forward: ["dataLayer.push"] } }),
   ],
   image: {
     domains: ["images.microcms-assets.io"],

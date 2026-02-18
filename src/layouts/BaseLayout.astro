@@ -65,7 +65,8 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
     <!-- SEO Meta Tags -->
     {noIndex && <meta name="robots" content="noindex, nofollow" />}
     {!noIndex && <meta name="robots" content="index, follow" />}
-    <meta name="googlebot" content="index, follow" />
+    {noIndex && <meta name="googlebot" content="noindex, nofollow" />}
+    {!noIndex && <meta name="googlebot" content="index, follow" />}
     <link rel="canonical" href={canonicalUrl} />
     
     <!-- Favicon -->
@@ -106,6 +107,7 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
     <!-- Sitemap, Manifest and RSS -->
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title={`${siteTitle} RSS フィード`} href="/rss.xml" />
     
     <!-- DNS Prefetch for external domains -->
     <link rel="dns-prefetch" href="//images.microcms-assets.io" />
