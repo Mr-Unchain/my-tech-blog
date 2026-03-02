@@ -45,10 +45,10 @@ export type Project = {
   thumbnail?: MicroCMSImage;
 } & MicroCMSDate;
 
-// SSR用: API取得用のクライアントを作成
-const serverClient = createClient({
+// GET 権限のみの API キーを使用することで、microCMS が下書き記事を自動的に除外して返す。
+const readClient = createClient({
   serviceDomain: import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN,
-  apiKey: import.meta.env.MICROCMS_API_KEY,
+  apiKey: import.meta.env.MICROCMS_READ_API_KEY,
 });
 
 const DEFAULT_HIDDEN_BLOG_IDS = [
@@ -71,7 +71,7 @@ const HIDDEN_BLOG_IDS = new Set<string>([
 
 // ブログ一覧を取得
 export const getBlogs = async (queries?: MicroCMSQueries) => {
-  const data = await serverClient.get({
+  const data = await readClient.get({
     endpoint: "blogs",
     queries,
   });
@@ -101,7 +101,7 @@ export const getBlogDetail = async (
   if (!queries?.draftKey && HIDDEN_BLOG_IDS.has(contentId)) {
     return null;
   }
-  return await serverClient.get<Blog>({
+  return await readClient.get<Blog>({
     endpoint: "blogs",
     contentId,
     queries,
@@ -110,14 +110,14 @@ export const getBlogDetail = async (
 
 // ★★★ プロフィール情報を取得する関数を追加 ★★★
 export const getProfile = async (queries?: MicroCMSQueries) => {
-  return await serverClient.get<Profile>({
+  return await readClient.get<Profile>({
     endpoint: "profile",
     queries,
   });
 };
 
 export const getProjects = async (queries?: MicroCMSQueries) => {
-  const data = await serverClient.get<{ contents: Project[] }>({
+  const data = await readClient.get<{ contents: Project[] }>({
     endpoint: "projects",
     queries,
   });
@@ -137,32 +137,3 @@ export const getProjects = async (queries?: MicroCMSQueries) => {
     contents: shapedContents,
   };
 };
-
-/**
- * 新規記事をmicroCMSに作成
- * @param article 記事データ
- */
-export async function createBlog(article: {
-  title: string;
-  category: string;
-  content: string;
-  status: "PUBLISHED" | "DRAFT";
-}) {
-  const endpoint = import.meta.env.VITE_MICROCMS_API_URL || "";
-  const apiKey = import.meta.env.MICROCMS_API_KEY || "";
-  const res = await fetch(`${endpoint}/blogs`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-KEY": apiKey,
-    },
-    body: JSON.stringify({
-      title: article.title,
-      category: article.category.split(",").map((c) => c.trim()),
-      content: article.content,
-      status: article.status,
-    }),
-  });
-  if (!res.ok) throw new Error("記事の作成に失敗しました");
-  return await res.json();
-}
