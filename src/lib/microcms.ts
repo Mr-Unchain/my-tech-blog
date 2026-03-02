@@ -45,16 +45,7 @@ export type Project = {
   thumbnail?: MicroCMSImage;
 } & MicroCMSDate;
 
-// SSR用: 書き込み権限あり（createBlog 等で使用）
-const serverClient = createClient({
-  serviceDomain: import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN,
-  apiKey: import.meta.env.MICROCMS_API_KEY,
-});
-
-// コンテンツ読み取り専用クライアント
 // GET 権限のみの API キーを使用することで、microCMS が下書き記事を自動的に除外して返す。
-// microCMS ダッシュボードで「GET のみ」権限の API キーを発行し、
-// MICROCMS_READ_API_KEY 環境変数に設定すること。
 const readClient = createClient({
   serviceDomain: import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN,
   apiKey: import.meta.env.MICROCMS_READ_API_KEY,
@@ -146,32 +137,3 @@ export const getProjects = async (queries?: MicroCMSQueries) => {
     contents: shapedContents,
   };
 };
-
-/**
- * 新規記事をmicroCMSに作成
- * @param article 記事データ
- */
-export async function createBlog(article: {
-  title: string;
-  category: string;
-  content: string;
-  status: "PUBLISHED" | "DRAFT";
-}) {
-  const endpoint = import.meta.env.VITE_MICROCMS_API_URL || "";
-  const apiKey = import.meta.env.MICROCMS_API_KEY || "";
-  const res = await fetch(`${endpoint}/blogs`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-KEY": apiKey,
-    },
-    body: JSON.stringify({
-      title: article.title,
-      category: article.category.split(",").map((c) => c.trim()),
-      content: article.content,
-      status: article.status,
-    }),
-  });
-  if (!res.ok) throw new Error("記事の作成に失敗しました");
-  return await res.json();
-}
