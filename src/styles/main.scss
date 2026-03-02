@@ -1188,32 +1188,110 @@ h6,
   }
 
   .article-content {
-    @apply prose prose-lg max-w-none text-slate-200 prose-headings:text-slate-100 prose-img:rounded-lg prose-a:text-cyan-400 hover:prose-a:text-cyan-300 prose-blockquote:border-l-4 prose-blockquote:border-cyan-400 prose-blockquote:bg-slate-700/30 prose-blockquote:p-4 prose-blockquote:rounded-lg prose-code:bg-slate-700/50 prose-code:text-slate-200 prose-code:px-1 prose-code:rounded prose-pre:bg-slate-900 prose-pre:text-white prose-pre:rounded-lg prose-table:rounded-lg prose-table:border prose-table:border-slate-600;
-    line-height: 1.8;
+    @apply prose prose-lg max-w-none text-slate-200
+      prose-headings:text-slate-100
+      prose-img:rounded-lg
+      prose-a:text-cyan-400 hover:prose-a:text-cyan-300
+      prose-pre:bg-slate-900 prose-pre:text-white prose-pre:rounded-lg;
+    line-height: 1.9;
     word-break: break-word;
-    font-size: 1.08rem; /* スマホでより読みやすく */
-    
+    font-size: 1.08rem;
+
     @media (min-width: 768px) {
       font-size: 1.1rem;
     }
-    
+
     @media (min-width: 1024px) {
       font-size: 1.15rem;
     }
 
-    code {
-      font-size: 0.95em;
+    // --- 段落 ---
+    p + p {
+      margin-top: 1.5em;
+    }
+
+    // --- 見出し（Zenn風階層デザイン） ---
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-weight: bold;
+      scroll-margin-top: 100px;
+    }
+
+    // h2: 下線付きで大きなセクション区切り
+    h2 {
+      font-size: 1.5em;
+      margin-top: 2.5em;
+      margin-bottom: 0.5em;
+      padding-bottom: 0.3em;
+      border-bottom: 1px solid #334155; // slate-700
+    }
+
+    // h3: 左の縦線アクセント
+    h3 {
+      font-size: 1.3em;
+      margin-top: 2.25em;
+      margin-bottom: 0.5em;
+      padding-left: 0.75em;
+      border-left: 3px solid #22d3ee; // cyan-400
+    }
+
+    // h4: シンプルに太字
+    h4 {
+      font-size: 1.1em;
+      margin-top: 2em;
+      margin-bottom: 0.5em;
+    }
+
+    h5 {
+      font-size: 1em;
+      margin-top: 1.8em;
+      margin-bottom: 0.5em;
+    }
+
+    h6 {
+      font-size: 0.9em;
+      margin-top: 1.8em;
+      margin-bottom: 0.5em;
+    }
+
+    // 見出し直後の段落はマージンを縮小
+    h2 + p,
+    h3 + p,
+    h4 + p,
+    h5 + p,
+    h6 + p {
+      margin-top: 0.3em;
+    }
+
+    // --- インラインコード（Zenn風） ---
+    :not(pre) > code {
+      padding: 0.2em 0.4em;
+      margin: 0 0.1em;
+      background: rgba(51, 65, 85, 0.6); // slate-700/60
+      color: #e2e8f0; // slate-200
+      font-size: 0.85em;
+      border-radius: 0.25rem;
+      vertical-align: 0.08em;
+      font-family: var(--font-code);
+    }
+
+    // --- コードブロック ---
+    pre {
+      margin: 1.3rem 0;
     }
 
     pre,
     pre code {
       background: #0d1220 !important;
       color: #f4f7fa !important;
-      border-radius: 0.7rem !important;
-      font-size: 0.92em !important;
-      line-height: 1.9 !important;
-      padding: 1.1em 1.3em !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+      border-radius: 0.5rem !important;
+      font-size: 0.9em !important;
+      line-height: 1.7 !important;
+      padding: 1.1rem !important;
+      box-shadow: none !important;
       overflow-x: auto !important;
       font-family: var(--font-code) !important;
       word-break: break-all !important;
@@ -1221,40 +1299,134 @@ h6,
       tab-size: 4 !important;
       width: 100% !important;
       display: block !important;
+
+      @media (max-width: 767px) {
+        padding: 1rem 0.8rem !important;
+      }
     }
 
+    // pre 内の code はインラインスタイルをリセット
+    pre code {
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
+      font-size: inherit !important;
+      border-radius: 0 !important;
+      vertical-align: unset !important;
+    }
+
+    // --- 画像 ---
     img {
       margin: 1.5rem auto;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+      max-width: 100%;
+      height: auto;
     }
 
+    // --- 引用ブロック（Zenn風：控えめで読みやすい） ---
     blockquote {
-      font-style: italic;
-      color: #67e8f9;
+      font-style: normal; // 日本語ではイタリック不使用
+      font-size: 0.97em;
+      margin: 1.4rem 0;
+      border-left: 3px solid #64748b; // slate-500
+      background: transparent;
+      padding: 2px 0 2px 0.7em;
+      color: #94a3b8; // slate-400
+      border-radius: 0;
+
+      p {
+        margin: 0.8rem 0;
+
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
     }
 
+    // --- テーブル（Zenn風：整然としたグリッド） ---
     table {
-      margin: 2rem 0;
+      display: block;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      width: auto;
+      border-collapse: collapse;
+      font-size: 0.95em;
+      line-height: 1.6;
+      border: none;
+      border-radius: 0;
+
+      // モバイルでのスクロール表示用
+      -webkit-overflow-scrolling: touch;
     }
 
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      font-weight: bold;
-      margin-top: 2.5rem;
-      margin-bottom: 1.2rem;
-      scroll-margin-top: 100px;
+    thead {
+      th {
+        font-weight: 700;
+        background: rgba(51, 65, 85, 0.6); // slate-700/60
+        color: #e2e8f0; // slate-200
+        padding: 0.6rem 0.75rem;
+        border: 1px solid #475569; // slate-600
+        white-space: nowrap;
+      }
     }
 
+    tbody {
+      td {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #475569; // slate-600
+        background: transparent;
+        color: #cbd5e1; // slate-300
+      }
+
+      tr:hover td {
+        background: rgba(51, 65, 85, 0.3); // slate-700/30 ホバー効果
+      }
+    }
+
+    // --- リスト（Zenn風） ---
     ul,
     ol {
-      margin-left: 1.5rem;
+      margin: 1.4rem 0;
+      line-height: 1.7;
+    }
+
+    ul {
+      padding-left: 1.8em;
+
+      &::marker,
+      li::marker {
+        color: #94a3b8; // slate-400
+        font-size: 1.1em;
+      }
+    }
+
+    ol {
+      padding-left: 1.7em;
+
+      li::marker {
+        color: #94a3b8; // slate-400
+        font-weight: 600;
+        letter-spacing: -0.05em;
+      }
     }
 
     li {
-      margin-bottom: 0.5rem;
+      margin: 0.4rem 0;
+
+      // ネストリストは詰め気味に
+      ul,
+      ol {
+        margin: 0.2em 0;
+      }
+    }
+
+    // --- 水平線 ---
+    hr {
+      border: 1px solid #334155; // slate-700
+      margin: 2.5rem 0;
     }
   }
 
