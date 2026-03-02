@@ -8,18 +8,11 @@ import { defineConfig } from "astro/config";
 
 // 追加: 動的URLをサイトマップに含める（microCMSから記事/カテゴリを取得）
 const BASE_URL = "https://monologger.dev";
-const HIDDEN_BLOG_IDS = new Set([
-  "ip2e0cllvfwb",
-  "docker-intro-part1",
-  "docker-intro-part2",
-  "docker-intro-part3",
-  "docker-intro-part4",
-]);
 
 async function fetchDynamicSitemapPages() {
   try {
     const service = process.env.VITE_MICROCMS_SERVICE_DOMAIN || "";
-    const apiKey = process.env.MICROCMS_API_KEY || "";
+    const apiKey = process.env.MICROCMS_READ_API_KEY || "";
     if (!service || !apiKey) return { pages: [], dates: new Map() };
     const endpoint = `https://${service}.microcms.io/api/v1/blogs?fields=id,category,publishedAt,updatedAt&limit=1000`;
     const res = await fetch(endpoint, { headers: { "X-API-KEY": apiKey } });
@@ -30,7 +23,7 @@ async function fetchDynamicSitemapPages() {
     const dates = new Map();
     const categories = new Set();
     for (const item of ids) {
-      if (item?.id && !HIDDEN_BLOG_IDS.has(item.id)) {
+      if (item?.id) {
         const url = `${BASE_URL}/blog/${item.id}/`;
         pages.push(url);
         const lastmod = item.updatedAt || item.publishedAt;
