@@ -14,8 +14,8 @@
 .toc-container {
   display: flex;
   flex-direction: column;
-  /* AuthorCardの高さ(約140px)を考慮して調整 */
-  max-height: calc(100vh - 18rem);
+  /* TOCがサイドバー最上部になったため、余裕を持たせる */
+  max-height: calc(100vh - 8rem);
 }
 
 /* スクロール可能な目次エリア */
@@ -629,12 +629,12 @@
   font-family: var(--font-base);
 }
 
-// ブログ記事本文のフォント・余白・サイズ - レスポンシブタイプセッティング
+// ブログ記事本文のフォント・余白・サイズ - Zenn準拠タイポグラフィ
 .blog-article-content {
   font-family: inherit;
   padding: 1.5rem 0.75rem;
-  font-size: 1.15rem; /* スマホでより読みやすいサイズに */
-  line-height: 1.9;
+  font-size: 1rem;
+  line-height: 1.8;
   color: #e2e8f0;
   background: transparent;
   border-radius: 1rem;
@@ -645,12 +645,6 @@
 
   @media (min-width: 768px) {
     padding: 2.5rem 3rem;
-    font-size: 1.175rem;
-    line-height: 2.0;
-  }
-  
-  @media (min-width: 1024px) {
-    font-size: 1.2rem;
   }
 }
 
@@ -1188,22 +1182,14 @@ h6,
   }
 
   .article-content {
-    @apply prose prose-lg max-w-none text-slate-200
+    @apply prose max-w-none text-slate-200
       prose-headings:text-slate-100
       prose-img:rounded-lg
       prose-a:text-cyan-400 hover:prose-a:text-cyan-300
       prose-pre:bg-slate-900 prose-pre:text-white prose-pre:rounded-lg;
-    line-height: 1.9;
+    line-height: 1.8;
     word-break: break-word;
-    font-size: 1.08rem;
-
-    @media (min-width: 768px) {
-      font-size: 1.1rem;
-    }
-
-    @media (min-width: 1024px) {
-      font-size: 1.15rem;
-    }
+    font-size: inherit;
 
     // --- 段落 ---
     p + p {

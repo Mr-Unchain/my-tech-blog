@@ -387,20 +387,22 @@ const breadcrumbItems = [
           )}
         </article>
 
-        <!-- サイドバー (著者カード + 目次) PCのみ -->
-        <aside
-          class="lg:col-span-2 lg:sticky lg:top-28 self-start hidden lg:block"
-        >
-          {/* 著者情報カード */}
-          <AuthorCard />
+        <!-- サイドバー (目次 + 著者カード) PCのみ -->
+        <aside class="lg:col-span-2 hidden lg:block">
+          <div class="lg:sticky lg:top-20">
+            {/* 目次 - React Islandでスクロール連動ハイライト */}
+            <div
+              class="toc-container bg-slate-700/60 p-4 rounded-xl border border-slate-600/50 shadow-xl backdrop-blur-sm"
+            >
+              <h3 class="font-bold text-sm mb-2 text-cyan-300 flex-shrink-0">目次</h3>
+              <div class="toc-scroll-area">
+                <TableOfContents client:load headings={headings} />
+              </div>
+            </div>
 
-          {/* 目次 - React Islandでスクロール連動ハイライト */}
-          <div
-            class="toc-container bg-slate-700/60 p-6 rounded-xl border border-slate-600/50 shadow-xl backdrop-blur-sm"
-          >
-            <h3 class="font-bold text-lg mb-4 text-cyan-300 flex-shrink-0">目次</h3>
-            <div class="toc-scroll-area">
-              <TableOfContents client:load headings={headings} />
+            {/* 著者情報カード - スクロール時にTOCの下に表示 */}
+            <div class="mt-4">
+              <AuthorCard />
             </div>
           </div>
         </aside>
