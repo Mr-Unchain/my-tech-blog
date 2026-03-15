@@ -61,6 +61,23 @@ export function useBookmarks(blogId?: string) {
     return () => { cancelled = true; };
   }, [blogId, userId, fetchStatus]);
 
+  // 他の BookmarkButton インスタンスからの状態変更を受信
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { blogId: changedId, isBookmarked: nowBookmarked, bookmarkCount: newCount } = (e as CustomEvent).detail;
+      if (blogId && changedId === blogId) {
+        setBookmarks(prev => {
+          if (nowBookmarked && !prev.includes(changedId)) return [...prev, changedId];
+          if (!nowBookmarked && prev.includes(changedId)) return prev.filter(id => id !== changedId);
+          return prev;
+        });
+        setBookmarkCount(newCount);
+      }
+    };
+    window.addEventListener('bookmark-changed', handler);
+    return () => window.removeEventListener('bookmark-changed', handler);
+  }, [blogId]);
+
   // ブックマークトグル
   const toggleBookmark = async (
     targetBlogId: string,
@@ -76,6 +93,11 @@ export function useBookmarks(blogId?: string) {
     setBookmarkCount(prev => Math.max(0, prev + (isCurrentlyBookmarked ? -1 : 1)));
     localStorage.setItem('bookmarks_' + userId, JSON.stringify(newBookmarks));
 
+    // 同じページ内の他の BookmarkButton インスタンスに状態変更を通知
+    window.dispatchEvent(new CustomEvent('bookmark-changed', {
+      detail: { blogId: targetBlogId, isBookmarked: !isCurrentlyBookmarked, bookmarkCount: bookmarkCount + (isCurrentlyBookmarked ? -1 : 1) },
+    }));
+
     setLoading(true);
     try {
       const res = await fetch(`/api/bookmarks/${targetBlogId}`, {
@@ -89,6 +111,11 @@ export function useBookmarks(blogId?: string) {
       // API成功後に最新カウントを取得
       const status = await fetchStatus(targetBlogId);
       setBookmarkCount(status.bookmarkCount);
+
+      // 最新カウントも他インスタンスに通知
+      window.dispatchEvent(new CustomEvent('bookmark-changed', {
+        detail: { blogId: targetBlogId, isBookmarked: !isCurrentlyBookmarked, bookmarkCount: status.bookmarkCount },
+      }));
     } catch (error) {
       console.error('Error toggling bookmark:', error);
       // 楽観的更新をそのまま維持（LocalStorageには保存済み）

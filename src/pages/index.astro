@@ -46,15 +46,54 @@ const pageParam = Astro.url.searchParams.get("page");
 const currentPage = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
 const offset = (currentPage - 1) * PAGE_SIZE;
 
-const { contents: pagedPosts, totalCount } = await getBlogs({
-  orders: "-publishedAt",
-  limit: PAGE_SIZE,
-  offset,
-});
-const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
-
-// ★ タブナビゲーション用カテゴリ
+// ★ タブナビゲーション
 const activeTab = Astro.url.searchParams.get("tab") || "latest";
+
+// タブに応じた記事取得
+let pagedPosts: Blog[] = [];
+let totalCount = 0;
+
+if (activeTab === "popular" && db) {
+  // 人気タブ: Firestoreのビュー数順で取得
+  const popQuery = query(
+    collection(db, "views"),
+    orderBy("count", "desc"),
+    limit(PAGE_SIZE)
+  );
+  const popSnapshot = await getDocs(popQuery);
+  const popIds = popSnapshot.docs.map((doc) => doc.id);
+
+  if (popIds.length > 0) {
+    const filters = popIds.map((id) => `id[equals]${id}`).join("[or]");
+    const { contents: popPosts } = await getBlogs({ filters });
+    // Firestoreの順序を維持
+    pagedPosts = popIds
+      .map((id) => popPosts.find((p: Blog) => p.id === id))
+      .filter((p): p is Blog => !!p);
+    totalCount = pagedPosts.length;
+  }
+} else if (activeTab.startsWith("category-")) {
+  // カテゴリタブ: microCMSのフィルタで絞り込み
+  const categoryName = decodeURIComponent(activeTab.replace("category-", ""));
+  const { contents, totalCount: tc } = await getBlogs({
+    orders: "-publishedAt",
+    filters: `category[contains]${categoryName}`,
+    limit: PAGE_SIZE,
+    offset,
+  });
+  pagedPosts = contents;
+  totalCount = tc;
+} else {
+  // 最新タブ（デフォルト）
+  const { contents, totalCount: tc } = await getBlogs({
+    orders: "-publishedAt",
+    limit: PAGE_SIZE,
+    offset,
+  });
+  pagedPosts = contents;
+  totalCount = tc;
+}
+const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
 const categoryChips: string[] = Array.from(
   new Set(
     (pagedPosts as Blog[]).flatMap((p: Blog) =>
@@ -179,7 +218,7 @@ const canonicalHome = (() => {
             <!-- ビュー切替 -->
             <div class="flex justify-between items-center mb-6">
               <h2 class="text-xl font-bold" style="color: var(--color-text-heading);">
-                最新記事
+                {activeTab === "popular" ? "人気記事" : activeTab.startsWith("category-") ? `#${decodeURIComponent(activeTab.replace("category-", ""))}` : "最新記事"}
               </h2>
               <div class="flex space-x-2">
                 <button

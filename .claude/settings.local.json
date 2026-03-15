@@ -36,7 +36,9 @@
       "WebFetch(domain:zenn.dev)",
       "Bash(npx vitest run:*)",
       "Bash(findstr:*)",
-      "Bash(if not exist \"C:\\\\Git\\\\my-tech-blog\\\\aidlc-docs\\\\inception\\\\requirements\" mkdir \"C:\\\\Git\\\\my-tech-blog\\\\aidlc-docs\\\\inception\\\\requirements\")"
+      "Bash(if not exist \"C:\\\\Git\\\\my-tech-blog\\\\aidlc-docs\\\\inception\\\\requirements\" mkdir \"C:\\\\Git\\\\my-tech-blog\\\\aidlc-docs\\\\inception\\\\requirements\")",
+      "mcp__github__list_pull_requests",
+      "mcp__github__get_pull_request_comments"
     ]
   },
   "outputStyle": "Explanatory"
