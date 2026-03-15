@@ -1,176 +1,112 @@
 // src/hooks/useBookmarks.ts
-import { useState, useEffect } from 'react';
-import { db } from '../lib/firebase';
-import {
-  collection,
-  doc,
-  addDoc,
-  deleteDoc,
-  query,
-  where,
-  getDocs,
-  runTransaction,
-  Timestamp
-} from 'firebase/firestore';
-import { COLLECTIONS, type Bookmark, type BlogStats } from '../lib/firebase-collections';
+import { useState, useEffect, useCallback } from 'react';
 import { generateSessionId } from '../lib/utils';
 
-export function useBookmarks() {
+interface BookmarkStatus {
+  isBookmarked: boolean;
+  bookmarkCount: number;
+}
+
+/**
+ * ブックマーク管理フック
+ * - API経由でブックマークの取得・トグルを行う
+ * - LocalStorageフォールバックで offline 対応
+ */
+export function useBookmarks(blogId?: string) {
   const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [bookmarkCount, setBookmarkCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [userId] = useState(() => generateSessionId());
 
-  // 初期化: ユーザーのブックマーク一覧を取得
-  useEffect(() => {
-    loadBookmarks();
+  // 特定記事のブックマーク状態を取得
+  const fetchStatus = useCallback(async (targetBlogId: string): Promise<BookmarkStatus> => {
+    try {
+      const res = await fetch(`/api/bookmarks/${targetBlogId}?userId=${encodeURIComponent(userId)}`);
+      if (!res.ok) throw new Error('API error');
+      return await res.json();
+    } catch {
+      // API失敗時はLocalStorageから復元
+      const stored = localStorage.getItem('bookmarks_' + userId);
+      const ids: string[] = stored ? JSON.parse(stored) : [];
+      return { isBookmarked: ids.includes(targetBlogId), bookmarkCount: 0 };
+    }
   }, [userId]);
 
-  const loadBookmarks = async () => {
-    if (!db) return;
-    
-    try {
-      setLoading(true);
-      const bookmarksRef = collection(db, COLLECTIONS.BOOKMARKS);
-      const q = query(bookmarksRef, where('userId', '==', userId));
-      const querySnapshot = await getDocs(q);
-      
-      const bookmarkIds = querySnapshot.docs.map(doc => doc.data().blogId);
-      setBookmarks(bookmarkIds);
-      
-      // LocalStorage と同期
-      localStorage.setItem('bookmarks_' + userId, JSON.stringify(bookmarkIds));
-    } catch (error) {
-      console.error('Error loading bookmarks:', error);
-      
-      // Firebase エラー時はLocalStorageから復元
+  // 初期化: blogId が指定されている場合はその記事のステータスを取得
+  useEffect(() => {
+    if (!blogId) {
+      // blogId未指定 = 一覧モード: LocalStorageからブックマーク一覧を復元
       const stored = localStorage.getItem('bookmarks_' + userId);
       if (stored) {
         setBookmarks(JSON.parse(stored));
       }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleBookmark = async (blogId: string, metadata?: { title: string; category: string[]; eyecatch: string }) => {
-    if (!db) {
-      // Firebase 未初期化時はLocalStorageのみで動作
-      const isCurrentlyBookmarked = bookmarks.includes(blogId);
-      const newBookmarks = isCurrentlyBookmarked 
-        ? bookmarks.filter(id => id !== blogId)
-        : [...bookmarks, blogId];
-      
-      setBookmarks(newBookmarks);
-      localStorage.setItem('bookmarks_' + userId, JSON.stringify(newBookmarks));
       return;
     }
 
-    setLoading(true);
-    
-    try {
-      const isCurrentlyBookmarked = bookmarks.includes(blogId);
-      
-      if (isCurrentlyBookmarked) {
-        // ブックマーク削除
-        await removeBookmark(blogId);
-      } else {
-        // ブックマーク追加
-        await addBookmark(blogId, metadata);
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      const status = await fetchStatus(blogId);
+      if (!cancelled) {
+        setBookmarks(prev => {
+          if (status.isBookmarked && !prev.includes(blogId)) return [...prev, blogId];
+          if (!status.isBookmarked && prev.includes(blogId)) return prev.filter(id => id !== blogId);
+          return prev;
+        });
+        setBookmarkCount(status.bookmarkCount);
+        setLoading(false);
       }
-      
-      // 統計更新とローカル状態更新
-      await updateBlogStats(blogId, isCurrentlyBookmarked ? -1 : 1);
-      await loadBookmarks();
-      
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [blogId, userId, fetchStatus]);
+
+  // ブックマークトグル
+  const toggleBookmark = async (
+    targetBlogId: string,
+    metadata?: { title: string; category: string[]; eyecatch: string }
+  ) => {
+    const isCurrentlyBookmarked = bookmarks.includes(targetBlogId);
+
+    // 楽観的更新
+    const newBookmarks = isCurrentlyBookmarked
+      ? bookmarks.filter(id => id !== targetBlogId)
+      : [...bookmarks, targetBlogId];
+    setBookmarks(newBookmarks);
+    setBookmarkCount(prev => Math.max(0, prev + (isCurrentlyBookmarked ? -1 : 1)));
+    localStorage.setItem('bookmarks_' + userId, JSON.stringify(newBookmarks));
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/bookmarks/${targetBlogId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, metadata }),
+      });
+
+      if (!res.ok) throw new Error('API error');
+
+      // API成功後に最新カウントを取得
+      const status = await fetchStatus(targetBlogId);
+      setBookmarkCount(status.bookmarkCount);
     } catch (error) {
       console.error('Error toggling bookmark:', error);
-      
-      // エラー時はローカルのみで処理
-      const newBookmarks = bookmarks.includes(blogId)
-        ? bookmarks.filter(id => id !== blogId)
-        : [...bookmarks, blogId];
-      
-      setBookmarks(newBookmarks);
-      localStorage.setItem('bookmarks_' + userId, JSON.stringify(newBookmarks));
+      // 楽観的更新をそのまま維持（LocalStorageには保存済み）
     } finally {
       setLoading(false);
     }
   };
 
-  // NOTE: 以下のヘルパー関数は toggleBookmark 内の null チェック後にのみ呼ばれる
-  const addBookmark = async (blogId: string, metadata?: { title: string; category: string[]; eyecatch: string }) => {
-    const bookmarksRef = collection(db!, COLLECTIONS.BOOKMARKS);
-
-    const newBookmark: Omit<Bookmark, 'id'> = {
-      userId,
-      blogId,
-      createdAt: Timestamp.now(),
-      metadata
-    };
-
-    await addDoc(bookmarksRef, newBookmark);
-  };
-
-  const removeBookmark = async (blogId: string) => {
-    const bookmarksRef = collection(db!, COLLECTIONS.BOOKMARKS);
-    const q = query(
-      bookmarksRef,
-      where('userId', '==', userId),
-      where('blogId', '==', blogId)
-    );
-
-    const querySnapshot = await getDocs(q);
-    querySnapshot.docs.forEach(async (docSnapshot) => {
-      await deleteDoc(docSnapshot.ref);
-    });
-  };
-
-  const updateBlogStats = async (blogId: string, countChange: number) => {
-    const statsRef = doc(db!, COLLECTIONS.BLOG_STATS, blogId);
-
-    await runTransaction(db!, async (transaction) => {
-      const statsDoc = await transaction.get(statsRef);
-      
-      if (statsDoc.exists()) {
-        const currentCount = statsDoc.data()?.bookmarkCount || 0;
-        transaction.update(statsRef, {
-          bookmarkCount: Math.max(0, currentCount + countChange),
-          lastUpdated: Timestamp.now()
-        });
-      } else {
-        // 新規作成
-        const newStats: BlogStats = {
-          blogId,
-          bookmarkCount: Math.max(0, countChange),
-          viewCount: 0,
-          reactionCounts: {
-            like: 0,
-            helpful: 0,
-            insightful: 0,
-            inspiring: 0
-          },
-          lastUpdated: Timestamp.now()
-        };
-        transaction.set(statsRef, newStats);
-      }
-    });
-  };
-
-  const isBookmarked = (blogId: string): boolean => {
-    return bookmarks.includes(blogId);
-  };
-
-  const getBookmarkCount = (blogId: string): number => {
-    // 今後統計取得機能を実装予定
-    return 0;
+  const isBookmarked = (targetBlogId: string): boolean => {
+    return bookmarks.includes(targetBlogId);
   };
 
   return {
     bookmarks,
+    bookmarkCount,
     loading,
     toggleBookmark,
     isBookmarked,
-    getBookmarkCount,
-    userId
+    userId,
   };
 }

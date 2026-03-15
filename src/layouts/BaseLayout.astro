@@ -55,6 +55,15 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
 <!doctype html>
 <html lang="ja">
   <head>
+    <!-- FOUC防止: DOM解析前にテーマクラスを同期的に適用 -->
+    <script is:inline>
+      (function(){
+        var s = localStorage.getItem('theme');
+        var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var t = s || (d ? 'dark' : 'light');
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
     <title>{title}</title>
@@ -93,8 +102,9 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
     <meta name="twitter:image" content={ogpImageUrl} />
 
     <!-- Additional Meta Tags for SEO -->
-    <meta name="theme-color" content="#0f172a" />
-    <meta name="msapplication-TileColor" content="#0f172a" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    <meta name="msapplication-TileColor" content="#2563eb" />
     
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -170,8 +180,8 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
 
     <!-- スタイルは src/styles/main.scss に集約 -->
   </head>
-  <body class="flex flex-col min-h-screen bg-slate-900">
-    <a href="#swup" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[2000] bg-cyan-600 text-white px-3 py-2 rounded">本文へスキップ</a>
+  <body class="flex flex-col min-h-screen bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-200">
+    <a href="#swup" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[2000] bg-blue-600 dark:bg-cyan-600 text-white px-3 py-2 rounded">本文へスキップ</a>
     <Header />
     <main class="flex-grow" id="swup">
       <slot />

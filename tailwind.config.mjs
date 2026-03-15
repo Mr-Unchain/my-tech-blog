@@ -4,6 +4,7 @@ import defaultTheme from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     // この設定により、srcフォルダ内のすべてのファイルが
     // Tailwind CSSの監視対象になります。

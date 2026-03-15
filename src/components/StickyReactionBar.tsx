@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import { useReactions, type ReactionType } from '../hooks/useReactions';
 import { REACTIONS } from '../lib/firebase-collections';
+import BookmarkButton from './BookmarkButton';
 
 interface Props {
   blogId: string;
@@ -130,6 +131,12 @@ export default function StickyReactionBar({ blogId, title }: Props) {
           </div>
         )}
       </div>
+
+      {/* 区切り線 */}
+      <div className="sticky-divider" />
+
+      {/* ブックマークボタン */}
+      <BookmarkButton blogId={blogId} title={title} compact />
 
       {/* 区切り線 */}
       <div className="sticky-divider" />
