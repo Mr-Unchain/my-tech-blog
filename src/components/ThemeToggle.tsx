@@ -75,7 +75,7 @@ export default function ThemeToggle() {
       ) : (
         // 月アイコン（ライトテーマ時 → ダークに切替）
         <svg
-          className="w-5 h-5 text-white"
+          className="w-5 h-5 text-slate-700"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
