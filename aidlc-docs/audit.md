@@ -428,6 +428,28 @@
 
 ---
 
+## [Workflow 3] Tab Navigation Bug Fix - Workspace Detection + Requirements
+**Timestamp**: 2026-03-15T19:00:00Z
+**User Input**: "タブに表示されている項目が、場合によって変わっています。なぜでしょうか。あと、タブをクリックすると画面がリロードされるせいで、上まで戻ってしまう問題も修正してほしいです。AI-DLCとAgent Teamsを使ってください"
+**AI Response**: 2つのバグを特定:
+1. カテゴリタブが `pagedPosts`（フィルタ済み記事）から抽出されるため、タブ切替でカテゴリ一覧が変わる
+2. タブが `<a>` リンクのためフルページリロードが発生し、スクロール位置がリセットされる
+既存AI-DLC状態を検出。Brownfieldプロジェクト。バグ修正のため INCEPTION は最小深度、CONSTRUCTION Code Generation に直接進行。Agent Teams で並列実装。
+**Context**: INCEPTION - Workspace Detection + Requirements Analysis (Minimal) → CONSTRUCTION Code Generation
+
+---
+
+## [Workflow 3] Code Generation - Agent Teams Complete
+**Timestamp**: 2026-03-15T19:05:00Z
+**AI Response**: 2エージェント並列実行完了。
+**Team Structure**:
+- stable-categories: index.astro のカテゴリ取得を全記事ベースに変更（getBlogs fields:'category' limit:100）✅
+- client-side-tabs: TabNavigation.astro に id="tab-navigation" 追加、tab パラメータ検知時のスクロール復元スクリプト追加（Swup contentReplaced イベント対応）✅
+**Build Verification**: TypeScript check OK
+**Context**: CONSTRUCTION - Code Generation (Agent Teams, Complete)
+
+---
+
 ## Light Theme Fix - Agent Teams
 **Timestamp**: 2026-03-15T18:27:00Z
 **User Input**: "ブログ記事とホーム以外の画面がライトテーマ対応できていません。AI-DLCとAgent teamsを使って修正してください。"

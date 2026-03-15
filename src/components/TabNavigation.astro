@@ -21,7 +21,7 @@ const categoryTabs = categories.map((cat) => ({
 const allTabs = [...baseTabs, ...categoryTabs];
 ---
 
-<nav class="border-b border-gray-200 dark:border-slate-700 transition-colors duration-200" data-testid="tab-navigation">
+<nav id="tab-navigation" class="border-b border-gray-200 dark:border-slate-700 transition-colors duration-200" data-testid="tab-navigation">
   <div class="overflow-x-auto scrollbar-hide">
     <div class="flex space-x-0 min-w-max">
       {allTabs.map((tab) => {
@@ -55,3 +55,21 @@ const allTabs = [...baseTabs, ...categoryTabs];
     display: none;
   }
 </style>
+
+<script>
+  function scrollToTabsIfNeeded() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('tab')) {
+      const nav = document.getElementById('tab-navigation');
+      if (nav) {
+        nav.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }
+
+  // Handle initial page load
+  scrollToTabsIfNeeded();
+
+  // Handle Swup page transitions
+  document.addEventListener('swup:contentReplaced', scrollToTabsIfNeeded);
+</script>

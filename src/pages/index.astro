@@ -94,9 +94,15 @@ if (activeTab === "popular" && db) {
   totalCount = tc;
 }
 const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
+
+// ★ 全記事からカテゴリを取得（タブに依存しない一貫したカテゴリ一覧）
+const { contents: allPostsForCategories } = await getBlogs({
+  limit: 100,
+  fields: 'category',
+});
 const categoryChips: string[] = Array.from(
   new Set(
-    (pagedPosts as Blog[]).flatMap((p: Blog) =>
+    (allPostsForCategories as Blog[]).flatMap((p: Blog) =>
       Array.isArray(p.category)
         ? (p.category as string[])
         : (p.category ? [String(p.category)] : [])
