@@ -12,6 +12,7 @@ import Comments from "../../components/Comments.astro";
 import ImageOptimizer from "../../components/ImageOptimizer.astro";
 import KeyboardNavigation from "../../components/KeyboardNavigation.astro";
 import LinkStyleEnhancer from "../../components/LinkStyleEnhancer.astro";
+import BookmarkButton from "../../components/BookmarkButton";
 import ReactionButtons from "../../components/ReactionButtons";
 import StickyReactionBar from "../../components/StickyReactionBar";
 import TableOfContents from "../../components/TableOfContents";
@@ -25,7 +26,6 @@ const { id } = Astro.params;
 const draftKey = Astro.url.searchParams.get("draftKey");
 
 if (!id) {
-  // idがない場合は404ページなどを表示
   return new Response(null, { status: 404 });
 }
 
@@ -38,7 +38,6 @@ if (!draftKey && db) {
 const post = await getBlogDetail(id, draftKey ? { draftKey } : undefined);
 
 if (!post) {
-  // 記事が見つからない場合も404
   return new Response(null, { status: 404 });
 }
 
@@ -57,16 +56,16 @@ if (post.content) {
     });
 }
 
-// SEO用のキーワード生成（カテゴリとタグから）
+// SEO用のキーワード生成
 const categories = Array.isArray(post.category) ? post.category : [post.category];
-const categoryNames = categories.filter(Boolean); // categoryは文字列の配列
+const categoryNames = categories.filter(Boolean);
 
-// 関連記事取得（同カテゴリ・自身除外・新しい順）
+// 関連記事取得
 const allBlogs = await getBlogs({ limit: 100, orders: "-publishedAt" });
 const relatedPosts = getRelatedPosts(post as any, allBlogs.contents as any[]);
 const seoKeywords = [...categoryNames, "テクノロジー", "プログラミング", "コーディング", "AI", "開発"].join(", ");
 
-// パンくずナビゲーション用のアイテム作成
+// パンくずナビゲーション
 const breadcrumbItems = [
   { name: "ホーム", href: "/" },
   { name: "ブログ", href: "/blog" },
@@ -91,8 +90,7 @@ const breadcrumbItems = [
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_circle_up,cached"
     />
-    
-    <!-- Article Specific Structured Data -->
+
     <script type="application/ld+json" is:inline>{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BlogPosting",
@@ -128,7 +126,6 @@ const breadcrumbItems = [
           }
     })}</script>
 
-    <!-- Breadcrumb Structured Data -->
     <script type="application/ld+json" is:inline>{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
@@ -160,23 +157,21 @@ const breadcrumbItems = [
           ].filter(Boolean)
     })}</script>
   </Fragment>
-  
-  <main class="min-h-screen bg-slate-900">
+
+  <main class="min-h-screen transition-colors duration-200" style="background: var(--color-bg-primary);">
     <!-- 読書進捗バー -->
     <div class="reading-progress-container" aria-hidden="true">
       <div id="reading-progress" class="reading-progress-bar" />
     </div>
-    <div
-      class="container mx-auto px-4 py-12 md:py-16 max-w-6xl blog-global-font"
-    >
+    <div class="container mx-auto px-4 py-8 md:py-12 max-w-6xl blog-global-font">
       {draftKey && (
-        <div class="mb-6 rounded-lg border border-yellow-500/40 bg-yellow-500/10 text-yellow-200 px-4 py-3 text-sm">
+        <div class="mb-6 rounded-lg border px-4 py-3 text-sm" style="border-color: #eab308; background: rgba(234, 179, 8, 0.1); color: var(--color-text-primary);">
           プレビュー表示中（未公開の下書き）。このページは検索エンジンにインデックスされません。
         </div>
       )}
-      <!-- パンくずナビゲーション -->
+      <!-- パンくず -->
       <Breadcrumb items={breadcrumbItems} class="mb-6" />
-      
+
       <div class="relative flex gap-4 lg:gap-6">
         <!-- 左サイドバー（リアクションバー） - PC表示のみ -->
         <aside class="hidden lg:block flex-shrink-0 w-14">
@@ -187,11 +182,12 @@ const breadcrumbItems = [
         <!-- メインコンテンツ -->
         <article class="lg:col-span-4" itemscope itemtype="https://schema.org/BlogPosting">
           <div
-            class="bg-gradient-to-b from-slate-800/90 to-slate-800/95 rounded-xl border border-slate-700/50 shadow-xl backdrop-blur-sm overflow-hidden"
+            class="rounded-xl border overflow-hidden transition-colors duration-200"
+            style="background: var(--color-bg-card); border-color: var(--color-border);"
           >
             {
               post.eyecatch?.url ? (
-                <div class="relative h-[300px] overflow-hidden rounded-lg shadow-lg mb-8">
+                <div class="relative h-[300px] overflow-hidden mb-0">
                   <div
                     class="absolute inset-0 bg-cover bg-center"
                     style={`background-image: url(${post.eyecatch.url}?w=1200&blur=20&q=50);`}
@@ -204,86 +200,54 @@ const breadcrumbItems = [
                     alt={`「${post.title}」のアイキャッチ画像`}
                     class="relative w-full h-full object-contain"
                   />
-                  <header class="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent text-white">
-                    <h1 class="text-3xl md:text-4xl font-bold mb-2">
+                  <header class="absolute bottom-0 left-0 right-0 p-6 md:p-8 bg-gradient-to-t from-black/60 to-transparent text-white">
+                    <h1 class="text-2xl md:text-3xl font-bold mb-2">
                       {post.title}
                     </h1>
-                    <div class="flex items-center justify-center flex-wrap gap-x-6 gap-y-2 text-sm text-slate-100">
-                      <div class="flex items-center gap-2">
-                        <span
-                          class="material-symbols-outlined align-middle"
-                          style="color: #bae6fd;"
-                        >
-                          arrow_circle_up
-                        </span>
+                    <div class="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm text-slate-200">
+                      <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined align-middle text-base" style="color: #bae6fd;">arrow_circle_up</span>
                         <time datetime={post.publishedAt}>
-                          {new Date(post.publishedAt || "").toLocaleDateString(
-                            "ja-JP"
-                          )}
+                          {new Date(post.publishedAt || "").toLocaleDateString("ja-JP")}
                         </time>
                       </div>
-                      <div class="flex items-center gap-2">
-                        <span
-                          class="material-symbols-outlined align-middle"
-                          style="color: #fbbf24;"
-                        >
-                          cached
-                        </span>
+                      <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined align-middle text-base" style="color: #fbbf24;">cached</span>
                         <time datetime={post.updatedAt}>
-                          {new Date(
-                            post.updatedAt || post.publishedAt || ""
-                          ).toLocaleDateString("ja-JP")}
+                          {new Date(post.updatedAt || post.publishedAt || "").toLocaleDateString("ja-JP")}
                         </time>
                       </div>
                     </div>
                   </header>
                 </div>
               ) : (
-                <div class="relative h-[300px] overflow-hidden rounded-lg shadow-lg mb-8 bg-gray-100 flex items-center justify-center">
-                  <Image
-                    src="/placeholder.svg"
-                    width={1200}
-                    height={630}
-                    alt="No image"
-                    class="relative w-full h-full object-contain opacity-60"
-                  />
-                  <header class="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent text-white">
-                    <h1 class="text-3xl md:text-4xl font-bold mb-2">
-                      {post.title}
-                    </h1>
-                    <div class="flex items-center justify-center flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
-                      <div class="flex items-center gap-2">
-                        <span
-                          class="material-symbols-outlined align-middle"
-                          style="color: #60a5fa;"
-                        >
-                          arrow_circle_up
-                        </span>
-                        <time datetime={post.publishedAt}>
-                          {new Date(post.publishedAt || "").toLocaleDateString(
-                            "ja-JP"
-                          )}
-                        </time>
-                      </div>
-                      {/* カテゴリ表示削除 */}
+                <div class="px-6 md:px-8 pt-8">
+                  <h1 class="text-2xl md:text-3xl font-bold mb-3" style="color: var(--color-text-heading);">
+                    {post.title}
+                  </h1>
+                  <div class="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm mb-6" style="color: var(--color-text-tertiary);">
+                    <div class="flex items-center gap-1.5">
+                      <span class="material-symbols-outlined align-middle text-base">arrow_circle_up</span>
+                      <time datetime={post.publishedAt}>
+                        {new Date(post.publishedAt || "").toLocaleDateString("ja-JP")}
+                      </time>
                     </div>
-                  </header>
+                  </div>
                 </div>
               )
             }
 
-            <!-- 目次（スマホ時も表示） -->
-            <div class="block lg:hidden px-4 pb-4">
+            <!-- 目次（モバイル） -->
+            <div class="block lg:hidden px-4 pt-4 pb-2">
               <div
-                class="bg-slate-700/60 p-4 rounded-xl border border-slate-600/50 shadow-sm backdrop-blur-sm"
+                class="p-4 rounded-xl border transition-colors duration-200"
+                style="background: var(--color-bg-secondary); border-color: var(--color-border);"
               >
-                <h3 class="font-bold text-lg mb-4 text-cyan-300">目次</h3>
+                <h3 class="font-bold text-sm mb-3" style="color: var(--color-text-heading);">目次</h3>
                 <ul class="toc-list">
                   {
                     headings.map((heading) => (
-                      <li
-                        class={heading.tagName === "h2" ? "toc-h2" : "toc-h3"}
-                      >
+                      <li class={heading.tagName === "h2" ? "toc-h2" : "toc-h3"}>
                         <a href={`#${heading.id}`}>{heading.text}</a>
                       </li>
                     ))
@@ -297,28 +261,23 @@ const breadcrumbItems = [
               <Fragment set:html={post.content} />
             </div>
 
-            <!-- コードブロック強化（コピーボタン等） -->
             <CodeBlockEnhancer />
-
-            <!-- リンクスタイル強化（カード風表示） -->
             <LinkStyleEnhancer />
-
-            <!-- 画像最適化（遅延読み込み、ライトボックス） -->
             <ImageOptimizer />
-
-            <!-- キーボードナビゲーション -->
             <KeyboardNavigation />
 
             <!-- リアクション + シェア -->
-            <div class="mt-6 px-4 md:px-8">
+            <div class="mt-6 px-4 md:px-8 pb-6">
               <div class="flex flex-col gap-4">
                 {!draftKey && (
-                  <div class="reaction-buttons">
-                    <ReactionButtons client:load blogId={post.id} />
+                  <div class="flex items-start gap-3">
+                    <div class="reaction-buttons flex-1">
+                      <ReactionButtons client:load blogId={post.id} />
+                    </div>
+                    <BookmarkButton client:load blogId={post.id} title={post.title} />
                   </div>
                 )}
 
-                <!-- Share buttons -->
                 <div class="share-buttons-container">
                   <button id="share-x" class="share-btn twitter" type="button" aria-label="Xでシェア" title="Xでシェア">
                     <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -343,8 +302,8 @@ const breadcrumbItems = [
             </div>
           </div>
 
-          {/* 記事末尾のカテゴリハッシュタグ表示（Zenn風カラフルバッジ） */}
-          <div class="mt-8 flex flex-wrap gap-3">
+          <!-- カテゴリハッシュタグ -->
+          <div class="mt-6 flex flex-wrap gap-2">
             {
               Array.isArray(post.category)
                 ? post.category.map((cat) => (
@@ -370,14 +329,14 @@ const breadcrumbItems = [
             }
           </div>
 
-          {/* 前後の記事ナビゲーション */}
           <ArticleNavigation currentId={post.id} allArticles={allBlogs.contents} />
 
           {!draftKey && (
             <div
-              class="mt-8 bg-gradient-to-b from-slate-800/90 to-slate-800/95 p-6 md:p-10 rounded-xl border border-slate-700/50 shadow-xl backdrop-blur-sm"
+              class="mt-8 p-6 md:p-8 rounded-xl border transition-colors duration-200"
+              style="background: var(--color-bg-card); border-color: var(--color-border);"
             >
-              <h2 class="text-2xl font-bold mb-6 text-cyan-300">コメント</h2>
+              <h2 class="text-xl font-bold mb-6" style="color: var(--color-text-heading);">コメント</h2>
               <Comments
                 pageUrl={Astro.url.href}
                 pageIdentifier={post.id}
@@ -390,17 +349,16 @@ const breadcrumbItems = [
         <!-- サイドバー (目次 + 著者カード) PCのみ -->
         <aside class="lg:col-span-2 hidden lg:block">
           <div class="lg:sticky lg:top-20">
-            {/* 目次 - React Islandでスクロール連動ハイライト */}
             <div
-              class="toc-container bg-slate-700/60 p-4 rounded-xl border border-slate-600/50 shadow-xl backdrop-blur-sm"
+              class="toc-container p-4 rounded-xl border transition-colors duration-200"
+              style="background: var(--color-bg-secondary); border-color: var(--color-border);"
             >
-              <h3 class="font-bold text-sm mb-2 text-cyan-300 flex-shrink-0">目次</h3>
+              <h3 class="font-bold text-sm mb-2 flex-shrink-0" style="color: var(--color-text-heading);">目次</h3>
               <div class="toc-scroll-area">
                 <TableOfContents client:load headings={headings} />
               </div>
             </div>
 
-            {/* 著者情報カード - スクロール時にTOCの下に表示 */}
             <div class="mt-4">
               <AuthorCard />
             </div>
@@ -409,11 +367,11 @@ const breadcrumbItems = [
         </div>
       </div>
 
-      <!-- Related Posts -->
+      <!-- 関連記事 -->
       {relatedPosts.length > 0 && (
-        <section class="mt-14">
-          <h2 class="text-2xl font-bold mb-6 text-cyan-300">関連記事</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section class="mt-12">
+          <h2 class="text-xl font-bold mb-6" style="color: var(--color-text-heading);">関連記事</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {relatedPosts.map((p: any) => (
               <ArticleCard
                 id={p.id}
@@ -433,139 +391,13 @@ const breadcrumbItems = [
   </main>
 </BaseLayout>
 
-<script is:inline>
-  function setupShareButtons() {
-    const pageUrl = window.location.href;
-    const title = document.title || '';
-
-    const xBtn = document.getElementById('share-x');
-    const liBtn = document.getElementById('share-linkedin');
-    const copyBtn = document.getElementById('share-copy');
-    const canWebShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
-
-    if (xBtn) {
-      xBtn.onclick = (e) => {
-        e.preventDefault();
-        if (canWebShare) {
-          // 端末共有が使える場合でも、Xを明示的に開く仕様に固定
-        }
-        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(pageUrl)}`;
-        window.open(url, '_blank', 'noopener');
-      };
-    }
-
-    if (liBtn) {
-      liBtn.onclick = (e) => {
-        e.preventDefault();
-        const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`;
-        window.open(url, '_blank', 'noopener');
-      };
-    }
-
-    if (copyBtn) {
-      copyBtn.onclick = async (e) => {
-        e.preventDefault();
-        if (canWebShare) {
-          try {
-            await navigator.share({ title, url: pageUrl });
-            showShareToast('共有ダイアログを開きました');
-            return;
-          } catch(_) {}
-        }
-        try {
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(pageUrl);
-          } else {
-            const ta = document.createElement('textarea');
-            ta.value = pageUrl;
-            ta.style.position = 'fixed';
-            ta.style.top = '-1000px';
-            document.body.appendChild(ta);
-            ta.focus();
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-          }
-          showShareToast('リンクをコピーしました');
-          // show inline tooltip briefly
-          copyBtn.classList.add('tip-show');
-          setTimeout(() => copyBtn.classList.remove('tip-show'), 1200);
-        } catch {
-          showShareToast('コピーに失敗しました');
-        }
-      };
-    }
-  }
-
-  function showShareToast(message) {
-    const el = document.createElement('div');
-    el.className = 'share-toast';
-    el.textContent = message;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2200);
-  }
+<script>
+  import { setupShareButtons } from '../../lib/share-buttons';
+  import { setupReadingProgress } from '../../lib/reading-progress';
 
   document.addEventListener('DOMContentLoaded', setupShareButtons);
   document.addEventListener('astro:page-load', setupShareButtons);
-</script>
 
-<!-- 読了プログレスバーのスクリプト -->
-<script is:inline>
-  /**
-   * 読了プログレスバーの初期化
-   * スクロール位置から記事の読了進捗を計算し、プログレスバーを更新
-   */
-  function setupReadingProgress() {
-    const progressBar = document.getElementById('reading-progress');
-    if (!progressBar) return;
-
-    // 記事本文の要素を取得
-    const article = document.querySelector('.blog-article-content');
-    if (!article) return;
-
-    /**
-     * プログレスバーを更新
-     */
-    function updateProgress() {
-      // 記事の位置情報を取得
-      const articleRect = article.getBoundingClientRect();
-      const articleTop = window.scrollY + articleRect.top;
-      const articleHeight = articleRect.height;
-
-      // 現在のスクロール位置
-      const scrollTop = window.scrollY;
-      const windowHeight = window.innerHeight;
-
-      // 記事の読了進捗を計算（記事開始から終了まで）
-      // 記事の開始位置を0%、記事の終了位置を100%とする
-      const readableStart = articleTop - windowHeight * 0.3; // 記事が画面に30%入ったところから開始
-      const readableEnd = articleTop + articleHeight - windowHeight * 0.5; // 記事の50%が画面に残っているところで終了
-      const readableLength = readableEnd - readableStart;
-
-      let progress = 0;
-      if (scrollTop <= readableStart) {
-        progress = 0;
-      } else if (scrollTop >= readableEnd) {
-        progress = 100;
-      } else {
-        progress = ((scrollTop - readableStart) / readableLength) * 100;
-      }
-
-      // プログレスバーの幅を更新
-      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
-    }
-
-    // スクロールイベントでプログレスバーを更新（パッシブリスナー）
-    window.addEventListener('scroll', updateProgress, { passive: true });
-
-    // リサイズ時も更新
-    window.addEventListener('resize', updateProgress, { passive: true });
-
-    // 初期状態を設定
-    updateProgress();
-  }
-
-  // ページ読み込み時に初期化
   document.addEventListener('DOMContentLoaded', setupReadingProgress);
   document.addEventListener('astro:page-load', setupReadingProgress);
 </script>

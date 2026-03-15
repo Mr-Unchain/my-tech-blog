@@ -20,8 +20,8 @@ const disqusShortname = "shu-zhai-notetsukugia";
 
 <div class="comments-container space-y-4">
   <div class="flex items-center gap-2">
-    <h3 class="text-xl font-bold text-cyan-300">ディスカッション</h3>
-    <span class="text-xs text-slate-400">（Giscus）</span>
+    <h3 class="text-xl font-bold" style="color: var(--color-text-heading);">ディスカッション</h3>
+    <span class="text-xs" style="color: var(--color-text-muted);">（Giscus）</span>
   </div>
   <div
     id="giscus-container"
@@ -29,15 +29,15 @@ const disqusShortname = "shu-zhai-notetsukugia";
     data-repo-id={giscus.repoId}
     data-category={giscus.category}
     data-category-id={giscus.categoryId}
-    class="rounded-xl border border-slate-700/50 bg-slate-800/40 backdrop-blur-sm p-2"
+    class="comments-giscus-container rounded-xl p-2"
   >
   </div>
 
   <details class="group">
-    <summary class="cursor-pointer select-none text-slate-300 hover:text-white transition-colors">
+    <summary class="comments-reload-summary cursor-pointer select-none transition-colors">
       うまく表示されない場合（クリックして再読み込み）
     </summary>
-    <button id="reload-giscus" type="button" class="mt-2 px-3 py-1.5 text-sm rounded-lg bg-slate-700/70 border border-slate-600/60 text-slate-100 hover:bg-slate-700">再読み込み</button>
+    <button id="reload-giscus" type="button" class="comments-reload-btn mt-2 px-3 py-1.5 text-sm rounded-lg">再読み込み</button>
   </details>
 </div>
 
@@ -70,7 +70,8 @@ const disqusShortname = "shu-zhai-notetsukugia";
     giscusScript.setAttribute("data-reactions-enabled", "1");
     giscusScript.setAttribute("data-emit-metadata", "0");
     giscusScript.setAttribute("data-input-position", "top");
-    giscusScript.setAttribute("data-theme", "transparent_dark");
+    const isDark = document.documentElement.classList.contains("dark");
+    giscusScript.setAttribute("data-theme", isDark ? "transparent_dark" : "light");
     giscusScript.setAttribute("data-lang", "ja");
     giscusScript.setAttribute("crossorigin", "anonymous");
 
@@ -100,4 +101,47 @@ const disqusShortname = "shu-zhai-notetsukugia";
       manualReload();
     }
   });
+
+  // テーマ切替時に Giscus のテーマも動的に変更
+  const sendGiscusTheme = (theme: string) => {
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    if (iframe?.contentWindow) {
+      iframe.contentWindow.postMessage(
+        { giscus: { setConfig: { theme } } },
+        'https://giscus.app'
+      );
+    }
+  };
+
+  // html の class 変更を監視してテーマを切り替える
+  const observer = new MutationObserver(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    sendGiscusTheme(isDark ? 'transparent_dark' : 'light');
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
+
+<style>
+  .comments-giscus-container {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+  }
+
+  .comments-reload-summary {
+    color: var(--color-text-secondary);
+  }
+
+  .comments-reload-summary:hover {
+    color: var(--color-text-heading);
+  }
+
+  .comments-reload-btn {
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+  }
+
+  .comments-reload-btn:hover {
+    background: var(--color-bg-secondary);
+  }
+</style>

@@ -26,7 +26,20 @@
       "Bash(powershell -Command \"Set-Location 'C:\\\\Git\\\\my-tech-blog'; npm install:*)",
       "Bash(powershell -Command \"Test-Path ''C:\\\\Git\\\\my-tech-blog\\\\node_modules\\\\@eslint\\\\js''\")",
       "Bash(powershell -Command \"Set-Location ''C:\\\\Git\\\\my-tech-blog''; npx eslint src/pages/rss.xml.ts 2>&1\")",
-      "Bash(powershell -Command \"Set-Location ''C:\\\\Git\\\\my-tech-blog''; npm run lint 2>&1\")"
+      "Bash(powershell -Command \"Set-Location ''C:\\\\Git\\\\my-tech-blog''; npm run lint 2>&1\")",
+      "Bash(dir:*)",
+      "WebSearch",
+      "Bash(powershell:*)",
+      "Bash(cmd /c \"assoc .js 2>&1 && ftype JSFile 2>&1\")",
+      "Bash(cmd /c assoc:*)",
+      "Bash(cmd /c ftype JSFile)",
+      "WebFetch(domain:zenn.dev)",
+      "Bash(npx vitest run:*)",
+      "Bash(findstr:*)",
+      "Bash(if not exist \"C:\\\\Git\\\\my-tech-blog\\\\aidlc-docs\\\\inception\\\\requirements\" mkdir \"C:\\\\Git\\\\my-tech-blog\\\\aidlc-docs\\\\inception\\\\requirements\")",
+      "mcp__github__list_pull_requests",
+      "mcp__github__get_pull_request_comments"
     ]
-  }
+  },
+  "outputStyle": "Explanatory"
 }

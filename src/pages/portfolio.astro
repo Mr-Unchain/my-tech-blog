@@ -159,7 +159,7 @@ const pageDescription =
   ogImageUrl={profile.avatar?.url || undefined}
   articleType="profile"
 >
-  <main class="min-h-screen bg-slate-950 text-slate-100">
+  <main class="min-h-screen" style="background: var(--color-bg-primary); color: var(--color-text-primary);">
     <div class="relative overflow-hidden">
       <div
         class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,211,238,0.12),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.12),transparent_30%),radial-gradient(circle_at_50%_100%,rgba(99,102,241,0.08),transparent_30%)]"
@@ -168,36 +168,37 @@ const pageDescription =
 
       <div class="container mx-auto px-4 py-16 md:py-20 relative z-10 space-y-16">
         <section
-          class="grid lg:grid-cols-[1.2fr_0.8fr] gap-10 items-center bg-gradient-to-br from-slate-900/80 to-slate-900/50 border border-slate-800/70 rounded-3xl p-8 md:p-12 shadow-2xl shadow-cyan-500/10"
+          class="grid lg:grid-cols-[1.2fr_0.8fr] gap-10 items-center rounded-3xl p-8 md:p-12 shadow-2xl"
+          style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);"
         >
           <div class="space-y-6">
-            <p class="text-sm uppercase tracking-[0.2em] text-cyan-200/80 flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true"></span>
+            <p class="text-sm uppercase tracking-[0.2em] flex items-center gap-2" style="color: var(--color-accent);">
+              <span class="w-2 h-2 rounded-full animate-pulse" style="background: var(--color-accent);" aria-hidden="true"></span>
               Portfolio
             </p>
             <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
-              <span class="bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent">
+              <span style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                 レガシー×モダンをつなぐエンジニア
               </span>
-              <span class="block text-2xl md:text-3xl mt-3 bg-gradient-to-r from-cyan-200 to-blue-200 bg-clip-text text-transparent">
+              <span class="block text-2xl md:text-3xl mt-3" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                 {profile.name}
               </span>
             </h1>
-            <p class="text-lg text-slate-200 leading-relaxed">
+            <p class="text-lg leading-relaxed" style="color: var(--color-text-primary);">
               IBM i(RPG/CL/DDS)×Java×SPAのハイブリッド。AIで実装速度を上げつつ、現行運用を崩さない段階リプレイスを設計・推進します。
             </p>
             <div class="grid sm:grid-cols-3 gap-3">
               {strengths.map((item) => (
-                <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-4 shadow-lg hover:border-cyan-500/40 hover:shadow-cyan-500/10 transition-colors duration-300">
-                  <p class="text-sm text-cyan-200/90 font-semibold">{item.title}</p>
-                  <p class="mt-2 text-sm text-slate-200 leading-relaxed">{item.detail}</p>
+                <div class="rounded-2xl p-4 shadow-lg transition-colors duration-300" style="border: 1px solid var(--color-border); background: var(--color-bg-secondary);">
+                  <p class="text-sm font-semibold" style="color: var(--color-accent);">{item.title}</p>
+                  <p class="mt-2 text-sm leading-relaxed" style="color: var(--color-text-primary);">{item.detail}</p>
                 </div>
               ))}
             </div>
             {heroSkills.length > 0 && (
               <div class="flex flex-wrap gap-3" aria-label="主要スキル">
                 {heroSkills.map((skill) => (
-                  <span class="px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/15 to-blue-500/15 text-cyan-100 border border-cyan-400/30 text-sm font-semibold shadow-sm shadow-cyan-500/10">
+                  <span class="px-4 py-2 rounded-full text-sm font-semibold shadow-sm" style="background: var(--color-accent-light); color: var(--color-accent); border: 1px solid var(--color-accent);">
                     {skill}
                   </span>
                 ))}
@@ -207,7 +208,8 @@ const pageDescription =
               {profile.githubUrl && (
                 <a
                   href={profile.githubUrl}
-                  class="group inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold shadow-lg shadow-cyan-500/25 hover:shadow-cyan-400/40 transition-transform duration-300 hover:translate-y-[-2px]"
+                  class="group inline-flex items-center gap-2 px-5 py-3 rounded-xl font-semibold shadow-lg transition-transform duration-300 hover:translate-y-[-2px]"
+                  style="background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover)); color: #fff;"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -220,7 +222,8 @@ const pageDescription =
               {profile.contact_email && (
                 <a
                   href={`mailto:${profile.contact_email}`}
-                  class="group inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-700 text-slate-100 bg-slate-800/80 hover:border-cyan-400/70 hover:bg-slate-700/80 transition-colors duration-300"
+                  class="group inline-flex items-center gap-2 px-5 py-3 rounded-xl transition-colors duration-300"
+                  style="border: 1px solid var(--color-border); color: var(--color-text-primary); background: var(--color-bg-secondary);"
                 >
                   メールで相談
                   <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,7 +233,8 @@ const pageDescription =
               )}
               <a
                 href="/profile"
-                class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-cyan-100 hover:text-white hover:underline"
+                class="inline-flex items-center gap-2 px-5 py-3 rounded-xl hover:underline"
+                style="color: var(--color-accent);"
               >
                 プロフィール要約
                 <span aria-hidden="true">→</span>
@@ -238,14 +242,15 @@ const pageDescription =
             </div>
           </div>
 
-          <div class="bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
+          <div class="rounded-2xl p-6 md:p-8 shadow-xl space-y-6" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
             <div class="flex items-center gap-4">
               {profile.avatar && (
                 <div class="relative">
                   <img
                     src={profile.avatar.url}
                     alt={`${profile.name}のアバター`}
-                    class="w-20 h-20 rounded-full ring-4 ring-cyan-500/30 shadow-lg"
+                    class="w-20 h-20 rounded-full shadow-lg"
+                    style="ring: 4px solid var(--color-accent-light);"
                     loading="lazy"
                     decoding="async"
                   />
@@ -253,13 +258,14 @@ const pageDescription =
                 </div>
               )}
               <div>
-                <p class="text-sm text-slate-300">Software Engineer / Content Creator</p>
-                <p class="text-2xl font-bold text-white">{profile.name}</p>
+                <p class="text-sm" style="color: var(--color-text-secondary);">Software Engineer / Content Creator</p>
+                <p class="text-2xl font-bold" style="color: var(--color-text-heading);">{profile.name}</p>
                 <div class="flex gap-3 mt-3">
                   {profile.xUrl && (
                     <a
                       href={profile.xUrl}
-                      class="text-slate-400 hover:text-cyan-400 transition-colors"
+                      class="transition-colors"
+                      style="color: var(--color-text-muted);"
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="Xプロフィール"
@@ -272,7 +278,8 @@ const pageDescription =
                   {profile.githubUrl && (
                     <a
                       href={profile.githubUrl}
-                      class="text-slate-400 hover:text-cyan-400 transition-colors"
+                      class="transition-colors"
+                      style="color: var(--color-text-muted);"
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="GitHubプロフィール"
@@ -290,17 +297,17 @@ const pageDescription =
               </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div class="group rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/70 p-4 shadow-lg">
-                <p class="text-sm text-slate-400">経験年数</p>
-                <p class="text-2xl font-bold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent">4+ yrs</p>
+              <div class="group rounded-xl p-4 shadow-lg" style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border);">
+                <p class="text-sm" style="color: var(--color-text-muted);">経験年数</p>
+                <p class="text-2xl font-bold" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">4+ yrs</p>
               </div>
-              <div class="group rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/70 p-4 shadow-lg">
-                <p class="text-sm text-slate-400">得意領域</p>
-                <p class="text-2xl font-bold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent">Legacy × SPA</p>
+              <div class="group rounded-xl p-4 shadow-lg" style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border);">
+                <p class="text-sm" style="color: var(--color-text-muted);">得意領域</p>
+                <p class="text-2xl font-bold" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Legacy × SPA</p>
               </div>
-              <div class="group rounded-xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/70 p-4 shadow-lg">
-                <p class="text-sm text-slate-400">最近の関心</p>
-                <p class="text-2xl font-bold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent">AI活用</p>
+              <div class="group rounded-xl p-4 shadow-lg" style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border);">
+                <p class="text-sm" style="color: var(--color-text-muted);">最近の関心</p>
+                <p class="text-2xl font-bold" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI活用</p>
               </div>
             </div>
           </div>
@@ -309,23 +316,23 @@ const pageDescription =
         <section class="space-y-6" aria-labelledby="impact-heading">
           <div class="flex items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-              <div class="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-400/30" aria-hidden="true"></div>
+              <div class="w-1.5 h-12 rounded-full shadow-lg" style="background: linear-gradient(to bottom, var(--color-accent), var(--color-accent-hover));" aria-hidden="true"></div>
               <div>
-                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Highlights</p>
-                <h2 id="impact-heading" class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mt-1">
+                <p class="text-sm uppercase tracking-[0.2em]" style="color: var(--color-accent);">Highlights</p>
+                <h2 id="impact-heading" class="text-2xl md:text-3xl font-bold mt-1" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                   直近のインパクト
                 </h2>
-                <p class="text-slate-300 mt-2">数字と効果がわかる短いカードでまとめています。</p>
+                <p class="mt-2" style="color: var(--color-text-secondary);">数字と効果がわかる短いカードでまとめています。</p>
               </div>
             </div>
           </div>
           <div class="grid gap-4 md:grid-cols-3">
             {impactHighlights.map((item) => (
-              <div class="relative overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg">
+              <div class="relative overflow-hidden rounded-2xl p-5 shadow-lg" style="border: 1px solid var(--color-border); background: var(--color-bg-secondary);">
                 <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-blue-500/5" aria-hidden="true" />
-                <p class="text-sm text-cyan-200/90 font-semibold">{item.label}</p>
-                <h3 class="mt-2 text-lg font-bold text-white leading-snug">{item.title}</h3>
-                <ul class="mt-3 space-y-2 text-sm text-slate-200">
+                <p class="text-sm font-semibold" style="color: var(--color-accent);">{item.label}</p>
+                <h3 class="mt-2 text-lg font-bold leading-snug" style="color: var(--color-text-heading);">{item.title}</h3>
+                <ul class="mt-3 space-y-2 text-sm" style="color: var(--color-text-primary);">
                   {item.points.map((point) => (
                     <li class="flex gap-2">
                       <span aria-hidden="true">•</span>
@@ -340,32 +347,32 @@ const pageDescription =
 
         <section class="space-y-8" aria-labelledby="case-heading">
           <div class="flex items-center gap-4">
-            <div class="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-400/30" aria-hidden="true"></div>
+            <div class="w-1.5 h-12 rounded-full shadow-lg" style="background: linear-gradient(to bottom, var(--color-accent), var(--color-accent-hover));" aria-hidden="true"></div>
             <div>
-              <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Case Studies</p>
-              <h2 id="case-heading" class="text-2xl md:text-3xl font-bold text-white mt-1">課題→打ち手→成果のケース</h2>
-              <p class="text-slate-300 mt-2">実務と個人開発の両軸で、思考プロセスを短く可視化。</p>
+              <p class="text-sm uppercase tracking-[0.2em]" style="color: var(--color-accent);">Case Studies</p>
+              <h2 id="case-heading" class="text-2xl md:text-3xl font-bold mt-1" style="color: var(--color-text-heading);">課題→打ち手→成果のケース</h2>
+              <p class="mt-2" style="color: var(--color-text-secondary);">実務と個人開発の両軸で、思考プロセスを短く可視化。</p>
             </div>
           </div>
           <div class="grid gap-6 lg:grid-cols-2">
             {deepCaseStudies.map((item) => (
-              <article id={item.id} class="rounded-3xl border border-slate-700/70 bg-gradient-to-br from-slate-900/80 to-slate-900/60 p-6 shadow-xl">
+              <article id={item.id} class="rounded-3xl p-6 shadow-xl" style="border: 1px solid var(--color-border); background: var(--color-bg-secondary);">
                 <div class="flex items-center justify-between gap-3">
                   <div>
-                    <p class="text-sm text-cyan-200/90 font-semibold">{item.role}</p>
-                    <h3 class="text-xl font-bold text-white mt-1">{item.title}</h3>
+                    <p class="text-sm font-semibold" style="color: var(--color-accent);">{item.role}</p>
+                    <h3 class="text-xl font-bold mt-1" style="color: var(--color-text-heading);">{item.title}</h3>
                   </div>
-                  <span class="px-3 py-1 rounded-full text-xs border border-cyan-400/40 text-cyan-100">プロセス公開</span>
+                  <span class="px-3 py-1 rounded-full text-xs" style="border: 1px solid var(--color-accent); color: var(--color-accent);">プロセス公開</span>
                 </div>
-                <p class="mt-3 text-slate-200 leading-relaxed">{item.summary}</p>
-                <ol class="mt-4 space-y-2 text-sm text-slate-200 list-decimal list-inside">
+                <p class="mt-3 leading-relaxed" style="color: var(--color-text-primary);">{item.summary}</p>
+                <ol class="mt-4 space-y-2 text-sm list-decimal list-inside" style="color: var(--color-text-primary);">
                   {item.steps.map((step) => (
                     <li>{step}</li>
                   ))}
                 </ol>
                 <div class="mt-4 flex flex-wrap gap-2">
                   {item.tags.map((tag) => (
-                    <span class="px-3 py-1 rounded-full bg-slate-800/70 border border-slate-700/70 text-xs text-cyan-100">{tag}</span>
+                    <span class="px-3 py-1 rounded-full text-xs" style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border); color: var(--color-accent);">{tag}</span>
                   ))}
                 </div>
               </article>
@@ -373,10 +380,10 @@ const pageDescription =
           </div>
           <div class="grid gap-4 md:grid-cols-2">
             {personalProjects.map((project) => (
-              <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg">
-                <h3 class="text-lg font-semibold text-white">{project.name}</h3>
-                <p class="mt-2 text-sm text-slate-200">{project.description}</p>
-                <p class="mt-2 text-xs text-cyan-200">{project.focus}</p>
+              <div class="rounded-2xl p-5 shadow-lg" style="border: 1px solid var(--color-border); background: var(--color-bg-secondary);">
+                <h3 class="text-lg font-semibold" style="color: var(--color-text-heading);">{project.name}</h3>
+                <p class="mt-2 text-sm" style="color: var(--color-text-primary);">{project.description}</p>
+                <p class="mt-2 text-xs" style="color: var(--color-accent);">{project.focus}</p>
               </div>
             ))}
           </div>
@@ -385,22 +392,22 @@ const pageDescription =
         <section id="projects" class="space-y-6" aria-labelledby="projects-heading">
           <div class="flex items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-              <div class="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-400/30" aria-hidden="true"></div>
+              <div class="w-1.5 h-12 rounded-full shadow-lg" style="background: linear-gradient(to bottom, var(--color-accent), var(--color-accent-hover));" aria-hidden="true"></div>
               <div>
-                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Projects</p>
-                <h2 id="projects-heading" class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mt-1">
+                <p class="text-sm uppercase tracking-[0.2em]" style="color: var(--color-accent);">Projects</p>
+                <h2 id="projects-heading" class="text-2xl md:text-3xl font-bold mt-1" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                   プロジェクト一覧
                 </h2>
-                <p class="text-slate-300 mt-2">役割・成果・技術スタックを短く整理。</p>
+                <p class="mt-2" style="color: var(--color-text-secondary);">役割・成果・技術スタックを短く整理。</p>
               </div>
             </div>
-            <div class="hidden md:flex items-center gap-2 text-sm text-slate-300 bg-slate-800/70 border border-slate-700/70 rounded-full px-4 py-2">
-              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true"></span>
+            <div class="hidden md:flex items-center gap-2 text-sm rounded-full px-4 py-2" style="color: var(--color-text-secondary); background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
+              <span class="w-2 h-2 rounded-full animate-pulse" style="background: var(--color-accent);" aria-hidden="true"></span>
               {projects.length}件のプロジェクト
             </div>
           </div>
           {projects.length === 0 ? (
-            <div class="rounded-2xl border border-slate-700/70 bg-slate-800/70 p-8 text-center text-slate-300">
+            <div class="rounded-2xl p-8 text-center" style="border: 1px solid var(--color-border); background: var(--color-bg-secondary); color: var(--color-text-secondary);">
               現在表示できるプロジェクトがありません。更新をお待ちください。
             </div>
           ) : (
@@ -416,25 +423,25 @@ const pageDescription =
           <section class="space-y-6" aria-labelledby="skills-heading">
             <div class="flex items-center justify-between gap-4">
               <div class="flex items-center gap-4">
-                <div class="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-400/30" aria-hidden="true" />
+                <div class="w-1.5 h-12 rounded-full shadow-lg" style="background: linear-gradient(to bottom, var(--color-accent), var(--color-accent-hover));" aria-hidden="true" />
                 <div>
-                  <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Skills</p>
-                  <h2 id="skills-heading" class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-blue-100 bg-clip-text text-transparent mt-1">
+                  <p class="text-sm uppercase tracking-[0.2em]" style="color: var(--color-accent);">Skills</p>
+                  <h2 id="skills-heading" class="text-2xl md:text-3xl font-bold mt-1" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                     使って価値を出した技術
                   </h2>
-                  <p class="text-slate-300 mt-2">単なる羅列ではなく、成果を出した場面に紐づけています。</p>
+                  <p class="mt-2" style="color: var(--color-text-secondary);">単なる羅列ではなく、成果を出した場面に紐づけています。</p>
                 </div>
               </div>
-              <span class="text-sm text-slate-400 bg-slate-800/70 border border-slate-700/70 rounded-full px-4 py-2">{skills.length} skills</span>
+              <span class="text-sm rounded-full px-4 py-2" style="color: var(--color-text-muted); background: var(--color-bg-secondary); border: 1px solid var(--color-border);">{skills.length} skills</span>
             </div>
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
               {skillCategories.map((category) => (
-                <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 shadow-lg">
+                <div class="rounded-2xl p-5 shadow-lg" style="border: 1px solid var(--color-border); background: var(--color-bg-secondary);">
                   <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true"></div>
-                    <h3 class="text-lg font-semibold text-white">{category.title}</h3>
+                    <div class="w-2 h-2 rounded-full animate-pulse" style="background: var(--color-accent);" aria-hidden="true"></div>
+                    <h3 class="text-lg font-semibold" style="color: var(--color-text-heading);">{category.title}</h3>
                   </div>
-                  <ul class="mt-3 space-y-2 text-sm text-slate-200 list-disc list-inside">
+                  <ul class="mt-3 space-y-2 text-sm list-disc list-inside" style="color: var(--color-text-primary);">
                     {category.items.map((item) => (
                       <li>{item}</li>
                     ))}
@@ -449,11 +456,11 @@ const pageDescription =
           <section class="space-y-4" aria-labelledby="history-heading">
             <div class="flex items-center justify-between gap-4">
               <div>
-                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Experience</p>
-                <h2 id="history-heading" class="text-2xl md:text-3xl font-bold text-white mt-1">経歴サマリー</h2>
+                <p class="text-sm uppercase tracking-[0.2em]" style="color: var(--color-accent);">Experience</p>
+                <h2 id="history-heading" class="text-2xl md:text-3xl font-bold mt-1" style="color: var(--color-text-heading);">経歴サマリー</h2>
               </div>
             </div>
-            <div class="prose prose-invert max-w-none bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6 prose-headings:text-white prose-p:text-slate-200 prose-strong:text-white prose-a:text-cyan-300">
+            <div class="portfolio-prose prose max-w-none rounded-2xl p-6" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
               <Fragment set:html={profile.work_history} />
             </div>
           </section>
@@ -463,11 +470,11 @@ const pageDescription =
           <section class="space-y-6" aria-labelledby="articles-heading">
             <div class="flex items-center justify-between gap-4">
               <div>
-                <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Writing / Output</p>
-                <h2 id="articles-heading" class="text-2xl md:text-3xl font-bold text-white mt-1">代表記事</h2>
-                <p class="text-slate-300 mt-2">AI / Next.js / AS400 など、得意領域の記事をピックアップ。</p>
+                <p class="text-sm uppercase tracking-[0.2em]" style="color: var(--color-accent);">Writing / Output</p>
+                <h2 id="articles-heading" class="text-2xl md:text-3xl font-bold mt-1" style="color: var(--color-text-heading);">代表記事</h2>
+                <p class="mt-2" style="color: var(--color-text-secondary);">AI / Next.js / AS400 など、得意領域の記事をピックアップ。</p>
               </div>
-              <a href="/blog" class="text-sm text-cyan-300 hover:text-cyan-100 font-semibold">すべての記事を見る →</a>
+              <a href="/blog" class="text-sm font-semibold" style="color: var(--color-accent);">すべての記事を見る →</a>
             </div>
             <div class="grid gap-6 md:grid-cols-3">
               {recentBlogs.map((blog) => (
@@ -491,43 +498,46 @@ const pageDescription =
         <section id="contact" class="space-y-4" aria-labelledby="contact-heading">
           <div class="flex items-center justify-between gap-4">
             <div>
-              <p class="text-sm text-cyan-200/80 uppercase tracking-[0.2em]">Contact</p>
-              <h2 id="contact-heading" class="text-2xl md:text-3xl font-bold text-white mt-1">コンタクト / CTA</h2>
-              <p class="text-slate-300 mt-2">面談・相談はメールかGitHubから。職務要約はプロフィールにも掲載中。</p>
+              <p class="text-sm uppercase tracking-[0.2em]" style="color: var(--color-accent);">Contact</p>
+              <h2 id="contact-heading" class="text-2xl md:text-3xl font-bold mt-1" style="color: var(--color-text-heading);">コンタクト / CTA</h2>
+              <p class="mt-2" style="color: var(--color-text-secondary);">面談・相談はメールかGitHubから。職務要約はプロフィールにも掲載中。</p>
             </div>
           </div>
           <div class="grid gap-4 md:grid-cols-[1.5fr_1fr]">
             {profile.contact_email ? (
-              <div class="relative flex items-center bg-slate-900/70 border border-slate-800/70 rounded-2xl p-5 backdrop-blur-sm">
+              <div class="relative flex items-center rounded-2xl p-5 backdrop-blur-sm" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
                 <a
                   id="contact-email"
                   href={`mailto:${profile.contact_email}`}
-                  class="text-cyan-300 hover:text-cyan-100 hover:underline flex-grow font-medium"
+                  class="hover:underline flex-grow font-medium"
+                  style="color: var(--color-accent);"
                 >
                   {profile.contact_email}
                 </a>
                 <button
                   id="copy-button"
-                  class="ml-3 px-3 py-2 rounded-lg text-slate-200 bg-slate-800/80 border border-slate-700/70 hover:border-cyan-400/70 hover:text-cyan-200 transition-all"
+                  class="ml-3 px-3 py-2 rounded-lg transition-all"
+                  style="color: var(--color-text-primary); background: var(--color-bg-tertiary); border: 1px solid var(--color-border);"
                   aria-label="メールアドレスをコピー"
                 >
                   コピー
                 </button>
-                <span id="copy-feedback" class="ml-3 text-sm text-cyan-200 opacity-0 transition-opacity duration-300">
+                <span id="copy-feedback" class="ml-3 text-sm opacity-0 transition-opacity duration-300" style="color: var(--color-accent);">
                   コピーしました！
                 </span>
               </div>
             ) : (
-              <p class="text-slate-300">現在公開している連絡先はありません。</p>
+              <p style="color: var(--color-text-secondary);">現在公開している連絡先はありません。</p>
             )}
-            <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-5 space-y-3">
-              <p class="text-sm text-slate-200">リンク</p>
+            <div class="rounded-2xl p-5 space-y-3" style="border: 1px solid var(--color-border); background: var(--color-bg-secondary);">
+              <p class="text-sm" style="color: var(--color-text-primary);">リンク</p>
               <div class="flex flex-wrap gap-3">
-                <a href="/profile" class="px-4 py-2 rounded-full bg-slate-800/70 text-cyan-100 border border-slate-700/70 hover:border-cyan-400/50">職務サマリー</a>
+                <a href="/profile" class="px-4 py-2 rounded-full" style="background: var(--color-bg-tertiary); color: var(--color-accent); border: 1px solid var(--color-border);">職務サマリー</a>
                 {profile.githubUrl && (
                   <a
                     href={profile.githubUrl}
-                    class="px-4 py-2 rounded-full bg-slate-800/70 text-cyan-100 border border-slate-700/70 hover:border-cyan-400/50"
+                    class="px-4 py-2 rounded-full"
+                    style="background: var(--color-bg-tertiary); color: var(--color-accent); border: 1px solid var(--color-border);"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -537,7 +547,8 @@ const pageDescription =
                 {profile.xUrl && (
                   <a
                     href={profile.xUrl}
-                    class="px-4 py-2 rounded-full bg-slate-800/70 text-cyan-100 border border-slate-700/70 hover:border-cyan-400/50"
+                    class="px-4 py-2 rounded-full"
+                    style="background: var(--color-bg-tertiary); color: var(--color-accent); border: 1px solid var(--color-border);"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -573,3 +584,28 @@ const pageDescription =
     });
   }
 </script>
+
+<style>
+  .portfolio-prose {
+    color: var(--color-text-primary);
+  }
+  .portfolio-prose :global(h1),
+  .portfolio-prose :global(h2),
+  .portfolio-prose :global(h3),
+  .portfolio-prose :global(h4) {
+    color: var(--color-text-heading);
+  }
+  .portfolio-prose :global(p),
+  .portfolio-prose :global(li) {
+    color: var(--color-text-primary);
+  }
+  .portfolio-prose :global(strong) {
+    color: var(--color-text-heading);
+  }
+  .portfolio-prose :global(a) {
+    color: var(--color-accent);
+  }
+  .portfolio-prose :global(a:hover) {
+    color: var(--color-accent-hover);
+  }
+</style>

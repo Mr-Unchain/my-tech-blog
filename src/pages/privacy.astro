@@ -9,27 +9,27 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   keywords="プライバシーポリシー, 個人情報保護, データ取り扱い"
   noIndex={true}
 >
-  <main class="min-h-screen bg-slate-900">
+  <main class="min-h-screen" style="background: var(--color-bg-primary)">
     <div class="container mx-auto px-4 py-12 md:py-16">
-      <div class="max-w-4xl mx-auto bg-gradient-to-b from-slate-800/90 to-slate-800/95 p-8 md:p-12 rounded-xl border border-slate-700/50 shadow-xl backdrop-blur-sm relative overflow-hidden">
+      <div class="max-w-4xl mx-auto p-8 md:p-12 rounded-xl shadow-xl backdrop-blur-sm relative overflow-hidden" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border)">
         <!-- Background tech pattern -->
         <div class="absolute inset-0 bg-tech-grid bg-tech-grid opacity-5 pointer-events-none"></div>
         
         <!-- Content wrapper with z-index -->
         <div class="relative z-10">
-      <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-cyan-100 bg-clip-text text-transparent mb-8 pb-4 border-b border-cyan-400/60 relative">
+      <h1 class="text-3xl md:text-4xl font-bold mb-8 pb-4 relative" style="color: var(--color-text-heading); border-bottom: 1px solid var(--color-accent)">
         プライバシーポリシー
-        <div class="absolute -bottom-0.5 left-0 w-24 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div>
+        <div class="absolute -bottom-0.5 left-0 w-24 h-0.5 rounded-full" style="background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover))"></div>
       </h1>
 
-      <div class="prose prose-lg max-w-none text-slate-200 prose-headings:text-slate-100 prose-strong:text-slate-100 prose-a:text-cyan-400 prose-a:hover:text-cyan-300 prose-ol:text-slate-200 prose-li:text-slate-200">
+      <div class="prose prose-lg max-w-none" style="color: var(--color-text-primary)">
         <p>
           Monologger（以下、「当サイト」といいます。）は、当サイトの提供するサービス（以下、「本サービス」といい、ます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。
         </p>
 
-        <h2 class="text-2xl font-bold mt-8 mb-4 pb-2 border-b border-cyan-400/40 relative" style="color: #67e8f9 !important;">
+        <h2 class="text-2xl font-bold mt-8 mb-4 pb-2 relative" style="color: var(--color-accent); border-bottom: 1px solid var(--color-border)">
           第1条（個人情報）
-          <div class="absolute -bottom-0.5 left-0 w-16 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div>
+          <div class="absolute -bottom-0.5 left-0 w-16 h-0.5 rounded-full" style="background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover))"></div>
         </h2>
         <p>
           「個人情報」とは、個人情報保護法にいう「個人情報」を指すものとし、生存する個人に関する情報であって、当該情報に含まれる氏名、生年月日、住所、電話番号、連絡先その他の記述等により特定の個人を識別できる情報及び容貌、指紋、声紋にかかるデータ、及び健康保険証の保険者番号などの当該情報単体から特定の個人を識別できる情報（個人識別情報）を指します。
@@ -73,7 +73,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           本ポリシーに関するお問い合わせは、お問い合わせフォームよりお願いいたします。
         </p>
         
-        <p class="text-right mt-8 text-sm text-slate-400 font-medium">
+        <p class="text-right mt-8 text-sm font-medium" style="color: var(--color-text-muted)">
           最終更新日: {new Date().toLocaleDateString("ja-JP")}
         </p>
         </div>

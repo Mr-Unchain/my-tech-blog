@@ -48,7 +48,7 @@ const nextArticle = currentIndex < sortedArticles.length - 1 ? sortedArticles[cu
               </svg>
               <span>前の記事</span>
             </span>
-            <span class="nav-title group-hover:text-cyan-400">{prevArticle.title}</span>
+            <span class="nav-title">{prevArticle.title}</span>
           </a>
         ) : (
           <div class="nav-placeholder" />
@@ -65,7 +65,7 @@ const nextArticle = currentIndex < sortedArticles.length - 1 ? sortedArticles[cu
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </span>
-            <span class="nav-title group-hover:text-cyan-400">{nextArticle.title}</span>
+            <span class="nav-title">{nextArticle.title}</span>
           </a>
         ) : (
           <div class="nav-placeholder" />
@@ -77,7 +77,8 @@ const nextArticle = currentIndex < sortedArticles.length - 1 ? sortedArticles[cu
 
 <style>
   .article-navigation {
-    @apply mt-10 pt-8 border-t border-slate-700/50;
+    @apply mt-10 pt-8;
+    border-top: 1px solid var(--color-border);
   }
 
   .nav-grid {
@@ -98,15 +99,21 @@ const nextArticle = currentIndex < sortedArticles.length - 1 ? sortedArticles[cu
 
   .nav-link {
     @apply flex flex-col gap-2 p-4 rounded-xl;
-    @apply bg-slate-800/50 hover:bg-slate-700/50;
-    @apply border border-slate-700/50 hover:border-cyan-500/30;
     @apply transition-all duration-200;
     @apply max-w-full md:max-w-[90%];
     text-decoration: none;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+  }
+
+  .nav-link:hover {
+    background: var(--color-bg-tertiary);
+    border-color: var(--color-accent);
   }
 
   .nav-direction {
-    @apply flex items-center gap-1 text-xs text-slate-400 font-medium;
+    @apply flex items-center gap-1 text-xs font-medium;
+    color: var(--color-text-muted);
   }
 
   .nav-next .nav-direction {
@@ -118,9 +125,14 @@ const nextArticle = currentIndex < sortedArticles.length - 1 ? sortedArticles[cu
   }
 
   .nav-title {
-    @apply text-sm font-medium text-slate-200 leading-snug;
+    @apply text-sm font-medium leading-snug;
     @apply transition-colors duration-200;
     @apply line-clamp-2;
+    color: var(--color-text-primary);
+  }
+
+  .nav-link:hover .nav-title {
+    color: var(--color-accent);
   }
 
   .nav-placeholder {

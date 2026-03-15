@@ -14,32 +14,32 @@ const { items, class: className = "" } = Astro.props;
 ---
 
 <nav aria-label="パンくず" class={`breadcrumb ${className}`}>
-  <ol class="flex items-center space-x-2 text-sm text-slate-400" itemscope itemtype="https://schema.org/BreadcrumbList">
+  <ol class="breadcrumb__list flex items-center space-x-2 text-sm" itemscope itemtype="https://schema.org/BreadcrumbList">
     {items.map((item, index) => (
-      <li 
+      <li
         class="flex items-center"
-        itemprop="itemListElement" 
-        itemscope 
+        itemprop="itemListElement"
+        itemscope
         itemtype="https://schema.org/ListItem"
       >
         {item.href ? (
-          <a 
+          <a
             href={item.href}
-            class="text-slate-400 hover:text-cyan-400 transition-colors duration-200"
+            class="breadcrumb__link transition-colors duration-200"
             itemprop="item"
           >
             <span itemprop="name">{item.name}</span>
           </a>
         ) : (
-          <span class="text-slate-300 font-medium" itemprop="name">{item.name}</span>
+          <span class="breadcrumb__current font-medium" itemprop="name">{item.name}</span>
         )}
         <meta itemprop="position" content={String(index + 1)} />
-        
+
         {index < items.length - 1 && (
-          <svg 
-            class="w-4 h-4 mx-2 text-slate-600" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            class="breadcrumb__separator w-4 h-4 mx-2"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
@@ -55,12 +55,32 @@ const { items, class: className = "" } = Astro.props;
   .breadcrumb {
     margin-bottom: 1rem;
   }
-  
+
+  .breadcrumb__list {
+    color: var(--color-text-muted);
+  }
+
+  .breadcrumb__link {
+    color: var(--color-text-muted);
+  }
+
+  .breadcrumb__link:hover {
+    color: var(--color-accent);
+  }
+
+  .breadcrumb__current {
+    color: var(--color-text-secondary);
+  }
+
+  .breadcrumb__separator {
+    color: var(--color-border);
+  }
+
   @media (max-width: 768px) {
     .breadcrumb ol {
       font-size: 0.875rem;
     }
-    
+
     .breadcrumb svg {
       width: 0.875rem;
       height: 0.875rem;

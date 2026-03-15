@@ -1,0 +1,37 @@
+---
+// src/pages/bookmarks.astro
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
+import BookmarkListClient from "../components/BookmarkListClient";
+
+const breadcrumbItems = [
+  { name: "ホーム", href: "/" },
+  { name: "ブックマーク" },
+];
+---
+
+<BaseLayout
+  pageTitle="ブックマーク | Monologger"
+  pageDescription="ブックマーク済みの記事一覧"
+  noIndex={true}
+>
+  <main style="background: var(--color-bg-primary); min-height: 60vh;">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+      <Breadcrumb items={breadcrumbItems} />
+
+      <div class="mb-8">
+        <h1
+          class="text-2xl font-bold mb-2"
+          style="color: var(--color-text-heading);"
+        >
+          ブックマーク
+        </h1>
+        <p class="text-sm" style="color: var(--color-text-muted);">
+          お気に入りの記事をまとめて確認できます。
+        </p>
+      </div>
+
+      <BookmarkListClient client:load />
+    </div>
+  </main>
+</BaseLayout>

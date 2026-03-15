@@ -42,8 +42,22 @@ export const POST: APIRoute = async ({ request }) => {
     // Webhook署名の検証（セキュリティ）
     const signature = request.headers.get('x-microcms-signature');
     const webhookSecret = import.meta.env.MICROCMS_WEBHOOK_SECRET;
-    
-    if (webhookSecret && signature) {
+
+    if (import.meta.env.PROD && !webhookSecret) {
+      console.error('❌ MICROCMS_WEBHOOK_SECRET が本番環境で未設定です');
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (webhookSecret) {
+      if (!signature) {
+        return new Response(JSON.stringify({ error: 'Missing signature' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
       try {
         const crypto = await import('crypto');
         const expectedSignature = crypto.createHmac('sha256', webhookSecret)
@@ -57,7 +71,10 @@ export const POST: APIRoute = async ({ request }) => {
         }
       } catch (cryptoError) {
         console.error('❌ 署名検証エラー:', cryptoError);
-        // 署名検証に失敗した場合でも処理を続行（開発環境向け）
+        return new Response(JSON.stringify({ error: 'Signature verification failed' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
     }
     
