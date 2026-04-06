@@ -119,7 +119,7 @@ const canonicalHome = (() => {
 ---
 
 <BaseLayout
-  pageTitle="気づきメモ - 最新の記事"
+  pageTitle="Monologger"
   pageDescription="ITに触れて生まれた日々の気づきや備忘録をゆるくまとめています。ガジェットや開発の小ネタ、作業をラクにするヒントなど。"
   keywords="テクノロジー, ガジェット, 開発, プログラミング, コーディング, AI, Web開発, JavaScript, React, Astro, 備忘録, 気づき"
   canonicalUrl={canonicalHome}
@@ -176,13 +176,13 @@ const canonicalHome = (() => {
     <!-- ヘッダーエリア: 検索 + タイトル -->
     <section class="border-b transition-colors duration-200" style="border-color: var(--color-border);">
       <div class="container mx-auto px-4 md:px-6 pt-8 pb-6 max-w-7xl">
-        <h1 class="text-2xl md:text-3xl font-bold mb-4" style="color: var(--color-text-heading);">
-          気づきメモ
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 hero-typing" style="color: var(--color-text-heading);" data-testid="hero-title">
+          Monologger
         </h1>
-        <p class="text-sm md:text-base mb-5" style="color: var(--color-text-secondary);">
-          ITに触れて生まれた日々の気づきや備忘録をゆるくまとめています。
+        <p class="text-sm md:text-base mb-5 hero-fade-in" style="color: var(--color-text-secondary);" data-testid="hero-subtitle">
+          Build. Learn. Share.
         </p>
-        <form id="fv-search" method="get" action="/search" class="flex w-full max-w-xl rounded-lg overflow-hidden border transition-colors duration-200" style="border-color: var(--color-border);">
+        <form id="fv-search" method="get" action="/search" class="flex w-full max-w-xl rounded-lg overflow-hidden border transition-colors duration-200 hero-fade-in hero-fade-in--delay" style="border-color: var(--color-border);">
           <input
             name="q"
             id="fv-q"
@@ -369,4 +369,35 @@ const canonicalHome = (() => {
   document.addEventListener('DOMContentLoaded', initializeViewToggle);
 
   initializeSearchHistory();
+
+  // Hero typing animation: remove caret after typing completes
+  function initHeroAnimation() {
+    const heroTitle = document.querySelector('.hero-typing') as HTMLElement | null;
+    if (!heroTitle) return;
+
+    // Reset animation for Swup page transitions
+    heroTitle.style.animation = 'none';
+    heroTitle.classList.remove('typing-done');
+    heroTitle.offsetHeight; // trigger reflow
+    heroTitle.style.animation = '';
+
+    // Remove caret after typing animation ends
+    heroTitle.addEventListener('animationend', (e) => {
+      if (e.animationName === 'hero-typing') {
+        heroTitle.classList.add('typing-done');
+      }
+    }, { once: true });
+
+    // Reset fade-in elements for Swup transitions
+    document.querySelectorAll('.hero-fade-in').forEach((el) => {
+      const htmlEl = el as HTMLElement;
+      htmlEl.style.animation = 'none';
+      htmlEl.offsetHeight;
+      htmlEl.style.animation = '';
+    });
+  }
+
+  initHeroAnimation();
+  document.addEventListener('astro:page-load', initHeroAnimation);
+  document.addEventListener('swup:contentReplaced', initHeroAnimation);
 </script>
