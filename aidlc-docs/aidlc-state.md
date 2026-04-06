@@ -4,11 +4,11 @@
 - **Project**: my-tech-blog
 - **Type**: Brownfield (existing codebase)
 - **Created**: 2026-03-13
-- **Current Workflow**: ホームページブランディング改善 (2026-03-15~, resumed 2026-04-06)
+- **Current Workflow**: ホームページブランディング改善 (2026-03-15~2026-04-07, completed)
 
 ## Current Phase
-- **Phase**: INCEPTION
-- **Stage**: Code Generation (Complete → Build and Test)
+- **Phase**: CONSTRUCTION
+- **Stage**: Build and Test (Complete, verified 2026-04-07 JST)
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -44,12 +44,12 @@
 
 ### CONSTRUCTION PHASE
 
-- [ ] Functional Design
-- [ ] NFR Requirements
-- [ ] NFR Design
-- [ ] Infrastructure Design
-- [ ] Code Generation
-- [ ] Build and Test
+- [ ] Functional Design (SKIP - 単一ユニットの軽微 UI 変更)
+- [ ] NFR Requirements (SKIP - 既存 NFR を流用)
+- [ ] NFR Design (SKIP - 既存テーマ基盤を流用)
+- [ ] Infrastructure Design (SKIP - インフラ変更なし)
+- [x] Code Generation
+- [x] Build and Test
 
 ### OPERATIONS PHASE
 

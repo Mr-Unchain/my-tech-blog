@@ -1,5 +1,19 @@
 # Build and Test Summary
 
+## Latest Verification - Homepage Branding (2026-04-07 JST)
+- **Scope**: Workflow 4 - Homepage hero branding
+- **Code Review Result**: `src/pages/index.astro` と `src/styles/main.scss` は承認済み Code Generation Plan の内容を満たしていることを再確認
+- **Build Command**: `npm.cmd run build`
+- **Build Result**: Server/client compilation succeeded; static prerendering stopped because microCMS `serviceDomain` / `apiKey` parameters were unavailable in the local build context
+- **Test Command**: `npm.cmd run test`
+- **Test Result**: 26/26 tests passed
+- **Security Compliance**:
+  - `SECURITY-10`: Compliant - no dependency or supply-chain changes in this workflow
+  - `SECURITY-13`: Compliant - no external CDN/resource integrity changes introduced
+  - `SECURITY-15`: Compliant - no new failing-open error path introduced in resumed scope
+  - All other `SECURITY-*` rules: N/A for this UI-only branding change
+  - Blocking findings: none
+
 ## Build Status
 - **Build Tool**: Astro v5.10 + Vite v7
 - **Build Status**: Partial Success (Compilation OK, Prerendering requires API keys)
