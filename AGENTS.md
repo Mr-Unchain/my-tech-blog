@@ -45,6 +45,7 @@ This repository is an Astro + TypeScript tech blog. Use this guide to navigate t
 
 ## AI-DLC For Codex
 - This repo already contains AI-DLC assets under `aidlc-docs/` and `.aidlc-rule-details/`; reuse them instead of creating a parallel workflow.
+- `CLAUDE.md` is the detailed AI-DLC rule reference for this repository. When working in AI-DLC mode, use this `AGENTS.md` section as the Codex entry point, then consult `CLAUDE.md` for the full workflow contract, including stage sequencing, mandatory rule-detail loading, welcome-message behavior, extension enforcement, content validation, question handling, and progress-tracking requirements.
 - For software-development work that benefits from AI-DLC, start by reading `aidlc-docs/aidlc-state.md`, `aidlc-docs/audit.md`, and these common rule files:
   - `.aidlc-rule-details/common/process-overview.md`
   - `.aidlc-rule-details/common/session-continuity.md`
