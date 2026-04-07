@@ -534,3 +534,11 @@
 **Context**: CONSTRUCTION - Workflow Completion
 
 ---
+
+## [Workflow 5] Codex Skills Migration
+**Timestamp**: 2026-04-07T13:45:00Z
+**User Input**: 「あなた用のskill, agentを、すでに構築されているclaude用のものから作成してください。必要であればAI-dlcを用いてください。」
+**AI Response**: 既存の Claude 向け資産（`CLAUDE.md`, `.claude/skills/*`）を確認し、Codex 向けに `.codex/skills/` へ 5 つの task skill を追加。`new-component`, `add-test`, `review-component`, `new-page`, `new-api-endpoint` を repo 実装に合わせて再構成し、`review-component` では Claude の `agent: Explore` を Codex の `explorer` サブエージェント運用として明文化。あわせて `.codex/skills/SKILLS.md` に repo-local task skills 一覧を追記。
+**Context**: INCEPTION/CONSTRUCTION Lite - Codex workspace enablement
+
+---

@@ -37,3 +37,11 @@ description: Maintain Monologger (Astro) data and analytics flows: microCMS blog
 - With Firebase configured: reaction toggle adds/removes docs, bookmark toggle updates counts, views increment on article load; Firestore `blog_stats` reflects changes.
 - Without Firebase vars: reactions/bookmarks function via localStorage (no errors), article pages render content/TOC without hydration warnings.
 - microCMS changes: check `getBlogs` pagination and `createBlog` payload (categories array, status flag), and verify new fields render on `/blog/[id]` and listings.
+
+## Repo-local task skills
+- `aidlc-workflow`: Reuse this repo's AI-DLC state and audit trail when the task warrants staged workflow handling.
+- `new-component`: Create Astro/React components under `src/components/` using the existing island split and theme conventions.
+- `add-test`: Add Vitest-first tests under `tests/`, mirroring source structure and mocking Firebase/microCMS boundaries.
+- `review-component`: Review pages/components with findings-first output; use a Codex `explorer` sub-agent when a read-only pass helps.
+- `new-page`: Create Astro pages under `src/pages/` with `BaseLayout.astro`, SEO props, and minimal hydration.
+- `new-api-endpoint`: Add Astro API endpoints under `src/pages/api/` with input validation, Firestore patterns, and matching tests.
