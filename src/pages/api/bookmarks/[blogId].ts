@@ -15,6 +15,8 @@ import {
 } from 'firebase/firestore';
 import { COLLECTIONS, type Bookmark, type BlogStats } from '../../../lib/firebase-collections';
 
+type BookmarkMetadata = Bookmark['metadata'];
+
 // ブックマーク追加/削除 API
 export const POST: APIRoute = async ({ request, params }) => {
   const { blogId } = params;
@@ -154,7 +156,7 @@ export const GET: APIRoute = async ({ params, url }) => {
 
 // ヘルパー関数群
 // NOTE: 以下の関数は POST ハンドラ内の null チェック後にのみ呼ばれる
-async function addBookmark(blogId: string, userId: string, metadata?: any) {
+async function addBookmark(blogId: string, userId: string, metadata?: BookmarkMetadata) {
   const bookmarksRef = collection(db!, COLLECTIONS.BOOKMARKS);
 
   // 重複チェック
@@ -225,7 +227,7 @@ async function removeBookmark(blogId: string, userId: string) {
   };
 }
 
-async function toggleBookmark(blogId: string, userId: string, metadata?: any) {
+async function toggleBookmark(blogId: string, userId: string, metadata?: BookmarkMetadata) {
   const bookmarksRef = collection(db!, COLLECTIONS.BOOKMARKS);
   const q = query(
     bookmarksRef,

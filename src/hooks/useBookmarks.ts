@@ -1,5 +1,6 @@
 // src/hooks/useBookmarks.ts
 import { useState, useEffect, useCallback } from 'react';
+import { db } from '../lib/firebase';
 import { generateSessionId } from '../lib/utils';
 
 interface BookmarkStatus {
@@ -20,6 +21,12 @@ export function useBookmarks(blogId?: string) {
 
   // 特定記事のブックマーク状態を取得
   const fetchStatus = useCallback(async (targetBlogId: string): Promise<BookmarkStatus> => {
+    if (!db) {
+      const stored = localStorage.getItem('bookmarks_' + userId);
+      const ids: string[] = stored ? JSON.parse(stored) : [];
+      return { isBookmarked: ids.includes(targetBlogId), bookmarkCount: 0 };
+    }
+
     try {
       const res = await fetch(`/api/bookmarks/${targetBlogId}?userId=${encodeURIComponent(userId)}`);
       if (!res.ok) throw new Error('API error');
@@ -97,6 +104,10 @@ export function useBookmarks(blogId?: string) {
     window.dispatchEvent(new CustomEvent('bookmark-changed', {
       detail: { blogId: targetBlogId, isBookmarked: !isCurrentlyBookmarked, bookmarkCount: bookmarkCount + (isCurrentlyBookmarked ? -1 : 1) },
     }));
+
+    if (!db) {
+      return;
+    }
 
     setLoading(true);
     try {

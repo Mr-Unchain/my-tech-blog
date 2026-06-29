@@ -2,6 +2,7 @@
 // src/pages/blog/[id].astro
 import { Image } from "astro:assets";
 import * as cheerio from "cheerio";
+import type { Element } from "domhandler";
 import { doc, increment, setDoc } from "firebase/firestore";
 import ArticleCard from "../../components/ArticleCard.astro";
 import ArticleNavigation from "../../components/ArticleNavigation.astro";
@@ -18,7 +19,7 @@ import StickyReactionBar from "../../components/StickyReactionBar";
 import TableOfContents from "../../components/TableOfContents";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { db } from "../../lib/firebase";
-import { getBlogDetail, getBlogs } from "../../lib/microcms";
+import { getBlogDetail, getBlogs, type Blog } from "../../lib/microcms";
 import { getRelatedPosts } from "../../utils/recommend";
 import { getCategoryBadgeClasses, getCategoryIconClass } from "../../utils/categoryColors";
 
@@ -48,10 +49,11 @@ if (post.content) {
   headings = $("h2, h3")
     .toArray()
     .map((node) => {
-      const $el = $(node as any);
+      const element = node as Element;
+      const $el = $(element);
       const text = $el.text();
       const id = $el.attr('id') ?? '';
-      const tagName = (node as any).name || (node as any).tagName || 'h2';
+      const tagName = element.name || element.tagName || 'h2';
       return { text, id, tagName };
     });
 }
@@ -62,7 +64,7 @@ const categoryNames = categories.filter(Boolean);
 
 // 関連記事取得
 const allBlogs = await getBlogs({ limit: 100, orders: "-publishedAt" });
-const relatedPosts = getRelatedPosts(post as any, allBlogs.contents as any[]);
+const relatedPosts = getRelatedPosts(post, allBlogs.contents);
 const seoKeywords = [...categoryNames, "テクノロジー", "プログラミング", "コーディング", "AI", "開発"].join(", ");
 
 // パンくずナビゲーション
@@ -372,7 +374,7 @@ const breadcrumbItems = [
         <section class="mt-12">
           <h2 class="text-xl font-bold mb-6" style="color: var(--color-text-heading);">関連記事</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {relatedPosts.map((p: any) => (
+            {relatedPosts.map((p: Blog) => (
               <ArticleCard
                 id={p.id}
                 title={p.title}

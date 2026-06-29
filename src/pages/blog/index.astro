@@ -5,6 +5,7 @@ import Breadcrumb from "../../components/Breadcrumb.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getBlogs, type Blog } from "../../lib/microcms";
+import type { MicroCMSQueries } from "microcms-js-sdk";
 
 // ページネーション設定
 const PAGE_SIZE = 12;
@@ -27,7 +28,7 @@ const sortOptions = [
 ];
 
 // 記事取得のクエリを構築
-let queries: any = {
+const queries: MicroCMSQueries = {
   orders: sortParam,
   limit: PAGE_SIZE,
   offset: offset,

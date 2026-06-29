@@ -132,7 +132,7 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
   </main>
 </BaseLayout>
 
-<script define:vars={{ formspreeEndpoint }}>
+<script>
   const form = document.querySelector("form");
   const submitButton = document.getElementById("submit-button");
   const buttonText = document.getElementById("button-text");
@@ -170,7 +170,7 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
         formFeedback.textContent = `エラー: ${errorMessage}`;
         formFeedback.className = "mt-8 text-center text-base text-red-400 font-medium";
       }
-    } catch (error) {
+    } catch {
       // ネットワークエラーなど
       formFeedback.textContent = "エラー: ネットワーク接続に問題がある可能性があります。";
       formFeedback.className = "mt-8 text-center text-base text-red-400 font-medium";

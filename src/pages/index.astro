@@ -378,7 +378,7 @@ const canonicalHome = (() => {
     // Reset animation for Swup page transitions
     heroTitle.style.animation = 'none';
     heroTitle.classList.remove('typing-done');
-    heroTitle.offsetHeight; // trigger reflow
+    void heroTitle.offsetHeight; // trigger reflow
     heroTitle.style.animation = '';
 
     // Remove caret after typing animation ends
@@ -392,7 +392,7 @@ const canonicalHome = (() => {
     document.querySelectorAll('.hero-fade-in').forEach((el) => {
       const htmlEl = el as HTMLElement;
       htmlEl.style.animation = 'none';
-      htmlEl.offsetHeight;
+      void htmlEl.offsetHeight;
       htmlEl.style.animation = '';
     });
   }

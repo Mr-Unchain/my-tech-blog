@@ -29,14 +29,12 @@ export interface Props {
 
 const {
   id,
-  category,
   title,
   description,
   date,
   imageUrl,
   imageUrlList,
   class: className,
-  showBookmark = false,
   showReactions = false, // 記事一覧ではデフォルト非表示
   showReadingTime = true,
   showDescription = false,
@@ -51,7 +49,6 @@ const {
 import { calculateReadingTimeSimple } from '../utils/readingTime';
 
 const readingTime = calculateReadingTimeSimple(content);
-const categoryArray = Array.isArray(category) ? category : [category];
 const titleId = `article-${id}-title`;
 const dateIso = (() => {
   const d = new Date(date);

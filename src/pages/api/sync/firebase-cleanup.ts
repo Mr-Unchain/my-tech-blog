@@ -45,7 +45,7 @@ export const POST: APIRoute = async ({ request }) => {
     const { contents: microCMSArticles } = await getBlogs({
       limit: 100 // 最大100件
     });
-    const microCMSArticleIds = microCMSArticles.map((article: any) => article.id);
+    const microCMSArticleIds = microCMSArticles.map((article) => article.id);
     
     console.log('📄 microCMS 記事:', {
       total: microCMSArticleIds.length,

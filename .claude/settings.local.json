@@ -40,7 +40,8 @@
       "mcp__github__list_pull_requests",
       "mcp__github__get_pull_request_comments",
       "Bash(npx vite:*)",
-      "Bash(npx astro:*)"
+      "Bash(npx astro:*)",
+      "Bash(vercel env:*)"
     ]
   },
   "outputStyle": "Explanatory"
