@@ -1,133 +1,94 @@
-# Unit of Work Dependencies
+# Unit of Work Dependency: 執筆環境 / CMS 戦略
 
 ## Dependency Matrix
 
-```mermaid
-graph TD
-    U1["Unit 1<br/>テーマ基盤"]
-    U2["Unit 2<br/>レイアウト・ナビ"]
-    U3["Unit 3<br/>カード・ホーム"]
-    U4["Unit 4<br/>記事詳細"]
-    U5["Unit 5<br/>ブックマーク"]
-    U6["Unit 6<br/>Tech Debt"]
+| Unit | Depends On | Dependency Type | Reason |
+|---|---|---|---|
+| Unit 1: Markdown / MDX Article Foundation | none | Foundation | Article type, schema, repository are prerequisites for all runtime work. |
+| Unit 2: Public Article Query and Surface Integration | Unit 1 | Hard | Public pages need the Article model and repository boundary. |
+| Unit 3: Preview and PR Publishing Workflow | Unit 1, Unit 2 | Medium | Preview depends on article source and page integration; documentation can begin earlier but final validation needs Unit 2. |
+| Unit 4: microCMS Blog Migration Support | Unit 1 | Hard | Migration target schema and stable ID rules must exist first. |
+| Unit 5: Security, Validation, Tests, and Documentation | Unit 1, Unit 2, Unit 3, Unit 4 | Hard | Cross-cutting verification depends on implemented behavior and docs. |
 
-    U1 --> U2
-    U2 --> U3
-    U2 --> U4
-    U2 --> U5
+## Recommended Implementation Order
 
-    style U1 fill:#E3F2FD,stroke:#1565C0,stroke-width:3px
-    style U2 fill:#E8F5E9,stroke:#2E7D32,stroke-width:3px
-    style U3 fill:#FFF3E0,stroke:#E65100,stroke-width:3px
-    style U4 fill:#F3E5F5,stroke:#6A1B9A,stroke-width:3px
-    style U5 fill:#FCE4EC,stroke:#C62828,stroke-width:3px
-    style U6 fill:#ECEFF1,stroke:#37474F,stroke-width:3px
-```
+1. Unit 1: Markdown / MDX Article Foundation
+2. Unit 2: Public Article Query and Surface Integration
+3. Unit 4: microCMS Blog Migration Support
+4. Unit 3: Preview and PR Publishing Workflow
+5. Unit 5: Security, Validation, Tests, and Documentation
 
-### Text Alternative
-```
-Unit 1 (テーマ基盤) → Unit 2 (レイアウト・ナビ) → Unit 3 (カード・ホーム)
-                                                  → Unit 4 (記事詳細)
-                                                  → Unit 5 (ブックマーク)
-Unit 6 (Tech Debt) → (独立、Unit 1 と並行実行)
-```
+Unit 3 can start in parallel after Unit 1 if only authoring documentation is being drafted. Final preview and PR checklist should wait until Unit 2 behavior is known.
 
----
+## Parallelization Notes
 
-## Dependency Details
+| Work | Parallelizable | Notes |
+|---|---|---|
+| Unit 1 schema and repository | No | Foundation work must be coherent before dependent units. |
+| Unit 2 page integration | Partial | Individual pages can be migrated one by one after Public Article Service exists. |
+| Unit 3 docs | Yes | Authoring docs can draft early, but preview details depend on Unit 2. |
+| Unit 4 migration mapping | Partial | Field mapping can be drafted after Unit 1 schema; script/procedure validation needs Unit 1. |
+| Unit 5 tests | Partial | Tests can be added per unit, final coverage requires all units. |
 
-### Unit 1 → Unit 2
-| Dependency | Type | Description |
-|-----------|------|-------------|
-| theme.ts | Import | Unit 2 の Header が ThemeToggle を配置。ThemeToggle は theme.ts に依存 |
-| ThemeScript | Inline | Unit 2 の BaseLayout 調整が ThemeScript の存在を前提とする |
-| Tailwind darkMode | Config | Unit 2 の全スタイルが `dark:` バリアント使用 |
-| CSS Variables | Style | Unit 2 のカラー定義が CSS 変数に依存 |
+## Critical Paths
 
-### Unit 2 → Unit 3
-| Dependency | Type | Description |
-|-----------|------|-------------|
-| BaseLayout | Composition | index.astro が BaseLayout を使用 |
-| Header | Composition | ナビゲーション構造が確定している必要がある |
-| TabNavigation | Composition | index.astro が TabNavigation を組み込む |
-| Theme styles | Style | ArticleCard がテーマ対応スタイルを使用 |
+### Runtime Public Surface Path
 
-### Unit 2 → Unit 4
-| Dependency | Type | Description |
-|-----------|------|-------------|
-| BaseLayout | Composition | blog/[id].astro が BaseLayout を使用 |
-| Theme styles | Style | 全コンポーネントがテーマ対応スタイルを使用 |
+Unit 1 -> Unit 2 -> Unit 5
 
-### Unit 2 → Unit 5
-| Dependency | Type | Description |
-|-----------|------|-------------|
-| BaseLayout | Composition | bookmarks.astro が BaseLayout を使用 |
-| Header | Navigation | ブックマークページへのナビリンク |
-| Theme styles | Style | BookmarkButton がテーマ対応スタイルを使用 |
+This path controls whether the site can render published Markdown / MDX articles safely.
 
-### Unit 6 (Independent)
-| Dependency | Type | Description |
-|-----------|------|-------------|
-| (none) | - | 他ユニットとの依存関係なし。Unit 1 と並行実行可能 |
+### Migration Path
 
----
+Unit 1 -> Unit 4 -> Unit 5
 
-## Cross-Unit Dependencies (Weak)
+This path controls whether existing microCMS blog data can be moved without losing IDs, dates, categories, and eyecatch references.
 
-以下はユニット間の弱い結合で、実装順序には影響しないが認識が必要。
+### Publishing Workflow Path
 
-| Source Unit | Target Unit | Component | Type | Description |
-|-------------|-------------|-----------|------|-------------|
-| Unit 4 | Unit 5 | StickyReactionBar → BookmarkButton | Composition | Unit 4 で BookmarkButton 統合。Unit 5 未完了時はプレースホルダー使用 |
-| Unit 3 | Unit 5 | ArticleCard → bookmarkCount | Props | カードにブックマーク数表示。Unit 5 未完了時は 0 表示 |
+Unit 1 -> Unit 2 -> Unit 3 -> Unit 5
 
-### Cross-Unit Integration Strategy
-- **Unit 4 ↔ Unit 5**: StickyReactionBar に BookmarkButton のスロット/プレースホルダーを先に用意。Unit 5 完了後に実コンポーネントを統合
-- **Unit 3 ↔ Unit 5**: ArticleCard の bookmarkCount prop はオプショナル（`bookmarkCount?: number`）。Unit 5 未完了時は表示しない
+This path controls whether authors can preview and publish through PR review.
 
----
+## Component-to-Unit Mapping
 
-## Execution Phases
+| Component | Unit |
+|---|---|
+| C1 Article Domain Model | Unit 1 |
+| C2 Article Frontmatter Schema | Unit 1 |
+| C3 Markdown Article Repository | Unit 1 |
+| C4 Public Article Query Service | Unit 2 |
+| C5 Preview Article Query Service | Unit 3 |
+| C6 Legacy microCMS Content Repository | Unit 4 |
+| C7 Public Surface Integration | Unit 2 |
+| C8 microCMS Blog Migration Support | Unit 4 |
+| C9 Publishing Workflow Documentation | Unit 3, Unit 5 |
+| C10 Security and Validation Boundary | Unit 1, Unit 2, Unit 4, Unit 5 |
 
-### Phase 1: 基盤構築（並行）
-```
-+-------------------+    +-------------------+
-| Unit 1            |    | Unit 6            |
-| テーマ基盤        |    | Tech Debt         |
-| (theme.ts,        |    | (Firebase null,   |
-|  ThemeToggle,     |    |  Webhook sig,     |
-|  ThemeScript,     |    |  Script extract)  |
-|  CSS vars)        |    |                   |
-+-------------------+    +-------------------+
-```
+## Service-to-Unit Mapping
 
-### Phase 2: レイアウト
-```
-+-------------------+
-| Unit 2            |
-| レイアウト・ナビ  |
-| (Header, Footer,  |
-|  TabNav, Layout)  |
-+-------------------+
-```
+| Service | Unit |
+|---|---|
+| S1 Article Source Service | Unit 1 |
+| S2 Public Article Service | Unit 2 |
+| S3 Preview Service | Unit 3 |
+| S4 Legacy CMS Service | Unit 4 |
+| S5 Migration Service | Unit 4 |
+| S6 Publishing Workflow Service | Unit 3, Unit 5 |
 
-### Phase 3: 機能実装（並行）
-```
-+-------------------+    +-------------------+    +-------------------+
-| Unit 3            |    | Unit 4            |    | Unit 5            |
-| カード・ホーム    |    | 記事詳細          |    | ブックマーク      |
-| (ArticleCard,     |    | (Typography,      |    | (API, Button,     |
-|  Hero, index,     |    |  TOC, Reactions,  |    |  Page)            |
-|  Stats)           |    |  StickyBar)       |    |                   |
-+-------------------+    +-------------------+    +-------------------+
-```
+## Dependency Risks
 
-### Phase 4: 統合
-```
-+-------------------------------------------+
-| Build & Test                              |
-| (全ユニット統合テスト、                   |
-|  ライト/ダーク両テーマ確認、             |
-|  レスポンシブ確認)                        |
-+-------------------------------------------+
-```
+| Risk | Affected Units | Mitigation |
+|---|---|---|
+| Article ID / slug rule changes after page integration | Unit 1, Unit 2, Unit 4 | Set ID / slug rule in Unit 1 Functional Design before Unit 2 implementation. |
+| Draft filtering duplicated in pages | Unit 2, Unit 5 | Public Article Service must centralize published filtering. |
+| Migration output does not match runtime schema | Unit 1, Unit 4 | Unit 4 output must pass Unit 1 validation. |
+| Bookmark list remains coupled to microCMS blog API | Unit 2 | Replace article lookup through Public Article Service. |
+| Preview exposes draft publicly | Unit 3, Unit 5 | Keep MVP preview local / PR preview oriented and verify no production draft route. |
+
+## Construction Stage Implications
+
+- Functional Design should start with Unit 1 because all downstream units depend on article shape and validation semantics.
+- NFR Requirements / NFR Design should explicitly revisit SECURITY-05, SECURITY-11, SECURITY-13, and SECURITY-15 for Units 1, 2, and 4.
+- Infrastructure Design remains skipped for MVP unless a later unit introduces new hosting, storage, or authentication infrastructure.
+

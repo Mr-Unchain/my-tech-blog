@@ -1,199 +1,132 @@
-# Services Design
+# Services: 執筆環境 / CMS 戦略
 
-## Service Layer Overview
+## Service S1: Article Source Service
 
-Monologger のサービスレイヤーは、主にサーバーサイド API Routes とクライアントサイド Lib モジュールの2層構成。今回の改修では既存のサービスパターンを踏襲しつつ、テーマ管理とブックマークサービスを追加します。
+**役割**: Markdown Article Repository を中心に、ブログ記事の正規取得元を提供する。
 
----
+**利用 component**
 
-## 1. Theme Service (New - Client-side)
+- C1 Article Domain Model
+- C2 Article Frontmatter Schema
+- C3 Markdown Article Repository
+- C10 Security and Validation Boundary
 
-### Purpose
-テーマ状態の管理と永続化を提供するクライアントサイドサービス。
+**Orchestration**
 
-### Responsibilities
-- テーマ状態の読み取り（localStorage + prefers-color-scheme）
-- テーマ状態の書き込み（localStorage）
-- DOM への反映（html.classList）
-- システムテーマ変更の監視
+1. Markdown / MDX ファイルを読み込む。
+2. frontmatter を検証する。
+3. Article Domain Model へ変換する。
+4. query 用に sort / filter / pagination 可能な形へ渡す。
 
-### Interface
-```typescript
-// src/lib/theme.ts
+**Security**
 
-export type Theme = 'light' | 'dark';
+- validation 失敗時は公開記事として返さない。
+- error details は developer 向けに留め、公開面へ内部情報を出さない。
 
-// テーマ取得（localStorage → system → fallback）
-export function getTheme(): Theme;
+## Service S2: Public Article Service
 
-// テーマ設定（localStorage + DOM更新）
-export function setTheme(theme: Theme): void;
+**役割**: 公開ページ、RSS、sitemap、検索、関連記事の唯一の公開記事取得窓口にする。
 
-// テーマトグル
-export function toggleTheme(): Theme;
+**利用 component**
 
-// システムテーマ変更の監視開始
-export function watchSystemTheme(callback: (theme: Theme) => void): () => void;
+- C4 Public Article Query Service
+- C7 Public Surface Integration
+- C10 Security and Validation Boundary
 
-// localStorage のテーマ設定をクリア（システム設定に戻す）
-export function clearThemePreference(): void;
-```
+**Orchestration**
 
-### Interactions
-- **ThemeToggle.tsx** → `toggleTheme()`, `getTheme()`
-- **BaseLayout.astro** → ThemeScript（インラインで同等ロジック実行）
-- **All components** → Tailwind `dark:` クラスで自動対応
+1. S1 から記事を取得する。
+2. `status === 'published'` かつ公開日が有効な記事だけに絞る。
+3. 公開面ごとの view model に変換する。
+4. draft 混入検査を通して返す。
 
----
+**Security**
 
-## 2. Bookmark Service (New - Server-side API)
+- fail closed を原則にする。
+- draft 判定に失敗した記事は公開しない。
 
-### Purpose
-ブックマーク機能のCRUD操作と統計管理。
+## Service S3: Preview Service
 
-### Responsibilities
-- ブックマークの追加/削除/トグル
-- ブックマーク状態の取得
-- ユーザーのブックマーク一覧取得
-- ブックマーク統計の更新（blog_stats コレクション連動）
+**役割**: ローカル開発と Vercel Preview に限定した確認導線を提供する。
 
-### Interface
-```typescript
-// Server-side (API Route内で使用)
+**利用 component**
 
-// ブックマーク追加
-async function addBookmark(blogId: string, userId: string, metadata?: BookmarkMetadata): Promise<Result>;
+- C5 Preview Article Query Service
+- C10 Security and Validation Boundary
 
-// ブックマーク削除
-async function removeBookmark(blogId: string, userId: string): Promise<Result>;
+**Orchestration**
 
-// ブックマークトグル
-async function toggleBookmark(blogId: string, userId: string, metadata?: BookmarkMetadata): Promise<Result>;
+1. preview context を判定する。
+2. 許可された context のみ draft を含む記事取得を許可する。
+3. 公開面とは別の noindex 前提で preview 表示を返す。
 
-// ブックマーク状態取得
-async function getBookmarkStatus(blogId: string, userId: string): Promise<{ isBookmarked: boolean }>;
+**Security**
 
-// ユーザーのブックマーク一覧取得
-async function getUserBookmarks(userId: string): Promise<Bookmark[]>;
+- 初期 MVP では本番公開 URL で draft を閲覧可能にしない。
+- 将来の GitHub OAuth 導入時は server-side token validation と authorization を必須にする。
 
-// ブックマーク統計更新（blog_stats連動）
-async function updateBookmarkStats(blogId: string, countChange: number): Promise<void>;
-```
+## Service S4: Legacy CMS Service
 
-### Data Pattern
-- 既存の Reactions API パターンを踏襲
-- Firestore Transaction によるアトミック統計更新
-- 重複チェック（同一ユーザー + 同一記事）
+**役割**: microCMS に残す profile / projects と、migration 用の blog 取得を分離する。
 
----
+**利用 component**
 
-## 3. Article Stats Service (Enhanced - Existing)
+- C6 Legacy microCMS Content Repository
+- C8 microCMS Blog Migration Support
 
-### Purpose
-記事の統計情報を集約して提供。ArticleCard のメタ情報表示に使用。
+**Orchestration**
 
-### Enhancement
-```typescript
-// 既存: blog_stats コレクションから取得
-// 新規: カード表示用の軽量データ取得
+1. profile / projects は既存 microCMS API から取得する。
+2. blog の microCMS 取得は migration support か一時 fallback に限定する。
+3. 通常の公開ブログ記事取得は S2 へ委譲する。
 
-// 複数記事の統計を一括取得（ホームページ・一覧ページ用）
-async function getBulkArticleStats(blogIds: string[]): Promise<Map<string, ArticleStats>>;
+**Security**
 
-interface ArticleStats {
-  viewCount: number;
-  reactionCount: number;    // 全リアクションの合計
-  bookmarkCount: number;
-}
-```
+- microCMS API key は環境変数でのみ扱う。
+- 記事ファイルや docs に secret を置かない。
 
-### Interactions
-- **index.astro** → `getBulkArticleStats()` でカード表示用データ取得
-- **blog/[id].astro** → 個別記事の統計取得（既存）
-- **Reactions API** → 統計更新（既存）
-- **Bookmarks API** → 統計更新（新規）
+## Service S5: Migration Service
 
----
+**役割**: microCMS ブログ記事を Markdown / MDX へ移す作業を支援する。
 
-## 4. microCMS Service (Unchanged)
+**利用 component**
 
-### Purpose
-microCMS API との通信レイヤー。変更なし。
+- C6 Legacy microCMS Content Repository
+- C8 microCMS Blog Migration Support
+- C10 Security and Validation Boundary
 
-### Current Interface
-- `getBlogs(queries?)` - 記事一覧
-- `getBlogDetail(contentId, queries?)` - 記事詳細
-- `getProfile(queries?)` - プロフィール
-- `getProjects(queries?)` - プロジェクト
+**Orchestration**
 
----
+1. legacy blog を取得する。
+2. Article Domain Model へ mapping する。
+3. Markdown / MDX ファイル content を生成する。
+4. ID / slug / date / category / eyecatch の互換性を検証する。
+5. 不正データがある場合は公開可能な成果物として出さない。
 
-## 5. Firebase Service (Minor Enhancement)
+**Security**
 
-### Purpose
-Firebase Firestore との接続レイヤー。
+- migration error は safe message にする。
+- partial failure で公開記事が混入しないようにする。
 
-### Enhancement
-- null チェックの強化（index.astro での使用箇所）
-- Bookmarks コレクションの操作追加
+## Service S6: Publishing Workflow Service
 
----
+**役割**: 執筆から PR、merge、Vercel deploy までの運用導線を定義する。
 
-## Service Interaction Diagram
+**利用 component**
 
-```mermaid
-flowchart LR
-    subgraph Client["Browser"]
-        TT["ThemeToggle"]
-        BB["BookmarkButton"]
-        RB["ReactionButtons"]
-        AC["ArticleCard"]
-    end
+- C9 Publishing Workflow Documentation
+- C10 Security and Validation Boundary
 
-    subgraph Services["Service Layer"]
-        TS["Theme Service<br/>(Client-side)"]
-        BS["Bookmarks API<br/>(Server-side)"]
-        RS["Reactions API<br/>(Server-side)"]
-        SS["Stats Service<br/>(Server-side)"]
-        MC["microCMS Service"]
-    end
+**Orchestration**
 
-    subgraph Data["Data Layer"]
-        LS["localStorage"]
-        FS["Firebase Firestore"]
-        CMS["microCMS"]
-    end
+1. Obsidian / VS Code で記事を書く。
+2. local preview で表示を確認する。
+3. PR を作る。
+4. Vercel Preview と test / build を確認する。
+5. merge 後に本番 deploy する。
 
-    TT --> TS
-    TS --> LS
-    BB --> BS
-    RB --> RS
-    BS --> FS
-    RS --> FS
-    SS --> FS
-    MC --> CMS
-    AC -.->|"Stats display"| SS
-```
+**Security**
 
----
+- PR review で secret 混入と draft 設定を確認する。
+- GitHub / Vercel の権限は最小権限を推奨する。
 
-## Orchestration Patterns
-
-### Page Load Orchestration (index.astro)
-```
-1. SSR: microCMS → getBlogs()
-2. SSR: Firebase → getBulkArticleStats() (viewCount, reactionCount, bookmarkCount)
-3. SSR: Firebase → getPopularPosts() (ヒーロー用)
-4. Render: HTML + ArticleCards (stats付き)
-5. Client: React Islands hydration (ThemeToggle, BookmarkButton)
-```
-
-### Article View Orchestration (blog/[id].astro)
-```
-1. SSR: microCMS → getBlogDetail()
-2. SSR: Firebase → incrementViewCount() (nullチェック付き)
-3. SSR: Cheerio → generateTOC()
-4. Render: HTML + Article content
-5. Client: React Islands hydration (TOC, Reactions, StickyBar, Bookmark)
-6. Client: API calls for reactions/bookmark status
-```

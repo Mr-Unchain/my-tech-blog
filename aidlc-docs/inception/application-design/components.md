@@ -1,130 +1,151 @@
-# Components Design
+# Components: 執筆環境 / CMS 戦略
 
-## New Components
+## 設計方針
 
-### ThemeToggle (React Island)
-- **Type**: React (.tsx) - `client:load`
-- **File**: `src/components/ThemeToggle.tsx`
-- **Purpose**: ライト/ダークテーマの切替UIを提供
-- **Responsibilities**:
-  - 現在のテーマ状態を表示（太陽/月アイコン）
-  - クリックでテーマをトグル
-  - `<html>` 要素の `class="dark"` を切替
-  - localStorage に選択を永続化
-  - `prefers-color-scheme` 変更イベントを監視
-- **Props**: なし（自己完結型）
-- **Placement**: Header コンポーネントの右端
+ブログ記事は Git 管理の Markdown / MDX を正とする。microCMS は初期 MVP では profile / projects の取得元として残す。公開ページ、RSS、sitemap、検索、関連記事、ブックマーク一覧は、ブログ記事の取得元を直接知らず、記事取得境界を通して扱う。
 
-### ThemeScript (Inline Script)
-- **Type**: Astro inline script
-- **Location**: BaseLayout.astro の `<head>` 内
-- **Purpose**: FOUC（Flash of Unstyled Content）防止
-- **Responsibilities**:
-  - ページ読み込み直後（DOM解析前）にテーマクラスを適用
-  - localStorage → prefers-color-scheme → フォールバックの優先順で判定
-  - `<html>` 要素に `class="dark"` を同期的に設定
+## Component C1: Article Domain Model
 
-### TabNavigation (Astro)
-- **Type**: Astro (.astro)
-- **File**: `src/components/TabNavigation.astro`
-- **Purpose**: ホームページのコンテンツフィルタリングタブ
-- **Responsibilities**:
-  - タブ項目の表示（Latest / Popular / カテゴリ）
-  - アクティブタブのハイライト
-  - タブ切替時のURL更新（クエリパラメータ）
-- **Props**: `activeTab: string`, `categories: string[]`
+**目的**: microCMS 由来か Markdown / MDX 由来かに依存しない、サイト内共通の記事型を定義する。
 
-### BookmarkButton (React Island)
-- **Type**: React (.tsx) - `client:load`
-- **File**: `src/components/BookmarkButton.tsx`
-- **Purpose**: 記事のブックマーク追加/削除
-- **Responsibilities**:
-  - ブックマーク状態の取得・表示
-  - クリックでブックマークをトグル（API呼び出し）
-  - ブックマーク済み状態の視覚フィードバック（塗りつぶしアイコン）
-  - アニメーション付きフィードバック
-- **Props**: `blogId: string`, `title?: string`
+**責務**
 
-### BookmarksPage (Astro)
-- **Type**: Astro (.astro)
-- **File**: `src/pages/bookmarks.astro`
-- **Purpose**: ブックマーク一覧ページ
-- **Responsibilities**:
-  - ユーザーのブックマーク済み記事一覧を表示
-  - ブックマーク解除機能
-  - 空状態の表示（ブックマークなし時）
-- **Note**: クライアントサイドでFirebaseから取得（SSRではなくCSR）
+- `id`, `slug`, `title`, `description`, `content`, `category`, `eyecatch`, `draft`, `publishedAt`, `updatedAt` を共通表現にする。
+- Firebase の reactions / views / bookmarks が参照する安定 ID を保持する。
+- UI コンポーネントが期待する `Blog` 相当の shape へ変換できる状態を保つ。
 
----
+**境界**
 
-## Modified Components
+- 詳細な validation rule は Functional Design で定義する。
+- Markdown / MDX の読み込み方法そのものは C3 が担当する。
 
-### BaseLayout.astro (Major Modification)
-- **Changes**:
-  - `<html>` タグに動的 `class` 属性（dark/light）
-  - `<head>` 内に ThemeScript（FOUC防止）挿入
-  - 全 Tailwind クラスに `dark:` バリアント追加
-  - CSS変数によるテーマカラー定義
-  - ライトテーマ用のカラーパレット追加
+## Component C2: Article Frontmatter Schema
 
-### Header.astro (Major Modification)
-- **Changes**:
-  - ThemeToggle コンポーネントの追加（右端）
-  - ナビゲーションの Zenn 風簡素化
-  - ライト/ダーク両テーマ対応のスタイル
-  - モバイルメニューのテーマ対応
+**目的**: Markdown / MDX 記事の metadata を検証可能にする。
 
-### Footer.astro (Moderate Modification)
-- **Changes**:
-  - Zenn 風の 4 セクションフッター構成
-  - ライト/ダーク両テーマ対応
+**責務**
 
-### ArticleCard.astro (Major Modification)
-- **Changes**:
-  - Zenn 風の簡素化されたデザイン
-  - メタ情報の充実（リアクション数、閲覧数表示）
-  - グリッド/リスト両表示モードの維持
-  - ライト/ダーク両テーマ対応
-  - 過度な装飾（グラデーション/グロー）の削減
+- 必須 field と任意 field を定義する。
+- 不正な `draft`, `category`, `publishedAt`, `updatedAt`, `eyecatch` を検出する。
+- build / test 時に fail closed で検出できる構造にする。
 
-### HeroSlideshowReact.tsx (Major Modification)
-- **Changes**:
-  - 簡素化：大きなスライドショー → コンパクトな推薦カード群
-  - ライト/ダーク両テーマ対応
-  - レスポンシブデザインの改善
+**境界**
 
-### Sidebar.astro (Moderate Modification)
-- **Changes**:
-  - ライト/ダーク両テーマ対応
-  - Zenn 風の簡素化
+- エラーメッセージには token や secret を含めない。
+- 実装で使う schema library は後続の NFR Requirements / Code Generation で確定する。
 
-### ReactionButtons.tsx (Moderate Modification)
-- **Changes**:
-  - UIの簡素化
-  - ライト/ダーク両テーマ対応
-  - BookmarkButton との統合表示
+## Component C3: Markdown Article Repository
 
-### StickyReactionBar.tsx (Moderate Modification)
-- **Changes**:
-  - BookmarkButton の追加
-  - テーマ対応
+**目的**: Git 管理された Markdown / MDX ファイルから記事一覧と詳細を取得する。
 
-### TableOfContents.tsx (Minor Modification)
-- **Changes**:
-  - テーマ対応スタイル
+**責務**
 
-### CategoryList.tsx (Minor Modification)
-- **Changes**:
-  - テーマ対応スタイル
+- 記事ファイルを読み込み、C2 で frontmatter を検証する。
+- `draft` を含む記事と公開記事を明確に区別する。
+- 一覧、詳細、カテゴリ、検索、RSS、sitemap が使う取得 API を提供する。
+- 取得失敗や validation 失敗時は公開記事として返さない。
 
-### All other .astro components (Minor Modification)
-- **Changes**:
-  - ハードコードされたダークテーマカラーを `dark:` バリアントに置換
-  - ライトテーマのベースカラー追加
+**境界**
 
----
+- profile / projects は扱わない。
+- migration 元の microCMS API 呼び出しは C8 が担当する。
 
-## Unchanged Components
-- **LinkCard.astro** - 外部データ依存、テーマ対応のみ
-- **KeyboardNavigation.astro** - ロジックのみ、スタイル変更なし
-- **Comments.astro** - 外部サービス依存（テーマ対応のみ）
+## Component C4: Public Article Query Service
+
+**目的**: 公開面に出せる記事だけを返す統一窓口にする。
+
+**責務**
+
+- 一覧、詳細、カテゴリ、検索、RSS、sitemap、関連記事用の query を提供する。
+- `draft` と未公開記事を全公開面から除外する。
+- sort, pagination, category filtering, text search を公開用途として扱う。
+
+**境界**
+
+- 認証付き preview の詳細は MVP では実装対象外。将来拡張点だけ残す。
+
+## Component C5: Preview Article Query Service
+
+**目的**: ローカル preview と Vercel Preview で、公開前記事を確認できる導線を支える。
+
+**責務**
+
+- ローカル開発環境では Markdown / MDX の未公開記事を確認できる。
+- 本番公開面では未公開記事を返さない。
+- 将来の管理 UI / GitHub OAuth preview に拡張できる境界を持つ。
+
+**境界**
+
+- 初期 MVP では公開 URL から draft を閲覧できる機構は追加しない。
+
+## Component C6: Legacy microCMS Content Repository
+
+**目的**: profile / projects の microCMS 取得を維持し、ブログ記事取得から分離する。
+
+**責務**
+
+- `getProfile` と `getProjects` 相当の責務を維持する。
+- ブログ記事移行後も既存ページが必要とする profile / projects を取得する。
+- microCMS blog 取得は migration support か fallback のみに閉じ込める。
+
+**境界**
+
+- 新しい公開ブログ記事取得の主経路にはしない。
+
+## Component C7: Public Surface Integration
+
+**目的**: 既存のページやコンポーネントを新しい記事取得境界へ接続する。
+
+**責務**
+
+- Home、blog index、blog detail、category、search、RSS、sitemap、portfolio recent articles、Sidebar、bookmarks list を統合する。
+- ArticleCard、ArticleNavigation、recommend、reading time など既存 UI / utility 互換を保つ。
+- 記事 ID を Firebase 連携へ渡す。
+
+**境界**
+
+- UI の大幅 redesign は扱わない。
+
+## Component C8: microCMS Blog Migration Support
+
+**目的**: 既存 microCMS ブログ記事を Markdown / MDX へ移行するための支援境界を定義する。
+
+**責務**
+
+- microCMS 記事の `id`, `title`, `description`, `content`, `category`, `eyecatch`, `publishedAt`, `updatedAt` を Markdown / MDX 用に対応付ける。
+- ID / slug / Firebase stats 互換性を維持する。
+- 不正データを公開記事として混入させない。
+
+**境界**
+
+- 初期 MVP で全自動移行を必須にしない。
+
+## Component C9: Publishing Workflow Documentation
+
+**目的**: Obsidian / VS Code から PR 公開までの作業を明文化する。
+
+**責務**
+
+- 記事追加、preview、PR 作成、review、merge、Vercel deploy の手順を定義する。
+- frontmatter の書き方と draft の扱いを説明する。
+- token や secret を記事ファイルに入れない注意点を含める。
+
+**境界**
+
+- GitHub 上の権限設定そのものは Infrastructure Design ではなく運用手順として扱う。
+
+## Component C10: Security and Validation Boundary
+
+**目的**: Security Baseline に関係する判断を各 component から参照できる形にする。
+
+**責務**
+
+- draft exclusion を fail closed にする。
+- frontmatter と migration input を検証する。
+- error message に内部詳細や secret を出さない。
+- 将来の admin UI / GitHub OAuth 導入時の認証・認可境界を明示する。
+
+**境界**
+
+- 新規認証機能は初期 MVP の実装対象外。
+

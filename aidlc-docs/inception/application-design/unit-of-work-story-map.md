@@ -1,109 +1,145 @@
-# Unit of Work - Requirements Map
+# Unit of Work Story Map: 執筆環境 / CMS 戦略
 
-> **Note**: User Stories ステージはスキップされたため、本ドキュメントでは Requirements（FR/NFR/TR）を直接ユニットにマッピングします。
+## Story Coverage Summary
 
----
+| Story | Primary Unit | Supporting Units |
+|---|---|---|
+| US-1: Markdown / MDX 記事ファイルを作成できる | Unit 1 | Unit 3, Unit 5 |
+| US-2: 記事 frontmatter を検証できる | Unit 1 | Unit 5 |
+| US-3: 外部エディタで書いた記事をプレビューできる | Unit 3 | Unit 1, Unit 2 |
+| US-4: Pull Request で記事を公開できる | Unit 3 | Unit 5 |
+| US-5: 下書き記事を公開面から除外できる | Unit 2 | Unit 1, Unit 5 |
+| US-6: 既存 microCMS 記事を Markdown / MDX へ移行できる | Unit 4 | Unit 1, Unit 5 |
+| US-7: microCMS と Git 管理記事を責務分離して共存できる | Unit 2 | Unit 4 |
+| US-8: 将来の画像管理方式を妨げずにアイキャッチを扱える | Unit 4 | Unit 1, Unit 2 |
+| US-9: 記事 ID と既存動的データの互換性を維持できる | Unit 1 | Unit 2, Unit 4 |
+| US-10: 認証・シークレット管理・セキュリティ条件を満たせる | Unit 5 | Unit 3, Unit 4 |
 
-## Requirements → Unit Mapping
+## Unit 1 Story Detail
 
-### Functional Requirements
+### Primary Stories
 
-| Requirement ID | Requirement | Unit | Coverage |
-|---------------|-------------|------|----------|
-| FR-1.1 | ライト/ダークテーマ切替 | **Unit 1** | Full |
-| FR-1.2 | クリーンなレイアウト構成 | **Unit 2** | Full |
-| FR-1.3 | ナビゲーション改善（タブナビ） | **Unit 2** | Full |
-| FR-2.1 | Zenn風カードデザイン | **Unit 3** | Full |
-| FR-2.2 | メタ情報の充実（統計表示） | **Unit 3** | Full |
-| FR-3.1 | 記事本文の読みやすさ向上 | **Unit 4** | Full |
-| FR-3.2 | 目次のUX改善 | **Unit 4** | Full |
-| FR-3.3 | リアクション/エンゲージメントUI改善 | **Unit 4** | Full |
-| FR-4.1 | ブックマークAPI実装 | **Unit 5** | Full |
-| FR-4.2 | ブックマークUI | **Unit 5** | Full |
-| FR-5.1 | 検索UXの改善 | **Unit 2** | Partial — TabNavigation でカテゴリフィルタリングを提供。全文インクリメンタルサーチは将来の拡張 |
-| FR-6.1 | ヒーローセクションの再設計 | **Unit 3** | Full |
+- US-1: Markdown / MDX 記事ファイルを作成できる
+- US-2: 記事 frontmatter を検証できる
+- US-9: 記事 ID と既存動的データの互換性を維持できる
 
-### Non-Functional Requirements
+### Acceptance Criteria Covered
 
-| Requirement ID | Requirement | Units | Coverage |
-|---------------|-------------|-------|----------|
-| NFR-1 | パフォーマンス（CWV, FOUC防止） | **Unit 1**, **Unit 3** | Full — Unit 1 で FOUC 防止、Unit 3 で getBulkArticleStats 最適化 |
-| NFR-2 | アクセシビリティ（WCAG 2.1 AA） | **All Units** | Full — 各ユニットでコントラスト比・キーボードナビ確保 |
-| NFR-3 | SEO | **Unit 2**, **Unit 3**, **Unit 4** | Full — レイアウト変更時に構造化データ・OGP 維持 |
-| NFR-4 | レスポンシブデザイン | **All Units** | Full — 各ユニットでモバイルファースト設計 |
-| NFR-5 | ブラウザ対応 | **All Units** | Full — 標準的な CSS/JS のみ使用 |
+- Markdown / MDX ファイルが記事として扱える。
+- frontmatter の必須項目が検証される。
+- category が配列として扱える。
+- draft / published が判定される。
+- ID の重複や欠落を検出できる。
 
-### Technical Requirements
+### Handoff to Other Units
 
-| Requirement ID | Requirement | Unit | Coverage |
-|---------------|-------------|------|----------|
-| TR-1.1 | Firebase null チェック強化 | **Unit 6** | Full |
-| TR-1.2 | Bookmarks API 完成 | **Unit 5** | Full |
-| TR-1.3 | インラインスクリプト分離 | **Unit 6** | Full |
-| TR-1.4 | Webhook署名検証必須化 | **Unit 6** | Full |
-| TR-2 | Tailwind CSS ダークモード設定 | **Unit 1** | Full |
-| TR-3 | テーマ管理ロジック | **Unit 1** | Full |
+- Unit 2 は Unit 1 の public article queryable data を使う。
+- Unit 4 は Unit 1 の schema に合わせて migration output を作る。
+- Unit 5 は Unit 1 の validation behavior をテストする。
 
----
+## Unit 2 Story Detail
 
-## Unit → Requirements Mapping (Reverse)
+### Primary Stories
 
-### Unit 1: テーマ基盤
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-1.1 | ライト/ダークテーマ切替 | **High** |
-| TR-2 | Tailwind CSS ダークモード設定 | **High** |
-| TR-3 | テーマ管理ロジック | **High** |
-| NFR-1 | FOUC防止 | **High** |
+- US-5: 下書き記事を公開面から除外できる
+- US-7: microCMS と Git 管理記事を責務分離して共存できる
 
-### Unit 2: レイアウト・ナビゲーション
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-1.2 | クリーンなレイアウト構成 | **High** |
-| FR-1.3 | ナビゲーション改善 | **Medium** |
-| FR-5.1 | 検索UX改善（部分対応） | **Medium** |
+### Supporting Stories
 
-### Unit 3: 記事カード・ホームページ
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-2.1 | Zenn風カードデザイン | **High** |
-| FR-2.2 | メタ情報の充実 | **High** |
-| FR-6.1 | ヒーローセクション再設計 | **Medium** |
+- US-3: preview 表示の最終 surface
+- US-9: Firebase-compatible article ID を page integration へ渡す
 
-### Unit 4: 記事詳細ページ
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-3.1 | 記事本文の読みやすさ向上 | **High** |
-| FR-3.2 | 目次のUX改善 | **Low** |
-| FR-3.3 | リアクション/エンゲージメントUI改善 | **Medium** |
+### Acceptance Criteria Covered
 
-### Unit 5: ブックマーク機能
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-4.1 | ブックマークAPI実装 | **Medium** |
-| FR-4.2 | ブックマークUI | **Medium** |
-| TR-1.2 | Bookmarks API 完成 | **High** |
+- `/`, `/blog`, `/blog/[id]`, `/category`, `/search`, RSS, sitemap に draft が出ない。
+- profile / projects は microCMS のまま維持される。
+- blog article runtime path は Markdown / MDX source を使う。
+- bookmark list API が published article summaries を返せる。
 
-### Unit 6: 技術的負債解消
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| TR-1.1 | Firebase null チェック強化 | **High** |
-| TR-1.3 | インラインスクリプト分離 | **High** |
-| TR-1.4 | Webhook署名検証必須化 | **High** |
+### Handoff to Other Units
 
----
+- Unit 3 は preview / PR docs で Unit 2 の実際の表示面を参照する。
+- Unit 5 は public surface tests を作る。
 
-## Coverage Analysis
+## Unit 3 Story Detail
 
-### Full Coverage (11/12 FR)
-- FR-1.1, FR-1.2, FR-1.3, FR-2.1, FR-2.2, FR-3.1, FR-3.2, FR-3.3, FR-4.1, FR-4.2, FR-6.1
+### Primary Stories
 
-### Partial Coverage (1/12 FR)
-- **FR-5.1 (検索UX改善)**: TabNavigation でカテゴリフィルタリングを提供するが、全文インクリメンタルサーチは今回のスコープ外。将来の拡張として検討。
+- US-3: 外部エディタで書いた記事をプレビューできる
+- US-4: Pull Request で記事を公開できる
 
-### Full NFR/TR Coverage
-- NFR-1〜5: 全ユニットにわたって対応
-- TR-1.1〜1.4, TR-2, TR-3: 全て対応ユニットが特定済み
+### Supporting Stories
 
-### Uncovered Requirements
-- なし（FR-5.1 は部分対応、残りは将来の拡張として許容）
+- US-10: secret / auth / PR history の安全性
+
+### Acceptance Criteria Covered
+
+- local dev server で記事表示を確認できる。
+- Vercel Preview で PR 表示を確認できる。
+- PR review で frontmatter、draft、secret 混入を確認できる。
+- merge 後に Vercel deploy で公開される flow が明確である。
+
+### Handoff to Other Units
+
+- Unit 5 は docs と checklist を最終化する。
+
+## Unit 4 Story Detail
+
+### Primary Stories
+
+- US-6: 既存 microCMS 記事を Markdown / MDX へ移行できる
+- US-8: 将来の画像管理方式を妨げずにアイキャッチを扱える
+
+### Supporting Stories
+
+- US-7: microCMS と Markdown / MDX の責務分離
+- US-9: ID compatibility
+
+### Acceptance Criteria Covered
+
+- legacy blog fields を Markdown / MDX へ mapping できる。
+- ID / slug / dates / category / eyecatch を維持する。
+- profile / projects は migration 対象外にできる。
+- invalid migration data を検出できる。
+
+### Handoff to Other Units
+
+- Unit 5 は migration validation tests と migration guide を作る。
+
+## Unit 5 Story Detail
+
+### Primary Stories
+
+- US-10: 認証・シークレット管理・セキュリティ条件を満たせる
+
+### Supporting Stories
+
+- US-2: frontmatter validation tests
+- US-4: PR workflow checklist
+- US-5: draft exclusion tests
+
+### Acceptance Criteria Covered
+
+- draft leak が公開面で起きないことを検証できる。
+- secret が記事ファイルに混入しないための checklist がある。
+- build / test / authoring guide が揃う。
+- Security Baseline の該当項目が確認される。
+
+## Persona Coverage
+
+| Persona | Covered By Units |
+|---|---|
+| 著者 | Unit 1, Unit 3, Unit 5 |
+| サイト運用者 / 開発者 | Unit 1, Unit 2, Unit 4, Unit 5 |
+| 読者 | Unit 2, Unit 5 |
+
+## Coverage Validation
+
+| Validation Item | Result |
+|---|---|
+| Every story has a primary unit | Pass |
+| Every story has acceptance coverage | Pass |
+| Every persona is covered | Pass |
+| Security story mapped to a unit | Pass |
+| Migration story separated from runtime public path | Pass |
+

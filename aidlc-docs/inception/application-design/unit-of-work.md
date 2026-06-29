@@ -1,198 +1,297 @@
-# Unit of Work Definitions
+# Unit of Work: 執筆環境 / CMS 戦略
 
 ## Overview
 
-Monologger（技術ブログ）の Zenn.dev インスパイア UI/UX 全面改修を、6つのユニットに分割して段階的に実装する。各ユニットはモノリスアプリケーション内の論理的な作業グループとして定義される。
+この変更は単一の Astro + TypeScript アプリケーション内で実装する。Unit は独立デプロイ可能な service ではなく、実装・設計・テストを進めるための logical work package として扱う。
 
----
-
-## Unit 1: テーマ基盤（Theme Foundation）
+## Unit 1: Markdown / MDX Article Foundation
 
 ### Purpose
-ライト/ダークテーマ切替の基盤システムを構築する。全ユニットが依存する横断的基盤。
 
-### Scope
+ブログ記事の正規取得元を Git 管理 Markdown / MDX に移すための基盤を作る。
 
-#### New Files
-| File | Type | Description |
-|------|------|-------------|
-| `src/lib/theme.ts` | Service | テーマ管理ロジック（getTheme, setTheme, toggleTheme, watchSystemTheme） |
-| `src/components/ThemeToggle.tsx` | React Island | テーマ切替UIコンポーネント |
+### Responsibilities
 
-#### Modified Files
-| File | Change |
-|------|--------|
-| `tailwind.config.mjs` | `darkMode: 'class'` 設定確認・調整 |
-| `src/layouts/BaseLayout.astro` | ThemeScript（FOUC防止インラインスクリプト）追加、`<html>` に動的 class |
-| `src/styles/main.scss` | CSS変数によるテーマカラー定義、ライトテーマベースカラー追加 |
+- Article Domain Model を定義する。
+- Markdown / MDX frontmatter schema を定義する。
+- Markdown / MDX article repository を用意する。
+- `draft` / `published` の公開状態を判定する。
+- stable article ID を扱い、Firebase 連携の互換性を保つ。
+- frontmatter validation を unit test 可能にする。
 
-### Completion Criteria
-- [ ] `theme.ts` が localStorage / prefers-color-scheme / フォールバックの優先順でテーマ判定
-- [ ] ThemeToggle がテーマをトグルし、アイコン（太陽/月）が切り替わる
-- [ ] FOUC が発生しない（ThemeScript がDOM解析前にクラスを適用）
-- [ ] Tailwind `dark:` バリアントが正常に動作する
-- [ ] CSS変数でライト/ダーク両テーマのカラーパレットが定義されている
+### Included Components
 
----
+- C1 Article Domain Model
+- C2 Article Frontmatter Schema
+- C3 Markdown Article Repository
+- C10 Security and Validation Boundary
 
-## Unit 2: レイアウト・ナビゲーション（Layout & Navigation）
+### Primary Services
 
-### Purpose
-Zenn風のクリーンなレイアウトとナビゲーションを実装する。
+- S1 Article Source Service
 
-### Scope
+### Inputs
 
-#### New Files
-| File | Type | Description |
-|------|------|-------------|
-| `src/components/TabNavigation.astro` | Astro Component | ホームページのタブナビゲーション（Latest / Popular / カテゴリ） |
+- Markdown / MDX article files
+- frontmatter metadata
+- existing microCMS blog field expectations
 
-#### Modified Files
-| File | Change |
-|------|--------|
-| `src/components/Header.astro` | ThemeToggle 追加（右端）、ナビ簡素化、テーマ対応スタイル |
-| `src/components/Footer.astro` | Zenn風4セクション構成、テーマ対応 |
-| `src/layouts/BaseLayout.astro` | 全体レイアウト調整（センター配置、max-width） |
+### Outputs
 
-### Completion Criteria
-- [ ] Header に ThemeToggle が配置され、テーマ切替が動作する
-- [ ] ナビゲーションが簡素化されている（ホーム、ブログ、カテゴリ、プロフィール）
-- [ ] TabNavigation がタブ切替でクエリパラメータを更新する
-- [ ] Footer が Zenn 風の構成になっている
-- [ ] ライト/ダーク両テーマでレイアウトが正しく表示される
-- [ ] モバイルレスポンシブが維持されている
+- validated Article objects
+- public / draft status
+- category arrays
+- stable article IDs
+- validation errors safe for developer feedback
 
----
+### Acceptance Focus
 
-## Unit 3: 記事カード・ホームページ（Article Cards & Home）
+- 新規記事を Markdown / MDX として追加できる。
+- 必須 frontmatter が欠けた記事は検出できる。
+- invalid article は公開記事として扱われない。
+- existing Firebase article ID compatibility を壊さない。
+
+### Security Notes
+
+- SECURITY-05: frontmatter input validation を集中させる。
+- SECURITY-13: stable ID と article metadata の integrity を保つ。
+- SECURITY-15: validation failure は fail closed にする。
+
+## Unit 2: Public Article Query and Surface Integration
 
 ### Purpose
-ホームページのデザインを Zenn 風に刷新する。記事カードの再設計とヒーローセクションの簡素化。
 
-### Scope
+既存の公開ページ、RSS、sitemap、検索、関連記事、ブックマーク一覧を、新しい公開記事取得境界へ接続する。
 
-#### Modified Files
-| File | Change |
-|------|--------|
-| `src/components/ArticleCard.astro` | Zenn風コンパクトデザイン、メタ情報追加（viewCount, reactionCount, bookmarkCount）、テーマ対応 |
-| `src/components/HeroSlideshowReact.tsx` | HeroRecommendations.tsx にリネーム＆簡素化（スライドショー→静的推薦カード群） |
-| `src/pages/index.astro` | レイアウト再設計、TabNavigation 統合、getBulkArticleStats 呼び出し、ヒーロー簡素化 |
-| `src/components/Sidebar.astro` | テーマ対応、Zenn風簡素化 |
-| `src/components/CategoryList.tsx` | テーマ対応スタイル |
+### Responsibilities
 
-#### New/Enhanced Service
-| Service | Change |
-|---------|--------|
-| `getBulkArticleStats()` | 複数記事の統計一括取得（新規関数、firebase.ts または専用モジュール） |
+- Public Article Service を導入する。
+- Home、blog index、blog detail、category pages、search を新しい article source に接続する。
+- RSS と sitemap から draft を除外する。
+- Sidebar、portfolio recent blogs、bookmark article list API を更新する。
+- ArticleCard、ArticleNavigation、recommend、reading time との互換性を保つ。
 
-### Completion Criteria
-- [ ] ArticleCard がコンパクトで情報密度の高いデザインになっている
-- [ ] カードにリアクション数・閲覧数が表示される
-- [ ] HeroRecommendations が静的な推薦カード群として表示される
-- [ ] タブナビゲーションで Latest / Popular / カテゴリのフィルタリングが動作する
-- [ ] グリッド/リスト表示切替が維持されている
-- [ ] ライト/ダーク両テーマで正しく表示される
+### Included Components
 
----
+- C4 Public Article Query Service
+- C7 Public Surface Integration
+- C10 Security and Validation Boundary
 
-## Unit 4: 記事詳細ページ（Article Detail）
+### Primary Services
 
-### Purpose
-記事詳細ページの読みやすさとエンゲージメント UI を改善する。
+- S2 Public Article Service
 
-### Scope
+### Inputs
 
-#### Modified Files
-| File | Change |
-|------|--------|
-| `src/pages/blog/[id].astro` | タイポグラフィ改善（行間、余白）、テーマ対応、コードブロック視認性向上 |
-| `src/components/TableOfContents.tsx` | テーマ対応、モバイル折りたたみ対応 |
-| `src/components/ReactionButtons.tsx` | UI簡素化、テーマ対応、BookmarkButton との統合表示 |
-| `src/components/StickyReactionBar.tsx` | BookmarkButton 追加、テーマ対応 |
-| `src/components/ShareButtons.astro` | テーマ対応 |
-| `src/components/Comments.astro` | テーマ対応 |
-| `src/styles/main.scss` | 記事本文のタイポグラフィ（prose クラス）改善 |
+- validated Article objects from Unit 1
+- URL query parameters
+- category names
+- bookmark article IDs
 
-### Completion Criteria
-- [ ] 記事本文の行間が 1.8〜2.0 に最適化されている
-- [ ] 見出し間の余白が適切に調整されている
-- [ ] コードブロックがライト/ダーク両テーマで視認性が良い
-- [ ] 目次がモバイルで折りたたみ可能
-- [ ] リアクション UI が簡素化されている
-- [ ] StickyReactionBar に BookmarkButton が統合されている
-- [ ] ライト/ダーク両テーマで正しく表示される
+### Outputs
 
----
+- page view models
+- RSS items
+- sitemap entries
+- search results
+- bookmark article summaries
 
-## Unit 5: ブックマーク機能（Bookmark Feature）
+### Acceptance Focus
+
+- 公開面に draft が混入しない。
+- 既存 URL と ArticleCard 表示が壊れない。
+- RSS、sitemap、検索、カテゴリ一覧が公開記事のみを扱う。
+- bookmark list が microCMS blog dependency なしで記事情報を解決できる。
+
+### Security Notes
+
+- SECURITY-08: public / preview の access boundary を分ける。
+- SECURITY-11: draft exclusion をページごとの ad hoc 実装にしない。
+- SECURITY-15: query failure は draft を公開する方向に倒さない。
+
+## Unit 3: Preview and PR Publishing Workflow
 
 ### Purpose
-未完成のブックマーク機能を完全実装する。
 
-### Scope
+Obsidian / VS Code で書いた記事を local / Vercel Preview で確認し、PR review と merge で公開できる流れを整える。
 
-#### New Files
-| File | Type | Description |
-|------|------|-------------|
-| `src/pages/api/bookmarks/[blogId].ts` | API Endpoint | GET（状態取得）/ POST（追加・削除・トグル） |
-| `src/components/BookmarkButton.tsx` | React Island | ブックマーク追加/削除のUIコンポーネント |
-| `src/pages/bookmarks.astro` | Page | ブックマーク一覧ページ |
+### Responsibilities
 
-#### Modified Files
-| File | Change |
-|------|--------|
-| `src/lib/firebase-collections.ts` | Bookmarks コレクション定数・型の確認・拡張 |
-| `src/components/Header.astro` | ブックマークページへのナビリンク追加 |
+- local preview の前提を定義する。
+- Vercel Preview で公開前表示を確認できる範囲を整理する。
+- PR review checklist を作る。
+- draft の扱いと publish への切り替え手順を明文化する。
+- 将来の GitHub OAuth / admin UI preview 拡張点を残す。
 
-### Completion Criteria
-- [ ] GET /api/bookmarks/{blogId} がブックマーク状態と数を返す
-- [ ] POST /api/bookmarks/{blogId} がトグル動作で追加/削除する
-- [ ] Firestore トランザクションでアトミックに統計更新される
-- [ ] BookmarkButton がブックマーク状態を視覚的に表示（塗りつぶしアイコン）
-- [ ] /bookmarks ページでブックマーク済み記事一覧が表示される
-- [ ] 空状態（ブックマークなし）の適切な表示
-- [ ] セッション ID 方式で認証なしに動作する
+### Included Components
 
----
+- C5 Preview Article Query Service
+- C9 Publishing Workflow Documentation
+- C10 Security and Validation Boundary
 
-## Unit 6: 技術的負債解消（Tech Debt Resolution）
+### Primary Services
+
+- S3 Preview Service
+- S6 Publishing Workflow Service
+
+### Inputs
+
+- local dev context
+- Vercel Preview context
+- draft article files
+- PR diffs
+
+### Outputs
+
+- preview behavior
+- authoring workflow documentation
+- PR review checklist
+- future admin UI extension notes
+
+### Acceptance Focus
+
+- 著者が PC で local preview できる。
+- PR 上で表示確認できる導線がある。
+- merge 後に Vercel deploy で公開される前提が明確である。
+- secret 混入や draft 設定の確認ポイントがある。
+
+### Security Notes
+
+- SECURITY-06: GitHub / Vercel token scope は最小権限を前提にする。
+- SECURITY-10: CI / dependency / lockfile 確認を workflow に含める。
+- SECURITY-13: PR history と Git history で変更追跡できる。
+
+## Unit 4: microCMS Blog Migration Support
 
 ### Purpose
-コード品質評価で特定された技術的負債を解消する。
 
-### Scope
+既存 microCMS ブログ記事を Markdown / MDX へ移すための手順または支援スクリプトを設計・実装する。
 
-#### Modified Files
-| File | Change |
-|------|--------|
-| `src/pages/index.astro` | Firebase `db` の null チェック追加（TR-1.1） |
-| `src/pages/api/webhook/microcms-sync.ts` | 本番環境での署名検証必須化（TR-1.4） |
-| `src/pages/index.astro` | インラインスクリプトの外部モジュール分離（TR-1.3） |
-| `src/pages/blog/[id].astro` | インラインスクリプトの外部モジュール分離（TR-1.3） |
+### Responsibilities
 
-### Completion Criteria
-- [ ] `db` が null の場合、クラッシュせずに適切なフォールバックが実行される
-- [ ] Webhook エンドポイントで署名検証が未設定の場合、エラーログ出力＋リクエスト拒否
-- [ ] インラインスクリプトが独立モジュールに分離され、テスト可能になっている
-- [ ] 既存の機能が壊れていない（回帰テスト）
+- legacy microCMS blog fields を Markdown / MDX frontmatter と本文へ mapping する。
+- ID / slug / publishedAt / updatedAt / category / eyecatch を維持する。
+- Firebase stats compatibility を検証する。
+- duplicate ID と invalid field を検出する。
+- migration result を Unit 1 の validation に通す。
 
----
+### Included Components
 
-## Execution Order
+- C6 Legacy microCMS Content Repository
+- C8 microCMS Blog Migration Support
+- C10 Security and Validation Boundary
 
-```
-Phase 1 (並行): Unit 1 (テーマ基盤) + Unit 6 (Tech Debt)
-Phase 2 (順次): Unit 2 (レイアウト・ナビ) ← Unit 1 に依存
-Phase 3 (並行): Unit 3 (カード・ホーム) + Unit 4 (記事詳細) + Unit 5 (ブックマーク) ← Unit 2 に依存
-Phase 4: Build & Test (全ユニット統合テスト)
-```
+### Primary Services
 
-### Critical Path
-```
-Unit 1 → Unit 2 → Unit 3/4/5 → Build & Test
-```
+- S4 Legacy CMS Service
+- S5 Migration Service
 
-### Total Estimated File Changes
-- **New files**: 6
-- **Modified files**: ~20
-- **Deleted files**: 0 (HeroSlideshowReact.tsx はリネーム)
+### Inputs
+
+- microCMS blog entries
+- microCMS API credentials from environment
+- existing URL / Firebase ID expectations
+
+### Outputs
+
+- Markdown / MDX article files or manual migration procedure
+- migration report
+- duplicate / invalid data report
+
+### Acceptance Focus
+
+- 既存記事の重要 metadata を維持できる。
+- profile / projects は microCMS に残る。
+- invalid migration result は公開記事にならない。
+- ID 互換性の問題を検出できる。
+
+### Security Notes
+
+- SECURITY-05: migration input を validation する。
+- SECURITY-13: migration result の integrity を検証する。
+- SECURITY-15: migration failure は fail closed にする。
+
+## Unit 5: Security, Validation, Tests, and Documentation
+
+### Purpose
+
+Security Baseline、draft leak 防止、validation、テスト、執筆ガイドを横断的に仕上げる。
+
+### Responsibilities
+
+- draft exclusion tests を追加する。
+- frontmatter validation tests を追加する。
+- migration validation tests を追加する。
+- RSS / sitemap / search / category / bookmark list の公開面テストを整理する。
+- secret 混入防止 checklist を作る。
+- build / test / authoring guide を追加する。
+
+### Included Components
+
+- C9 Publishing Workflow Documentation
+- C10 Security and Validation Boundary
+- all public integration points
+
+### Primary Services
+
+- S6 Publishing Workflow Service
+- cross-unit validation support
+
+### Inputs
+
+- implemented Units 1-4
+- Security Baseline rules
+- test suite
+- build results
+
+### Outputs
+
+- tests
+- authoring guide
+- build / test instructions
+- security checklist
+
+### Acceptance Focus
+
+- draft が公開面に混入しないことを検証できる。
+- frontmatter の不正を検出できる。
+- migration の破損を検出できる。
+- 執筆者が Markdown / MDX 記事を作成し PR 公開できる。
+
+### Security Notes
+
+- SECURITY-05, SECURITY-10, SECURITY-11, SECURITY-13, SECURITY-15 を横断確認する。
+- 将来 admin UI / OAuth を入れる場合の SECURITY-08 / SECURITY-12 は拡張課題として残す。
+
+## Boundary Validation
+
+| Check | Result |
+|---|---|
+| All stories assigned | Pass |
+| Runtime public article path separated from migration path | Pass |
+| profile / projects remain outside Markdown article source | Pass |
+| Security-sensitive draft logic centralized | Pass |
+| Unit dependency order supports incremental implementation | Pass |
+
+## Security Compliance
+
+| Rule | Units Generation Status | Notes |
+|---|---|---|
+| SECURITY-01 | N/A | 新規永続化ストアなし。 |
+| SECURITY-02 | N/A | 新規 network intermediary なし。 |
+| SECURITY-03 | Applicable later | migration / future admin API 実装時に扱う。 |
+| SECURITY-04 | Applicable later | preview / admin UI 追加時に扱う。 |
+| SECURITY-05 | Covered | Unit 1 と Unit 4 で validation を扱う。 |
+| SECURITY-06 | Covered later | Unit 3 で GitHub / Vercel 権限を docs / checklist に含める。 |
+| SECURITY-07 | N/A | network configuration 変更なし。 |
+| SECURITY-08 | Covered later | Unit 2 / Unit 3 で public / preview boundary を扱う。 |
+| SECURITY-09 | Covered later | Unit 5 で safe errors と不要露出を確認する。 |
+| SECURITY-10 | Covered later | Unit 3 / Unit 5 で dependency / CI 観点を扱う。 |
+| SECURITY-11 | Covered | Unit 1 / Unit 2 で validation と draft exclusion を分離する。 |
+| SECURITY-12 | N/A for MVP | 新規認証なし。将来 admin UI で扱う。 |
+| SECURITY-13 | Covered | Unit 3 / Unit 4 で PR history と migration integrity を扱う。 |
+| SECURITY-14 | Applicable later | admin UI / auth monitoring は将来拡張。 |
+| SECURITY-15 | Covered | Unit 1 / Unit 2 / Unit 4 で fail closed を扱う。 |
+
+**Blocking Security Findings**: Units Generation 時点ではなし。
+

@@ -4,11 +4,11 @@
 - **Project**: my-tech-blog
 - **Type**: Brownfield (existing codebase)
 - **Created**: 2026-03-13
-- **Current Workflow**: ホームページブランディング改善 (2026-03-15~2026-04-07, completed)
+- **Current Workflow**: Authoring Environment / CMS Strategy (2026-06-29, in progress)
 
 ## Current Phase
 - **Phase**: CONSTRUCTION
-- **Stage**: Build and Test (Complete, verified 2026-04-07 JST)
+- **Stage**: NFR Requirements Planning - Unit 1 (Awaiting answers)
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -25,31 +25,44 @@
 ## Extension Configuration
 <!-- Extensions enabled/disabled status will be recorded here -->
 
+| Extension | Enabled | Decided At |
+|---|---|---|
+| Security Baseline | Yes | Requirements Analysis |
+
+## Current Workflow (2026-06-29, In Progress)
+- **Name**: Authoring Environment / CMS Strategy
+- **Goal**: Improve article writing from smartphone and PC; migration away from microCMS is allowed if justified.
+- **Current Gate**: Answer required for `aidlc-docs/construction/plans/authoring-environment-unit-1-nfr-requirements-plan.md`.
+- **Question File Language**: Japanese for this workflow and future AI-DLC question files.
+- **Request Type**: Enhancement / possible migration
+- **Initial Scope Estimate**: System-wide content management and publishing workflow
+- **Initial Complexity Estimate**: Complex
+
 ## Previous Workflow (2026-03-13, Complete)
 - All INCEPTION + CONSTRUCTION phases completed
 - Code Generation: Unit 1-6 全完了
 - Build and Test: Compilation OK, 26/26 tests pass
 
-## Stage Progress (Current Workflow: ホームページブランディング改善)
+## Stage Progress (Current Workflow: Authoring Environment / CMS Strategy)
 
 ### INCEPTION PHASE
 
 - [x] Workspace Detection
-- [ ] Reverse Engineering (SKIP - 既存成果物あり)
+- [x] Reverse Engineering (SKIP - existing artifacts loaded)
 - [x] Requirements Analysis
-- [ ] User Stories (SKIP - 小規模UI変更)
+- [x] User Stories
 - [x] Workflow Planning
-- [ ] Application Design (SKIP - 新規コンポーネントなし)
-- [ ] Units Generation (SKIP - 単一ユニット)
+- [x] Application Design
+- [x] Units Generation
 
 ### CONSTRUCTION PHASE
 
-- [ ] Functional Design (SKIP - 単一ユニットの軽微 UI 変更)
-- [ ] NFR Requirements (SKIP - 既存 NFR を流用)
-- [ ] NFR Design (SKIP - 既存テーマ基盤を流用)
-- [ ] Infrastructure Design (SKIP - インフラ変更なし)
-- [x] Code Generation
-- [x] Build and Test
+- [x] Functional Design (Unit 1 approved)
+- [ ] NFR Requirements (Unit 1 planning questions pending)
+- [ ] NFR Design (EXECUTE)
+- [ ] Infrastructure Design (SKIP)
+- [ ] Code Generation
+- [ ] Build and Test
 
 ### OPERATIONS PHASE
 

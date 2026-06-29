@@ -1,158 +1,119 @@
-# Component Methods
+# Component Methods: 執筆環境 / CMS 戦略
 
-## ThemeToggle.tsx
+## C1: Article Domain Model
 
-### Methods
-```typescript
-// テーマの初期状態を取得
-getInitialTheme(): 'light' | 'dark'
-// → localStorage → prefers-color-scheme → 'light' の順で判定
+```ts
+type ArticleId = string;
+type ArticleSlug = string;
 
-// テーマを切り替え
-toggleTheme(): void
-// → html.classList.toggle('dark')
-// → localStorage.setItem('theme', newTheme)
-// → state更新
+type ArticleStatus = 'draft' | 'published';
 
-// システムテーマ変更の監視
-useSystemThemeListener(): void
-// → matchMedia('(prefers-color-scheme: dark)').addEventListener
-// → localStorage に手動選択がない場合のみ自動追従
-```
+type ArticleImage = {
+  url: string;
+  width?: number;
+  height?: number;
+  alt?: string;
+};
 
-### Props
-```typescript
-// なし（自己完結型コンポーネント）
-```
-
----
-
-## ThemeScript (BaseLayout.astro inline)
-
-### Logic
-```typescript
-// FOUC防止：DOM解析前に同期実行
-(function() {
-  const stored = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = stored || (prefersDark ? 'dark' : 'light');
-  document.documentElement.classList.toggle('dark', theme === 'dark');
-})();
-```
-
----
-
-## TabNavigation.astro
-
-### Props
-```typescript
-interface Props {
-  activeTab: string;       // 現在アクティブなタブ ('latest' | 'popular' | category名)
-  categories: string[];    // 利用可能なカテゴリ一覧
-}
-```
-
-### Rendering Logic
-- activeTab に基づいてハイライト表示
-- カテゴリタブはドロップダウンまたは横スクロールで表示
-- タブクリックで `?tab={value}` クエリパラメータ更新
-
----
-
-## BookmarkButton.tsx
-
-### Methods
-```typescript
-// ブックマーク状態を取得
-fetchBookmarkStatus(blogId: string, userId: string): Promise<boolean>
-// → GET /api/bookmarks/{blogId}?userId={userId}
-
-// ブックマークをトグル
-toggleBookmark(blogId: string, userId: string): Promise<{ success: boolean, action: string }>
-// → POST /api/bookmarks/{blogId} { userId, action: 'toggle' }
-
-// ブックマークアニメーション
-animateBookmark(isBookmarked: boolean): void
-// → アイコンの塗りつぶし + スケールアニメーション
-```
-
-### Props
-```typescript
-interface BookmarkButtonProps {
-  blogId: string;
-  title?: string;  // ブックマーク保存時のメタデータ用
-}
-```
-
----
-
-## Bookmarks API (src/pages/api/bookmarks/[blogId].ts)
-
-### GET Handler
-```typescript
-// ブックマーク状態取得
-GET({ params, url }): Promise<Response>
-// Input: blogId (path), userId (query)
-// Output: { isBookmarked: boolean, bookmarkCount: number }
-```
-
-### POST Handler
-```typescript
-// ブックマーク追加/削除
-POST({ request, params }): Promise<Response>
-// Input: blogId (path), { userId, action: 'toggle' | 'add' | 'remove' } (body)
-// Output: { success: boolean, action: 'added' | 'removed', bookmarkCount: number }
-// Logic: リアクションAPIと同パターン（重複チェック + トランザクション）
-```
-
----
-
-## ArticleCard.astro (Modified)
-
-### Props (Updated)
-```typescript
-interface Props {
-  id: string;
+type Article = {
+  id: ArticleId;
+  slug: ArticleSlug;
   title: string;
   description: string;
-  date: string;
-  imageUrl: string;
-  imageUrlList?: string;
+  content: string;
   category: string[];
-  content?: string;
-  showReadingTime?: boolean;
-  // 新規追加
-  reactionCount?: number;    // 総リアクション数
-  viewCount?: number;        // 閲覧数
-  bookmarkCount?: number;    // ブックマーク数
-}
+  eyecatch?: ArticleImage;
+  status: ArticleStatus;
+  publishedAt?: string;
+  updatedAt?: string;
+};
 ```
 
----
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `toPublicArticle(raw)` | 内部表現を公開用記事へ変換する | validated raw article | `Article` |
+| `toArticleCardProps(article)` | ArticleCard 互換の props を作る | `Article` | ArticleCard props |
+| `toFirebaseArticleId(article)` | Firebase 連携用の安定 ID を返す | `Article` | `string` |
 
-## HeroSlideshowReact.tsx (Modified → HeroRecommendations.tsx)
+## C2: Article Frontmatter Schema
 
-### Renamed/Simplified
-```typescript
-interface HeroRecommendationsProps {
-  posts: Blog[];  // 人気記事（最大3件）
-}
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `validateFrontmatter(frontmatter, sourcePath)` | frontmatter を検証する | unknown metadata, file path | validated metadata or validation error |
+| `normalizeCategory(value)` | category を `string[]` に正規化する | unknown category value | `string[]` |
+| `normalizeArticleStatus(value)` | draft / published 状態を判定する | unknown status fields | `ArticleStatus` |
+| `normalizeImage(value)` | eyecatch 参照を共通表現にする | unknown image value | `ArticleImage | undefined` |
 
-// 簡素化：自動スライドショー → 静的カード群
-// 小さめの推薦カード（サムネイル + タイトル + カテゴリ）
-// テーマ対応スタイル
-```
+## C3: Markdown Article Repository
 
----
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `getAllArticles(options)` | Markdown / MDX 記事を取得する | query options | `Article[]` |
+| `getArticleById(id, options)` | ID で記事詳細を取得する | `ArticleId`, query options | `Article | null` |
+| `getArticleBySlug(slug, options)` | slug で記事詳細を取得する | `ArticleSlug`, query options | `Article | null` |
+| `getCategories(options)` | 記事カテゴリ一覧を取得する | query options | category summary |
+| `assertValidArticles()` | build / test 用に全記事を検証する | none | validation result |
 
-## Header.astro (Modified)
+## C4: Public Article Query Service
 
-### Updated Structure
-```
-+--------------------------------------------------+
-| Logo        Nav Links           ThemeToggle  Menu |
-+--------------------------------------------------+
-```
-- ThemeToggle: React Island (`client:load`)
-- Nav Links: 簡素化（ホーム、ブログ、カテゴリ、プロフィール）
-- Menu: モバイルハンバーガーメニュー（テーマ対応）
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `listPublishedArticles(query)` | 公開記事だけを一覧取得する | pagination, sort, category | paged result |
+| `getPublishedArticle(idOrSlug)` | 公開記事詳細を取得する | ID or slug | `Article | null` |
+| `searchPublishedArticles(query)` | 公開記事だけを検索する | keyword, category | `Article[]` |
+| `listPublishedCategories()` | 公開記事に紐づくカテゴリを集計する | none | category summary |
+| `listRssArticles(limit)` | RSS 対象の記事を取得する | limit | `Article[]` |
+| `listSitemapEntries()` | sitemap 対象 URL を取得する | none | URL entries |
+
+## C5: Preview Article Query Service
+
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `listPreviewArticles(context)` | preview context で記事一覧を返す | local / preview context | `Article[]` |
+| `getPreviewArticle(idOrSlug, context)` | preview context で記事詳細を返す | ID or slug, context | `Article | null` |
+| `isPreviewAllowed(context)` | preview が許可されるか判定する | request / environment context | `boolean` |
+
+## C6: Legacy microCMS Content Repository
+
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `getProfile(queries)` | profile を microCMS から取得する | microCMS queries | profile or null |
+| `getProjects(queries)` | projects を microCMS から取得する | microCMS queries | project list |
+| `getLegacyBlogForMigration(queries)` | migration 用に旧ブログ記事を取得する | microCMS queries | legacy blog list |
+
+## C7: Public Surface Integration
+
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `loadHomeArticles(tabQuery)` | Home 用の記事一覧を取得する | active tab query | article view model |
+| `loadBlogIndex(query)` | `/blog` 用の記事一覧を取得する | page, sort, category | paged view model |
+| `loadBlogDetail(idOrSlug)` | `/blog/[id]` 用の記事詳細を取得する | ID or slug | detail view model |
+| `loadCategoryPage(categoryName)` | category page 用の記事一覧を取得する | category name | category view model |
+| `loadSearchPage(query)` | search page 用の記事一覧を取得する | keyword, category | search view model |
+| `loadBookmarkArticles(ids)` | bookmark list 用の記事概要を取得する | article IDs | article summaries |
+
+## C8: microCMS Blog Migration Support
+
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `mapLegacyBlogToArticle(legacyBlog)` | microCMS 記事を Article metadata へ対応付ける | legacy blog | article draft data |
+| `renderArticleFile(articleData)` | Markdown / MDX ファイル内容を生成する | article draft data | file content |
+| `validateMigrationResult(articleData)` | 移行後の互換性を検証する | article draft data | validation result |
+| `detectDuplicateIds(articles)` | 重複 ID を検出する | article data list | duplicate report |
+
+## C9: Publishing Workflow Documentation
+
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `documentAuthoringSteps()` | 執筆手順を定義する | none | markdown docs |
+| `documentPreviewSteps()` | preview 手順を定義する | none | markdown docs |
+| `documentPrPublishingSteps()` | PR 公開手順を定義する | none | markdown docs |
+
+## C10: Security and Validation Boundary
+
+| Method | Purpose | Input | Output |
+|---|---|---|---|
+| `assertNoDraftLeak(surfaceName, articles)` | 公開面に draft が混入していないことを検証する | surface name, articles | assertion result |
+| `redactValidationError(error)` | エラー表示から secret / 内部詳細を除く | error | safe message |
+| `assertNoSecretInArticle(article)` | 記事 metadata / 本文に secret らしき値がないか検査する | article | finding list |
+
