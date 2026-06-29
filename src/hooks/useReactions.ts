@@ -215,7 +215,7 @@ export function useReactions(blogId: string): UseReactionsReturn {
     const hasReaction = currentReactions.includes(reactionType);
     
     let newReactions;
-    let newCounts = { ...reactionCounts };
+    const newCounts = { ...reactionCounts };
     
     if (hasReaction) {
       // 削除

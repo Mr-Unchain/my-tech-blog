@@ -16,7 +16,7 @@ interface BookmarkArticle {
 }
 
 export default function BookmarkListClient() {
-  const { bookmarks, loading: bookmarkLoading, toggleBookmark, userId } = useBookmarks();
+  const { bookmarks, loading: bookmarkLoading, toggleBookmark } = useBookmarks();
   const [articles, setArticles] = useState<BookmarkArticle[]>([]);
   const [loadingArticles, setLoadingArticles] = useState(true);
 

@@ -4,8 +4,8 @@ import type {
   MicroCMSQueries,
   MicroCMSImage,
   MicroCMSDate,
+  MicroCMSListResponse,
 } from "microcms-js-sdk";
-import * as cheerio from "cheerio";
 import { deepCopy, normalizeToArray } from "./utils";
 
 // ブログ記事の型定義
@@ -46,13 +46,31 @@ export type Project = {
 } & MicroCMSDate;
 
 // GET 権限のみの API キーを使用することで、microCMS が下書き記事を自動的に除外して返す。
-const readClient = createClient({
-  serviceDomain: import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN,
-  apiKey: import.meta.env.MICROCMS_READ_API_KEY,
+const serviceDomain = import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN;
+const apiKey = import.meta.env.MICROCMS_READ_API_KEY;
+const isTest = import.meta.env.MODE === "test";
+
+const readClient =
+  (serviceDomain && apiKey) || isTest
+    ? createClient({
+        serviceDomain: serviceDomain || "test",
+        apiKey: apiKey || "test",
+      })
+    : null;
+
+const emptyListResponse = <T>(): MicroCMSListResponse<T> => ({
+  contents: [],
+  totalCount: 0,
+  offset: 0,
+  limit: 0,
 });
 
 // ブログ一覧を取得
 export const getBlogs = async (queries?: MicroCMSQueries) => {
+  if (!readClient) {
+    return emptyListResponse<Blog>();
+  }
+
   const data = await readClient.get({
     endpoint: "blogs",
     queries,
@@ -80,6 +98,10 @@ export const getBlogDetail = async (
   contentId: string,
   queries?: MicroCMSQueries
 ) => {
+  if (!readClient) {
+    return null;
+  }
+
   return await readClient.get<Blog>({
     endpoint: "blogs",
     contentId,
@@ -89,6 +111,10 @@ export const getBlogDetail = async (
 
 // ★★★ プロフィール情報を取得する関数を追加 ★★★
 export const getProfile = async (queries?: MicroCMSQueries) => {
+  if (!readClient) {
+    return null;
+  }
+
   return await readClient.get<Profile>({
     endpoint: "profile",
     queries,
@@ -96,6 +122,10 @@ export const getProfile = async (queries?: MicroCMSQueries) => {
 };
 
 export const getProjects = async (queries?: MicroCMSQueries) => {
+  if (!readClient) {
+    return emptyListResponse<Project>();
+  }
+
   const data = await readClient.get<{ contents: Project[] }>({
     endpoint: "projects",
     queries,

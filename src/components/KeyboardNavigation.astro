@@ -24,7 +24,6 @@
 
     // 記事内の見出しを取得
     let headings = [];
-    let currentHeadingIndex = -1;
     let helpModal = null;
 
     /**
@@ -71,8 +70,6 @@
         top: elementTop - offset,
         behavior: 'smooth'
       });
-
-      currentHeadingIndex = index;
 
       // 視覚的フィードバック
       showNavigationFeedback(heading.textContent, index + 1, headings.length);

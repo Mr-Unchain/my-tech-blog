@@ -10,8 +10,8 @@ interface MicroCMSWebhookPayload {
   id: string;
   type: 'new' | 'edit' | 'delete';
   contents?: {
-    new?: any;
-    old?: any;
+    new?: Record<string, unknown>;
+    old?: Record<string, unknown>;
   };
 }
 
@@ -32,7 +32,7 @@ export const POST: APIRoute = async ({ request }) => {
     
     try {
       payload = JSON.parse(rawBody);
-    } catch (parseError) {
+    } catch {
       return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },

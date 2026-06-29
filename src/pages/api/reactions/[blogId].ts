@@ -13,7 +13,7 @@ import {
   runTransaction,
   Timestamp
 } from 'firebase/firestore';
-import { COLLECTIONS, REACTIONS, type Reaction, type BlogStats } from '../../../lib/firebase-collections';
+import { COLLECTIONS, type Reaction, type BlogStats } from '../../../lib/firebase-collections';
 
 type ReactionType = 'like' | 'helpful' | 'insightful' | 'inspiring';
 

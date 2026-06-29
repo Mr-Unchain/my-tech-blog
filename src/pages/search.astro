@@ -183,7 +183,11 @@ const keywords = query ? `${query}, 検索, ブログ検索, AI, コーディン
       try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }catch{ return []; }
     }
     function setHistory(arr){
-      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(0,20))); }catch{}
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(0,20)));
+      } catch (error) {
+        console.warn('Failed to save search history:', error);
+      }
     }
     const form = document.querySelector('form[method="get"]');
     const input = document.getElementById('q');

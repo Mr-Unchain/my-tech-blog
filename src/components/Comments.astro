@@ -14,8 +14,6 @@ const giscus = {
   categoryId: import.meta.env.VITE_GISCUS_CATEGORY_ID,
 };
 
-// あなたのDisqusのshortnameに書き換えてください
-const disqusShortname = "shu-zhai-notetsukugia";
 ---
 
 <div class="comments-container space-y-4">
@@ -29,6 +27,9 @@ const disqusShortname = "shu-zhai-notetsukugia";
     data-repo-id={giscus.repoId}
     data-category={giscus.category}
     data-category-id={giscus.categoryId}
+    data-page-url={pageUrl}
+    data-page-identifier={pageIdentifier}
+    data-page-title={pageTitle}
     class="comments-giscus-container rounded-xl p-2"
   >
   </div>

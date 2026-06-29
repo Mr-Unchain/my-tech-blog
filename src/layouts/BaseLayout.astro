@@ -1,6 +1,5 @@
 ---
 // src/layouts/BaseLayout.astro
-import { ViewTransitions } from "astro:transitions";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import "../styles/main.scss";
@@ -58,9 +57,9 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
     <!-- FOUC防止: DOM解析前にテーマクラスを同期的に適用 -->
     <script is:inline>
       (function(){
-        var s = localStorage.getItem('theme');
-        var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var t = s || (d ? 'dark' : 'light');
+        const s = localStorage.getItem('theme');
+        const d = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const t = s || (d ? 'dark' : 'light');
         if (t === 'dark') document.documentElement.classList.add('dark');
       })();
     </script>
@@ -155,11 +154,20 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
         const s=document.createElement('script');
         s.src='https://unpkg.com/web-vitals@3/dist/web-vitals.iife.js';
         s.defer=true; s.onload=function(){
-          const win = window as any;
-          const api = (win['web-vitals'] || win['webVitals'] || {}) as any;
+          type WebVitalsMetric = { name: string; value: number };
+          type WebVitalsCallback = (metric: WebVitalsMetric) => void;
+          type WebVitalsApi = Partial<Record<'onCLS' | 'onFID' | 'onLCP' | 'onFCP' | 'onINP', (callback: WebVitalsCallback) => void>>;
+          const win = window as Window & { 'web-vitals'?: WebVitalsApi; webVitals?: WebVitalsApi };
+          const api = win['web-vitals'] || win.webVitals || {};
           const onCLS=api.onCLS,onFID=api.onFID,onLCP=api.onLCP,onFCP=api.onFCP,onINP=api.onINP;
-          function log(m: any){ try{ if(m) console.log('[WebVitals]', m.name, Number(m.value).toFixed(2)); }catch{} }
-          try{ onCLS && onCLS(log); onFID && onFID(log); onLCP && onLCP(log); onFCP && onFCP(log); onINP && onINP(log);}catch{}
+          function log(m: WebVitalsMetric){ if(m) console.log('[WebVitals]', m.name, Number(m.value).toFixed(2)); }
+          try {
+            [onCLS, onFID, onLCP, onFCP, onINP].forEach((onMetric) => {
+              if (onMetric) onMetric(log);
+            });
+          } catch (error) {
+            console.warn('[WebVitals] initialization failed:', error);
+          }
         };
         document.head.appendChild(s);
       })();
@@ -169,7 +177,7 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
     <script type="text/partytown" src="https://www.googletagmanager.com/gtag/js?id=G-N00YXTQZMH"></script>
     <script type="text/partytown">
       window.dataLayer = window.dataLayer || [];
-      function gtag(){ dataLayer.push(arguments); }
+      function gtag(...args){ dataLayer.push(args); }
       gtag('js', new Date());
       gtag('config', 'G-N00YXTQZMH');
     </script>
@@ -192,7 +200,7 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
       import Swup from 'swup';
       import SwupScriptsPlugin from '@swup/scripts-plugin';
 
-      const swup = new Swup({
+      window.swup = new Swup({
         plugins: [new SwupScriptsPlugin()]
       });
     </script>

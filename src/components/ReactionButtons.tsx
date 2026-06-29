@@ -15,7 +15,7 @@ export default function ReactionButtons({
   className = '',
   showCounts = true,
   compact = false
-}: Props) {
+}: Props): React.ReactElement | null {
   const { 
     reactionCounts, 
     loading, 

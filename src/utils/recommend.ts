@@ -14,7 +14,7 @@ function tokenize(text: string): string[] {
   const asciiWords = text.match(/[a-z0-9]{2,}/g) || [];
   tokens.push(...asciiWords);
   // 日本語などCJKは1文字ずつ
-  const cjk = text.replace(/[a-z0-9\s_\-]+/g, "");
+  const cjk = text.replace(/[a-z0-9\s_-]+/g, "");
   tokens.push(...cjk.split("").filter(Boolean));
   return tokens;
 }
