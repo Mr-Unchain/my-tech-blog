@@ -583,3 +583,11 @@
 **Context**: CONSTRUCTION - PR #32 review fixes and main integration verified.
 
 ---
+
+## PR #32 Follow-up Review Correction
+**Timestamp**: 2026-11-08T22:18:47+09:00
+**User Input**: "レビュー結果来てます？"
+**AI Response**: The requested Codex rereview found a Playwright race where Chromium, Firefox and WebKit workers wrote the same temporary draft. Moved fixture creation and cleanup to a single Playwright global setup/teardown, with a unique ID per run. Scoped the Windows Chrome channel to Chromium so all three projects can run. Verified the concurrent media preview test in all three browsers, 72 unit tests, TypeScript, ESLint, content validation and production build. The temporary draft was removed after testing. Security Baseline: exclusive fixture creation and cleanup remain applicable and compliant; infrastructure, authentication and dependency rules are N/A to this test-only change.
+**Context**: CONSTRUCTION - PR review correction and browser regression verification complete.
+
+---

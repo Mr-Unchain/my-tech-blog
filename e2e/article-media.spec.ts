@@ -1,28 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
-import path from 'node:path';
 
 test.use({
-  channel: process.platform === 'win32' ? 'chrome' : undefined,
   video: 'off',
 });
 test.describe.configure({ mode: 'serial' });
-const id = 'media-preview-verification-20261108';
-const draftPath = path.resolve(`src/content/drafts/${id}.md`);
-let createdDraft = false;
-
-test.beforeAll(async () => {
-  await mkdir(path.dirname(draftPath), { recursive: true });
-  await writeFile(
-    draftPath,
-    `---\nid: ${id}\ntitle: Media preview verification\ndescription: Temporary browser verification\ncategory: [Test]\ndraft: true\n---\n\n![Local image](/images/articles/2-q1jo80jo8/fb6e07f3525599e2.png)\n\nhttps://open.spotify.com/track/0Lr4kGOYn9l83EjuK6cZFQ\n\nhttps://docs.astro.build/en/guides/markdown-content/\n\nThis [inline link](https://example.com) stays in the sentence.\n`,
-    { flag: 'wx' }
-  );
-  createdDraft = true;
-});
-test.afterAll(async () => {
-  if (createdDraft) await unlink(draftPath);
-});
 
 for (const [articleId, count] of [
   ['2-q1jo80jo8', 2],
@@ -56,6 +37,8 @@ for (const [articleId, count] of [
 test('renders Spotify embeds and website cards without converting inline links', async ({
   page,
 }, testInfo) => {
+  const id = process.env.ARTICLE_MEDIA_DRAFT_ID;
+  if (!id) throw new Error('The article media draft was not prepared.');
   await page.goto(`/blog/${id}/`);
   const player = page.locator('[data-link-preview="spotify"] iframe');
   await expect(player).toHaveAttribute(
