@@ -22,7 +22,8 @@
     const articleContent = document.querySelector('.blog-article-content');
     if (!articleContent) return;
 
-    const images = articleContent.querySelectorAll('img:not([data-optimized])');
+    const images = [...articleContent.querySelectorAll('img:not([data-optimized])')]
+      .filter((img) => !img.closest('.article-link-preview'));
 
     images.forEach((img) => {
       // 最適化済みマーク
@@ -71,7 +72,6 @@
     lightbox.innerHTML = `
       <div class="lightbox-backdrop"></div>
       <div class="lightbox-content">
-        <img src="${src}" alt="${alt || ''}" />
         <button class="lightbox-close" aria-label="閉じる">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
@@ -79,6 +79,11 @@
         </button>
       </div>
     `;
+
+    const image = document.createElement('img');
+    image.src = src;
+    image.alt = alt || '';
+    lightbox.querySelector('.lightbox-content').prepend(image);
 
     document.body.appendChild(lightbox);
     document.body.style.overflow = 'hidden';

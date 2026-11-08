@@ -1,8 +1,7 @@
 ---
 // src/pages/blog/[id].astro
 import { Image } from "astro:assets";
-import * as cheerio from "cheerio";
-import type { Element } from "domhandler";
+import { getEntry, render } from 'astro:content';
 import { doc, increment, setDoc } from "firebase/firestore";
 import ArticleCard from "../../components/ArticleCard.astro";
 import ArticleNavigation from "../../components/ArticleNavigation.astro";
@@ -12,51 +11,49 @@ import CodeBlockEnhancer from "../../components/CodeBlockEnhancer.astro";
 import Comments from "../../components/Comments.astro";
 import ImageOptimizer from "../../components/ImageOptimizer.astro";
 import KeyboardNavigation from "../../components/KeyboardNavigation.astro";
-import LinkStyleEnhancer from "../../components/LinkStyleEnhancer.astro";
+import LinkPreviewStyles from "../../components/LinkPreviewStyles.astro";
 import BookmarkButton from "../../components/BookmarkButton";
 import ReactionButtons from "../../components/ReactionButtons";
 import StickyReactionBar from "../../components/StickyReactionBar";
 import TableOfContents from "../../components/TableOfContents";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { db } from "../../lib/firebase";
-import { getBlogDetail, getBlogs, type Blog } from "../../lib/microcms";
+import { getBlogDetail, getBlogs } from "../../lib/blogs";
+import type { Blog } from "../../lib/microcms";
 import { getRelatedPosts } from "../../utils/recommend";
 import { getCategoryBadgeClasses, getCategoryIconClass } from "../../utils/categoryColors";
 
 const { id } = Astro.params;
-const draftKey = Astro.url.searchParams.get("draftKey");
 
 if (!id) {
   return new Response(null, { status: 404 });
 }
 
-// 閲覧数をインクリメント（プレビュー時は抑止）
-if (!draftKey && db) {
-  const viewRef = doc(db, "views", id);
-  await setDoc(viewRef, { count: increment(1) }, { merge: true });
-}
-
-const post = await getBlogDetail(id, draftKey ? { draftKey } : undefined);
+const post = await getBlogDetail(id, { includeDrafts: import.meta.env.DEV });
+const draftKey = post?.draft === true;
 
 if (!post) {
   return new Response(null, { status: 404 });
 }
 
-// 目次を生成
-let headings: { text: string; id: string; tagName: string }[] = [];
-if (post.content) {
-  const $ = cheerio.load(post.content);
-  headings = $("h2, h3")
-    .toArray()
-    .map((node) => {
-      const element = node as Element;
-      const $el = $(element);
-      const text = $el.text();
-      const id = $el.attr('id') ?? '';
-      const tagName = element.name || element.tagName || 'h2';
-      return { text, id, tagName };
-    });
+const entry = await getEntry('blog', id);
+if (!entry) return new Response(null, { status: 404 });
+const { Content, headings: markdownHeadings } = await render(entry);
+
+// Previewing local articles must not update production analytics.
+if (import.meta.env.PROD && !draftKey && db) {
+  try {
+    const viewRef = doc(db, "views", id);
+    await setDoc(viewRef, { count: increment(1) }, { merge: true });
+  } catch {
+    console.warn('Article view count could not be updated.');
+  }
 }
+
+// render() resolves Astro image placeholders as well as heading metadata.
+const headings = markdownHeadings
+  .filter((heading) => heading.depth === 2 || heading.depth === 3)
+  .map((heading) => ({ text: heading.text, id: heading.slug, tagName: `h${heading.depth}` }));
 
 // SEO用のキーワード生成
 const categories = Array.isArray(post.category) ? post.category : [post.category];
@@ -85,6 +82,7 @@ const breadcrumbItems = [
   publishedTime={post.publishedAt}
   modifiedTime={post.updatedAt}
   articleType="article"
+  noIndex={draftKey}
 >
   <Fragment slot="head">
     {draftKey && (<meta name="robots" content="noindex,nofollow" />)}
@@ -176,9 +174,9 @@ const breadcrumbItems = [
 
       <div class="relative flex gap-4 lg:gap-6">
         <!-- 左サイドバー（リアクションバー） - PC表示のみ -->
-        <aside class="hidden lg:block flex-shrink-0 w-14">
+        {!draftKey && <aside class="hidden lg:block flex-shrink-0 w-14">
           <StickyReactionBar client:load blogId={post.id} title={post.title} />
-        </aside>
+        </aside>}
 
         <div class="flex-1 grid grid-cols-1 lg:grid-cols-6 lg:gap-6">
         <!-- メインコンテンツ -->
@@ -260,11 +258,11 @@ const breadcrumbItems = [
 
             <!-- 本文 -->
             <div class="blog-article-content article-content">
-              <Fragment set:html={post.content} />
+              <Content />
             </div>
 
             <CodeBlockEnhancer />
-            <LinkStyleEnhancer />
+            <LinkPreviewStyles />
             <ImageOptimizer />
             <KeyboardNavigation />
 

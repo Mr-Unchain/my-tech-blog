@@ -1,6 +1,6 @@
 // src/pages/rss.xml.ts
 import type { APIRoute } from "astro";
-import { getBlogs } from "../lib/microcms";
+import { getBlogs } from "../lib/blogs";
 import type { Blog } from "../lib/microcms";
 
 const BASE_URL = "https://monologger.dev";

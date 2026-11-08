@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: 'e2e',
+  globalSetup: './e2e/article-media-setup.ts',
   fullyParallel: true,
   timeout: 30_000,
   expect: { timeout: 10_000 },
@@ -14,7 +15,13 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: process.platform === 'win32' ? 'chrome' : undefined,
+      },
+    },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
@@ -25,4 +32,3 @@ export default defineConfig({
     timeout: 60_000,
   },
 });
-

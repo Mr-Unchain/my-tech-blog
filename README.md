@@ -1,13 +1,23 @@
 # Monologger – Tech Blog for Product-minded Engineers
 
-Astro + React + microCMS で構築した個人技術ブログです。高速な表示と運用しやすい編集体験を両立し、記事を書くだけで SEO・分析・配信まで完結することを狙いました。技術選定理由や設計意図を明示し、採用担当や技術面接官にもプロダクト視点が伝わる構成に整理しています。
+Astro + React で構築した個人技術ブログです。記事はリポジトリ内の Markdown、プロフィール・プロジェクト情報は microCMS で管理します。
+
+## 記事を書く
+
+```sh
+npm run article:new -- my-article "記事タイトル"
+npm run dev
+```
+
+Git 管理外の `src/content/drafts/my-article.md` を編集し、`http://localhost:4321/blog/my-article/` でプレビューします。公開する記事は `src/content/blog/*.md` に置きます。詳しい公開手順と下書きの扱いは [執筆ガイド](aidlc-docs/construction/authoring-environment/authoring-guide.md) を参照してください。
 
 ## プロジェクト概要（課題と解決アプローチ）
 - **課題感**: 「記事更新のたびにビルドやデプロイを意識したくない」「速さとアクセシビリティを犠牲にしないでリッチな表現を使いたい」「読まれる・改善できるブログ運用を仕組み化したい」。
 - **解決策**: Astro の静的生成をベースに、microCMS をヘッドレス CMS として採用し、Firebase でリアルタイム分析を付与。Swup による高速ページトランジションや LQIP によるプレースホルダー生成で体感速度を最適化。型安全な API クライアントとユニットテストで継続的な改善がしやすい基盤を用意しています。
 
 ## 機能一覧
-- ブログ記事・プロフィール・プロジェクト紹介の **コンテンツ管理**（microCMS）
+- ブログ記事の **Markdown 管理** とローカル下書きプレビュー
+- プロフィール・プロジェクト紹介の **コンテンツ管理**（microCMS）
 - **SEO 最適化**: OGP/Twitter カード、構造化データ、サイトマップ、自動 canonical
 - **高速 UX**: Swup によるスムーズなページ遷移、画像の遅延読み込み、LQIP プレースホルダー生成
 - **閲覧データ取得**: Firebase Firestore でビューカウントとエンゲージメントを追跡
@@ -37,7 +47,7 @@ Astro + React + microCMS で構築した個人技術ブログです。高速な�
 ```
 
 ### データフローの要点
-- ビルド時に microCMS から記事・プロフィール・プロジェクト情報を取得し静的ページを生成。
+- ビルド時に Markdown 記事を検証・取り込み、公開一覧・検索・RSS・サイトマップから下書きを除外。プロフィール・プロジェクト情報は microCMS から取得。
 - Firebase Firestore で閲覧数をリアルタイムに計測し、将来のコメント/リアクション機能に拡張可能。
 - Swup + Astro Islands でページ遷移を高速化しつつ、必要最小限の JS だけを配信。
 

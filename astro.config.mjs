@@ -5,20 +5,16 @@ import tailwind from "@astrojs/tailwind";
 import vercel from "@astrojs/vercel"; // vercelをインポート
 import partytown from "@astrojs/partytown";
 import { defineConfig } from "astro/config";
+import { validateContent } from './src/lib/articles/validation';
+import rehypeLinkPreviews from './src/lib/articles/link-previews';
 
-// 追加: 動的URLをサイトマップに含める（microCMSから記事/カテゴリを取得）
+// Build the public sitemap from the same validated Markdown source.
 const BASE_URL = "https://monologger.dev";
 
 async function fetchDynamicSitemapPages() {
-  try {
-    const service = process.env.VITE_MICROCMS_SERVICE_DOMAIN || "";
-    const apiKey = process.env.MICROCMS_READ_API_KEY || "";
-    if (!service || !apiKey) return { pages: [], dates: new Map() };
-    const endpoint = `https://${service}.microcms.io/api/v1/blogs?fields=id,category,publishedAt,updatedAt&limit=1000`;
-    const res = await fetch(endpoint, { headers: { "X-API-KEY": apiKey } });
-    if (!res.ok) return { pages: [], dates: new Map() };
-    const data = await res.json();
-    const ids = Array.isArray(data?.contents) ? data.contents : [];
+    const result = await validateContent();
+    if (!result.success) throw new Error('Article validation failed while creating the sitemap.');
+    const ids = result.articles.filter((article) => article.publicationState === 'published');
     const pages = [];
     const dates = new Map();
     const categories = new Set();
@@ -34,9 +30,6 @@ async function fetchDynamicSitemapPages() {
     }
     for (const c of categories) pages.push(`${BASE_URL}/category/${encodeURIComponent(c)}/`);
     return { pages, dates };
-  } catch {
-    return { pages: [], dates: new Map() };
-  }
 }
 
 const { pages: dynamicPages, dates: pageDates } = await fetchDynamicSitemapPages();
@@ -53,6 +46,7 @@ export default defineConfig({
       filter: (page) =>
         !page.includes('/search') &&
         !page.includes('/404') &&
+        !page.includes('/drafts') &&
         !page.includes('/api/'),
       serialize: (item) => ({
         ...item,
@@ -67,9 +61,12 @@ export default defineConfig({
   image: {
     domains: ["images.microcms-assets.io"],
   },
+  markdown: {
+    rehypePlugins: [[rehypeLinkPreviews, { siteUrl: BASE_URL }]],
+  },
   vite: {
     server: {
-      host: true,
+      host: '127.0.0.1',
       hmr: {
         clientPort: Number(process.env.PORT) || 3000,
         host: 'localhost',

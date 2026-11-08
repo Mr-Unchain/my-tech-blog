@@ -3,7 +3,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Sidebar from "../../components/Sidebar.astro";
-import { getBlogs } from "../../lib/microcms";
+import { getBlogs } from "../../lib/blogs";
 
 // すべての記事からカテゴリを集計（microCMS の 100 件制限に対応してページング）
 const categoryCountMap = new Map<string, number>();

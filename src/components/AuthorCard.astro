@@ -21,7 +21,7 @@ const profile = await getProfile();
 <div class="author-card p-5 rounded-xl shadow-lg mb-4" style={`background: var(--color-bg-secondary); border: 1px solid var(--color-border);`}>
   {/* アバターと名前 */}
   <div class="flex items-center gap-4 mb-3">
-    {profile.avatar?.url ? (
+    {profile?.avatar?.url ? (
       <img
         src={`${profile.avatar.url}?w=80&h=80&fit=crop`}
         alt={`${profile.name}のアバター`}
@@ -38,13 +38,13 @@ const profile = await getProfile();
       </div>
     )}
     <div class="flex-1 min-w-0">
-      <h4 class="font-bold text-base truncate" style="color: var(--color-text-heading);">{profile.name || "著者"}</h4>
+      <h4 class="font-bold text-base truncate" style="color: var(--color-text-heading);">{profile?.name || "著者"}</h4>
       <span class="text-xs" style="color: var(--color-text-muted);">Author</span>
     </div>
   </div>
 
   {/* 自己紹介 */}
-  {profile.description && (
+  {profile?.description && (
     <p class="text-sm leading-relaxed mb-4 line-clamp-3" style="color: var(--color-text-secondary);">
       {profile.description}
     </p>
@@ -52,7 +52,7 @@ const profile = await getProfile();
 
   {/* SNSリンク */}
   <div class="flex items-center gap-3">
-    {profile.xUrl && (
+    {profile?.xUrl && (
       <a
         href={profile.xUrl}
         target="_blank"
@@ -70,7 +70,7 @@ const profile = await getProfile();
         </svg>
       </a>
     )}
-    {profile.githubUrl && (
+    {profile?.githubUrl && (
       <a
         href={profile.githubUrl}
         target="_blank"

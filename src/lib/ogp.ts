@@ -6,6 +6,7 @@
  */
 
 import * as cheerio from 'cheerio';
+import { fetchPublicHtml, publicHttpsUrl } from './public-html';
 
 /**
  * OGP情報の型定義
@@ -37,28 +38,9 @@ export async function fetchOGP(url: string): Promise<OGPData | null> {
 
   try {
     // URLの検証
-    const parsedUrl = new URL(url);
-
-    // タイムアウト付きでフェッチ
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; OGPBot/1.0)',
-        'Accept': 'text/html,application/xhtml+xml',
-      },
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      console.warn(`OGP取得失敗: ${url} (${response.status})`);
-      return null;
-    }
-
-    const html = await response.text();
+    const parsedUrl = publicHttpsUrl(url);
+    if (!parsedUrl) return null;
+    const { html, url: finalUrl } = await fetchPublicHtml(url);
     const $ = cheerio.load(html);
 
     // OGP情報を抽出
@@ -85,20 +67,20 @@ export async function fetchOGP(url: string): Promise<OGPData | null> {
     };
 
     // 相対パスの画像URLを絶対パスに変換
-    if (ogpData.image && !ogpData.image.startsWith('http')) {
-      ogpData.image = new URL(ogpData.image, url).href;
-    }
+    ogpData.image = ogpData.image
+      ? (publicHttpsUrl(ogpData.image, finalUrl)?.href ?? '')
+      : '';
 
     // タイトルと説明を切り詰め
     ogpData.title = truncateText(ogpData.title, 100);
     ogpData.description = truncateText(ogpData.description, 150);
 
     // キャッシュに保存
+    if (ogpCache.size >= 256) ogpCache.delete(ogpCache.keys().next().value!);
     ogpCache.set(url, ogpData);
 
     return ogpData;
-  } catch (error) {
-    console.warn(`OGP取得エラー: ${url}`, error);
+  } catch {
     return null;
   }
 }
@@ -127,7 +109,8 @@ function truncateText(text: string, maxLength: number): string {
  */
 export function shouldCreateLinkCard(url: string, siteUrl?: string): boolean {
   try {
-    const parsedUrl = new URL(url);
+    const parsedUrl = publicHttpsUrl(url);
+    if (!parsedUrl) return false;
 
     // 内部リンクは除外
     if (siteUrl) {

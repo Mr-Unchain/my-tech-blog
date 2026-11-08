@@ -1,7 +1,7 @@
 // src/pages/api/bookmarks-list.ts
-// ブックマーク済み記事の詳細情報を microCMS から一括取得する API
+// ブックマーク済みの公開 Markdown 記事を一括取得する API
 import type { APIRoute } from 'astro';
-import { getBlogs } from '../../lib/microcms';
+import { getBlogs } from '../../lib/blogs';
 
 export const GET: APIRoute = async ({ url }) => {
   const ids = url.searchParams.get('ids');
@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ url }) => {
   }
 
   try {
-    // microCMS のフィルタで複数 ID を取得
+    // 既存の ID フィルタ形式を公開記事クエリへ渡す
     const filters = idList.map(id => `id[equals]${id}`).join('[or]');
     const data = await getBlogs({
       filters,

@@ -535,6 +535,32 @@
 
 ---
 
+## Markdown Authoring, Local Media and Link Previews
+**Timestamp**: 2026-11-08T18:19:45+09:00
+**User Input**: "ブログ記事についてなんですが、同じリポジトリにマークダウン形式で格納するようにしておきたいです。記事情報として公開しているので、リポジトリに乗せてもまあ問題ないかと。ドラフト版が見られるのはちょっとあれですが。機密扱いにしたい情報は載せないようにします。なんでかというと、microCMSはエディタが使いにくいんですよね。。。正直Markdownで試せたほうがいい。ローカルでデプロイすれば記事のプレビューも容易だし。スマホから記事かけなくなるのはまあ懸念ですが。それは気にしないことにします。"
+**Additional User Input**: "記事を確認してみました。画像の情報ってどこで保持していますか？記事のサムネイル画像は表示されていますが、記事本文中の画像は見えなくなっています。本文中の画像についても、リポジトリに保存して参照することで表示できるようにしたいですね。あと気になったのが、１spotifyなどのリンクを張り付けたときに、ちゃんとプレビューの形になってくれるかです。"
+**Additional User Input**: "microCMSに存在した情報は記事だけではありませんでした。私のプロフィール情報なども取得できなくなっていて、プロフィールやポートフォリオに飛べなくなっています。ターミナルのエラーを確認できますか？"
+**AI Response**: Implemented repository-based Markdown authoring, public-only article queries, development-only drafts, and local image references for five published articles and sixteen image files. Corrected image rendering with Astro render()/Content, added Spotify embeds and bounded public-only website metadata previews, retained microCMS profile/projects, and handled CMS failures safely. Verified 67 unit tests, five Chrome browser scenarios, TypeScript, lint, build, and draft privacy. Development CMS values were restored only to an ignored local environment file; no secret values, user drafts, or verification artifacts are part of this change.
+**Context**: CONSTRUCTION - Locally verified; production deployment not performed.
+
+---
+
+## Pull Request Preparation
+**Timestamp**: 2026-11-08T18:24:58+09:00
+**User Input**: "PR作成してください。"
+**AI Response**: Prepared a dedicated branch from the latest origin/main, carrying only the Markdown authoring implementation, local article media, regression coverage and task-specific documentation. Existing diagnostic automation and unrelated historical design changes were excluded from the PR diff. Local environment values and drafts remain untracked.
+**Context**: Git handoff - Preparing reviewable pull request.
+
+---
+
+## PR #32 Review Corrections
+**Timestamp**: 2026-11-08T21:39:00+09:00
+**User Input**: "C:\Git\my-tech-blog の PR #32（https://github.com/Mr-Unchain/my-tech-blog/pull/32）のレビュー指摘を修正してください。対象は (1) `scripts/new-article.ts` の記事作成時に公開済み記事と同じ ID を許してしまい、後続の `validate:content` により `npm run dev` が起動できなくなる問題（https://github.com/Mr-Unchain/my-tech-blog/pull/32#discussion_r4506209363）、(2) `/blog/` のタイトル昇順・降順が公開日順になっている問題（https://github.com/Mr-Unchain/my-tech-blog/pull/32#discussion_r4505727066）です。まず現在の作業ツリーと PR の状態、AGENTS.md および既存の AI-DLC 資産を確認し、既存作業を尊重して修正してください。関連する回帰テストを追加し、必要なテスト・ビルドを実行して、変更内容と検証結果を報告してください。"
+**AI Response**: Continued the existing Markdown authoring workflow in the clean PR worktree while preserving the separate uncommitted workspace. Added a pre-creation ID check across published Markdown/MDX articles and existing drafts; retained exclusive creation for same-file races. Restored title field ordering in public article queries and added CLI and query regression tests. Verified 72 Vitest tests, TypeScript, ESLint, content validation, and production build. Security Baseline: input ID validation and fail-closed duplicate handling remain applicable and compliant; other infrastructure, authentication, dependency, and deployment rules are N/A to this scoped correction.
+**Context**: CONSTRUCTION - PR review correction and build/test complete.
+
+---
+
 ## Blog List Light Theme Repair - Independent PR
 **Timestamp**: 2026-11-08T21:25:11+09:00
 **User Input**: "修正して別途PR作成しておいて。先ほどのPRについては、現在codexレビューを実施中です。"
@@ -548,5 +574,20 @@
 **Timestamp**: 2026-11-08T21:30:28+09:00
 **AI Response**: Verified all 4 Chrome cases (1440px/390px, initial light/dark, live toggling and reload persistence). Visually inspected both theme screenshots. ESLint, 26 existing unit tests and production build passed. Additional TypeScript checking found pre-existing TS7006 at src/pages/api/sync/firebase-cleanup.ts:48; that file is identical to origin/main and was not modified. Initial browser setup exposed the existing CMS-unconfigured Sidebar failure; final verification used the existing ignored Development settings via Node env-file parsing without printing or copying values. The visible theme toggle is selected to support the existing desktop/mobile duplicate controls. Prepared a main-based independent PR; PR #32 remains unchanged.
 **Context**: Minimal AI-DLC repair verified. SECURITY-10/13 compliant for this change; remaining rules N/A to this UI-only delta. No production deployment, CMS mutation or dependency change.
+
+---
+
+## PR #32 Main Integration
+**Timestamp**: 2026-11-08T21:43:03+09:00
+**AI Response**: Merged the latest main after PR #33 landed. Retained both independent audit histories and the dark-theme-only blog overlay. Re-ran 72 unit tests, TypeScript, ESLint, content validation, and the production build successfully after integration.
+**Context**: CONSTRUCTION - PR #32 review fixes and main integration verified.
+
+---
+
+## PR #32 Follow-up Review Correction
+**Timestamp**: 2026-11-08T22:18:47+09:00
+**User Input**: "レビュー結果来てます？"
+**AI Response**: The requested Codex rereview found a Playwright race where Chromium, Firefox and WebKit workers wrote the same temporary draft. Moved fixture creation and cleanup to a single Playwright global setup/teardown, with a unique ID per run. Scoped the Windows Chrome channel to Chromium so all three projects can run. Verified the concurrent media preview test in all three browsers, 72 unit tests, TypeScript, ESLint, content validation and production build. The temporary draft was removed after testing. Security Baseline: exclusive fixture creation and cleanup remain applicable and compliant; infrastructure, authentication and dependency rules are N/A to this test-only change.
+**Context**: CONSTRUCTION - PR review correction and browser regression verification complete.
 
 ---

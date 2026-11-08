@@ -7,7 +7,8 @@ import Sidebar from "../components/Sidebar.astro";
 import TabNavigation from "../components/TabNavigation.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { db } from "../lib/firebase";
-import { getBlogs, type Blog } from "../lib/microcms";
+import { getBlogs } from "../lib/blogs";
+import type { Blog } from "../lib/microcms";
 
 // ★ 人気記事取得（推薦カード用）
 let heroPosts: Blog[] = [];
