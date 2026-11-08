@@ -552,3 +552,11 @@
 **Context**: Git handoff - Preparing reviewable pull request.
 
 ---
+
+## PR #32 Review Corrections
+**Timestamp**: 2026-11-08T21:39:00+09:00
+**User Input**: "C:\Git\my-tech-blog の PR #32（https://github.com/Mr-Unchain/my-tech-blog/pull/32）のレビュー指摘を修正してください。対象は (1) `scripts/new-article.ts` の記事作成時に公開済み記事と同じ ID を許してしまい、後続の `validate:content` により `npm run dev` が起動できなくなる問題（https://github.com/Mr-Unchain/my-tech-blog/pull/32#discussion_r4506209363）、(2) `/blog/` のタイトル昇順・降順が公開日順になっている問題（https://github.com/Mr-Unchain/my-tech-blog/pull/32#discussion_r4505727066）です。まず現在の作業ツリーと PR の状態、AGENTS.md および既存の AI-DLC 資産を確認し、既存作業を尊重して修正してください。関連する回帰テストを追加し、必要なテスト・ビルドを実行して、変更内容と検証結果を報告してください。"
+**AI Response**: Continued the existing Markdown authoring workflow in the clean PR worktree while preserving the separate uncommitted workspace. Added a pre-creation ID check across published Markdown/MDX articles and existing drafts; retained exclusive creation for same-file races. Restored title field ordering in public article queries and added CLI and query regression tests. Verified 72 Vitest tests, TypeScript, ESLint, content validation, and production build. Security Baseline: input ID validation and fail-closed duplicate handling remain applicable and compliant; other infrastructure, authentication, dependency, and deployment rules are N/A to this scoped correction.
+**Context**: CONSTRUCTION - PR review correction and build/test complete.
+
+---

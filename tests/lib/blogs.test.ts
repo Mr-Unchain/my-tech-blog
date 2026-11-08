@@ -7,7 +7,7 @@ const reader: ArticleCollectionReader = async () => [
     id: 'first',
     data: {
       id: 'first',
-      title: 'First',
+      title: 'Zulu',
       description: 'First article',
       category: ['Astro'],
       draft: false,
@@ -21,7 +21,7 @@ const reader: ArticleCollectionReader = async () => [
     id: 'second',
     data: {
       id: 'second',
-      title: 'Second',
+      title: 'Alpha',
       description: 'Second article',
       category: ['Git'],
       draft: false,
@@ -55,6 +55,24 @@ describe('Markdown blog queries', () => {
     expect(
       (await getBlogs({ offset: 1 }, reader)).contents.map((post) => post.id)
     ).toEqual(['first']);
+  });
+
+  it('sorts title in both directions independently of publication date', async () => {
+    expect(
+      (await getBlogs({ orders: 'title' }, reader)).contents.map(
+        (post) => post.id
+      )
+    ).toEqual(['second', 'first']);
+    expect(
+      (await getBlogs({ orders: '-title' }, reader)).contents.map(
+        (post) => post.id
+      )
+    ).toEqual(['first', 'second']);
+    expect(
+      (await getBlogs({ orders: 'publishedAt' }, reader)).contents.map(
+        (post) => post.id
+      )
+    ).toEqual(['first', 'second']);
   });
 
   it('keeps drafts out of category, search and bookmark queries', async () => {

@@ -67,8 +67,11 @@ export const getBlogs = async (
   }
   const order = queries.orders ?? '-publishedAt';
   const ascending = !order.startsWith('-');
+  const requestedField = order.replace(/^-/, '');
   const field =
-    order.replace(/^-/, '') === 'updatedAt' ? 'updatedAt' : 'publishedAt';
+    requestedField === 'title' || requestedField === 'updatedAt'
+      ? requestedField
+      : 'publishedAt';
   articles.sort((left, right) => {
     const comparison = (left[field] ?? '').localeCompare(right[field] ?? '');
     return (
