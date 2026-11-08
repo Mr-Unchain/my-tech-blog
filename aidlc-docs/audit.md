@@ -534,3 +534,21 @@
 **Context**: CONSTRUCTION - Workflow Completion
 
 ---
+
+## Markdown Authoring, Local Media and Link Previews
+**Timestamp**: 2026-11-08T18:19:45+09:00
+**User Input**: "ブログ記事についてなんですが、同じリポジトリにマークダウン形式で格納するようにしておきたいです。記事情報として公開しているので、リポジトリに乗せてもまあ問題ないかと。ドラフト版が見られるのはちょっとあれですが。機密扱いにしたい情報は載せないようにします。なんでかというと、microCMSはエディタが使いにくいんですよね。。。正直Markdownで試せたほうがいい。ローカルでデプロイすれば記事のプレビューも容易だし。スマホから記事かけなくなるのはまあ懸念ですが。それは気にしないことにします。"
+**Additional User Input**: "記事を確認してみました。画像の情報ってどこで保持していますか？記事のサムネイル画像は表示されていますが、記事本文中の画像は見えなくなっています。本文中の画像についても、リポジトリに保存して参照することで表示できるようにしたいですね。あと気になったのが、１spotifyなどのリンクを張り付けたときに、ちゃんとプレビューの形になってくれるかです。"
+**Additional User Input**: "microCMSに存在した情報は記事だけではありませんでした。私のプロフィール情報なども取得できなくなっていて、プロフィールやポートフォリオに飛べなくなっています。ターミナルのエラーを確認できますか？"
+**AI Response**: Implemented repository-based Markdown authoring, public-only article queries, development-only drafts, and local image references for five published articles and sixteen image files. Corrected image rendering with Astro render()/Content, added Spotify embeds and bounded public-only website metadata previews, retained microCMS profile/projects, and handled CMS failures safely. Verified 67 unit tests, five Chrome browser scenarios, TypeScript, lint, build, and draft privacy. Development CMS values were restored only to an ignored local environment file; no secret values, user drafts, or verification artifacts are part of this change.
+**Context**: CONSTRUCTION - Locally verified; production deployment not performed.
+
+---
+
+## Pull Request Preparation
+**Timestamp**: 2026-11-08T18:24:58+09:00
+**User Input**: "PR作成してください。"
+**AI Response**: Prepared a dedicated branch from the latest origin/main, carrying only the Markdown authoring implementation, local article media, regression coverage and task-specific documentation. Existing diagnostic automation and unrelated historical design changes were excluded from the PR diff. Local environment values and drafts remain untracked.
+**Context**: Git handoff - Preparing reviewable pull request.
+
+---

@@ -28,6 +28,12 @@ pnpm-debug.log*
 .serena
 .env*.local
 
+# Private, local-only article drafts. Never force-add these to a public repo.
+/src/content/drafts/
+/.cloud-schedule-worktree/
+/test-results/
+/playwright-report/
+
 # Windows reserved names
 nul
 *.log
