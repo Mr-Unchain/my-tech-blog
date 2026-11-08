@@ -560,3 +560,26 @@
 **Context**: CONSTRUCTION - PR review correction and build/test complete.
 
 ---
+
+## Blog List Light Theme Repair - Independent PR
+**Timestamp**: 2026-11-08T21:25:11+09:00
+**User Input**: "修正して別途PR作成しておいて。先ほどのPRについては、現在codexレビューを実施中です。"
+**Additional User Input**: "作業を再開してください。"
+**AI Response**: Resumed the approved, isolated UI fix on codex/fix-blog-light-hero from origin/main in a separate worktree. Restricted the existing dark gradient overlay to dark mode and added browser regression tests for both initial themes, desktop/mobile viewports, live toggling and reload persistence. The Markdown migration PR #32 and the original dirty workspace remain untouched. Reused minimal AI-DLC planning and verification; no credentials or dependencies are changed.
+**Context**: Independent small bug fix; plan: construction/plans/blog-light-hero-fix.md. Verification in progress. Existing workflow state preserved.
+
+---
+
+## Blog List Light Theme Repair - Verification
+**Timestamp**: 2026-11-08T21:30:28+09:00
+**AI Response**: Verified all 4 Chrome cases (1440px/390px, initial light/dark, live toggling and reload persistence). Visually inspected both theme screenshots. ESLint, 26 existing unit tests and production build passed. Additional TypeScript checking found pre-existing TS7006 at src/pages/api/sync/firebase-cleanup.ts:48; that file is identical to origin/main and was not modified. Initial browser setup exposed the existing CMS-unconfigured Sidebar failure; final verification used the existing ignored Development settings via Node env-file parsing without printing or copying values. The visible theme toggle is selected to support the existing desktop/mobile duplicate controls. Prepared a main-based independent PR; PR #32 remains unchanged.
+**Context**: Minimal AI-DLC repair verified. SECURITY-10/13 compliant for this change; remaining rules N/A to this UI-only delta. No production deployment, CMS mutation or dependency change.
+
+---
+
+## PR #32 Main Integration
+**Timestamp**: 2026-11-08T21:43:03+09:00
+**AI Response**: Merged the latest main after PR #33 landed. Retained both independent audit histories and the dark-theme-only blog overlay. Re-ran 72 unit tests, TypeScript, ESLint, content validation, and the production build successfully after integration.
+**Context**: CONSTRUCTION - PR #32 review fixes and main integration verified.
+
+---
