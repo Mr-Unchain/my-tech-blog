@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repository Diagnostics"
+  short_description: "Run repeatable repository health checks"
+  default_prompt: "Use $diagnose-repository to run a read-only health diagnosis of this repository and summarize actionable findings."
