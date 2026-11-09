@@ -631,3 +631,11 @@
 **User Input**: Giscus does not display, and its reload button does not restore it.
 **AI Response**: Reproduced the issue when navigating from home to an article. Direct article loads showed Giscus, but Swup's scripts plugin reran inline scripts during navigation and raised `Identifier 't' has already been declared`; Giscus initialization and the reload handler then did not run. Removed Swup navigation so each page executes its scripts through a normal page load, and initialized Giscus exactly once per load. Updated the navigation browser test for the current search heading and added a home-to-article comment controls case. Verified 75 unit tests, ESLint, production build and both Chromium navigation tests before redeployment.
 **Security Compliance**: No new dependency, external script, data flow or permission. Existing Giscus configuration and origin remain unchanged.
+
+---
+
+## Article Reading Presentation
+**Timestamp**: 2026-11-09T16:14:04+09:00
+**User Input**: Article body dividers look excessive; improve the reading experience and clarify whether headings add them automatically.
+**AI Response**: Found both automatic heading borders and explicit Markdown dividers. Removed heading borders and 12 redundant dividers adjacent to headings across the five published articles. Established section hierarchy through type and spacing, kept remaining thematic breaks as short centered rules, and set article body text to at least 16 px on mobile. Article wording, code blocks and metadata are preserved. Content validation and production build passed; preview visual verification follows.
+**Security Compliance**: Typography and redundant Markdown separator cleanup only. No changes to dependencies, permissions or data handling.
