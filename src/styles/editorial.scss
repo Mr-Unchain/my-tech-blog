@@ -378,6 +378,36 @@
 .editorial-article__share button:hover { text-decoration: underline; }
 .editorial-article__tags { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 23px; }
 .editorial-article__tags a { color: var(--ed-blue); font-size: 0.9rem; }
+.editorial-article .article-navigation { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--ed-line); }
+.editorial-article .nav-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.editorial-article .nav-item { display: flex; min-width: 0; }
+.editorial-article .nav-next { justify-content: flex-end; text-align: right; }
+.editorial-article .nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--ed-line);
+  border-radius: 8px;
+  color: var(--ed-ink);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.editorial-article .nav-link:hover { border-color: var(--ed-blue); background: var(--ed-soft); }
+.editorial-article .nav-direction { display: flex; align-items: center; gap: 4px; color: var(--ed-muted); font-size: 0.75rem; font-weight: 600; }
+.editorial-article .nav-next .nav-direction { justify-content: flex-end; }
+.editorial-article .nav-arrow { display: block; width: 16px; height: 16px; flex: none; }
+.editorial-article .nav-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.editorial-article .nav-placeholder { display: none; }
 .editorial-article__comments { margin-top: 60px; }
 .editorial-article__related { max-width: 800px; margin-top: 60px; padding-top: 28px; border-top: 1px solid var(--ed-line); }
 .editorial-article__related ul { margin: 0; padding: 0; list-style: none; }
@@ -394,6 +424,7 @@
 }
 
 @media (max-width: 600px) {
+  .editorial-article .nav-grid { grid-template-columns: minmax(0, 1fr); }
   .editorial-article__shell { width: min(100% - 40px, 1160px); padding: 20px 0 60px; }
   .editorial-article__header { padding: 28px 0 24px; }
   .editorial-article__header h1 { font-size: 2rem; line-height: 1.5; }

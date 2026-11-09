@@ -607,3 +607,11 @@
 **User Input**: "ポートフォリオはメンテできてないし満足いく出来ではないので、非公開にしましょう。"
 **AI Response**: Removed the portfolio route from the editorial preview, removed desktop/mobile/footer links, excluded it from the sitemap, and removed its unused editorial CSS. Retained the historical blog post about creating the portfolio. The old page remains recoverable from Git history. A separate main-based patch will withdraw the existing production page without shipping the broader design preview.
 **Security Compliance**: Removing a public route reduces exposure. No new dependencies, APIs, permissions, or data handling; applicable SECURITY rules remain unchanged.
+
+---
+
+## Editorial Article Navigation Preview Fix
+**Timestamp**: 2026-11-09T15:31:02+09:00
+**User Input**: Preview feedback on the Docker article: the next-article arrow is too large on mobile.
+**AI Response**: Confirmed the deployed preview omitted the ArticleNavigation component styles, leaving its SVG at 540.8 px. Moved the navigation rules into the shared editorial stylesheet, constrained the arrow to 16 px, and kept the mobile card in one column. Verified the Docker article at 596 px: arrow 16 × 16 px, link card 540.8 × 74.9 px, with no horizontal overflow. All 74 unit tests, ESLint and production build passed.
+**Security Compliance**: Visual CSS and component style cleanup only; no new dependencies, scripts, data handling or permissions. Security Baseline remains unchanged.
