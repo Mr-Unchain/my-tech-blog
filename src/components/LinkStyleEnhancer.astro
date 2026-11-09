@@ -148,8 +148,15 @@
 
   /* 通常のインラインリンク（強化されないもの）のスタイル */
   .blog-article-content a:not(.enhanced-link) {
-    @apply text-cyan-400 hover:text-cyan-300;
-    @apply underline decoration-cyan-400/30 hover:decoration-cyan-400/60;
+    color: var(--ed-blue, var(--color-accent));
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
     @apply transition-colors duration-200;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
   }
 </style>
