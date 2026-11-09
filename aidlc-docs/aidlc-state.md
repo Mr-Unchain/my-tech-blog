@@ -4,11 +4,11 @@
 - **Project**: my-tech-blog
 - **Type**: Brownfield (existing codebase)
 - **Created**: 2026-03-13
-- **Current Workflow**: Markdown Authoring / CMS Cutover (2026-11-08, locally verified)
+- **Current Workflow**: Sitewide Editorial Design (2026-11-09, preview verification)
 
 ## Current Phase
 - **Phase**: CONSTRUCTION
-- **Stage**: Markdown articles, local assets, link previews and CMS page recovery - locally verified
+- **Stage**: Sitewide editorial style implementation and preview verification
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -29,7 +29,14 @@
 |---|---|---|
 | Security Baseline | Yes | Requirements Analysis |
 
-## Current Workflow (2026-11-08, Locally Verified)
+## Current Workflow (2026-11-09, Preview Verification)
+- **Name**: Sitewide Editorial Design
+- **Goal**: Extend the approved home and article typography, spacing, colors, and restrained surfaces to every visible page while retaining navigation and forms.
+- **Plan**: `aidlc-docs/construction/plans/sitewide-editorial-design.md`.
+- **Preview**: Deploy the existing protected Vercel preview branch after local verification. Production remains unchanged.
+- **Previous workflow**: Markdown Authoring / CMS Cutover remains documented below.
+
+## Previous Workflow (2026-11-08, Locally Verified)
 - **Name**: Markdown Authoring / CMS Cutover
 - **Goal**: Write plain Markdown on PC in this repository and preview locally; smartphone authoring is out of scope.
 - **Current Gate**: Review the local implementation before committing or deploying. No production deployment has been performed.

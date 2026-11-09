@@ -198,7 +198,7 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
     </main>
     <Footer />
 
-    <script is:inline>
+    <script>
       import Swup from 'swup';
       import SwupScriptsPlugin from '@swup/scripts-plugin';
 
@@ -208,7 +208,7 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
     </script>
 
     <!-- Register Service Worker only in production to avoid HMR conflicts -->
-    <script is:inline>
+    <script>
       if ('serviceWorker' in navigator) {
         // DEV: ensure any previous SW is unregistered to prevent HMR/WebSocket issues
         if (import.meta.env.DEV) {

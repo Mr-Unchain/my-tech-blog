@@ -1,7 +1,6 @@
 ---
 // src/pages/category/[categoryName].astro
-import ArticleCard from "../../components/ArticleCard.astro";
-import Sidebar from "../../components/Sidebar.astro";
+import EditorialPageHeader from "../../components/EditorialPageHeader.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import type { Blog } from "../../lib/microcms";
@@ -72,91 +71,27 @@ const breadcrumbItems = [
       })}
   </script>
   
-  <main class="min-h-screen" style="background: var(--color-bg-primary);">
-    <div class="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
-      <!-- パンくずナビゲーション -->
-      <Breadcrumb items={breadcrumbItems} class="mb-6" />
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-        <div class="lg:col-span-2">
-        <div class="mb-8">
-          <h1 class="text-3xl md:text-4xl font-bold mb-2" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-          「{categoryName}」の記事一覧
-        </h1>
-          <div class="flex items-center space-x-3">
-            <div class="w-1.5 h-6 rounded-full" style="background: linear-gradient(to bottom, var(--color-accent-hover), var(--color-accent));"></div>
-            <span class="text-lg font-medium" style="color: var(--color-text-secondary);">
-              {posts.length}件の記事があります
-            </span>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {
-            posts.length > 0 ? (
-              posts.map((post: Blog) => (
-                <ArticleCard
-                  id={post.id}
-                  category={post.category}
-                  title={post.title}
-                  description={post.description}
-                  date={
-                    post.publishedAt
-                      ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
-                      : ""
-                  }
-                  imageUrl={
-                    post.eyecatch?.url
-                      ? post.eyecatch.url + "?w=400"
-                      : "/placeholder.svg"
-                  }
-                  imageUrlList={
-                    post.eyecatch?.url
-                      ? post.eyecatch.url + "?w=256"
-                      : "/placeholder.svg"
-                  }
-                />
-              ))
-            ) : (
-              <div class="col-span-full flex flex-col items-center justify-center py-16 px-6">
-                <div class="rounded-xl p-8 md:p-12 shadow-xl backdrop-blur-sm relative overflow-hidden max-w-md w-full text-center" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
-                  <!-- Background tech pattern -->
-                  <div class="absolute inset-0 bg-tech-grid bg-tech-grid opacity-5 pointer-events-none"></div>
-
-                  <!-- Content with z-index -->
-                  <div class="relative z-10">
-                    <!-- Category icon -->
-                    <div class="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center" style="background: linear-gradient(to right, var(--color-bg-tertiary), var(--color-bg-secondary)); border: 1px solid var(--color-border);">
-                      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-text-muted);">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                      </svg>
-                    </div>
-
-                    <!-- Message -->
-                    <h3 class="text-xl font-bold mb-3" style="color: var(--color-text-secondary);">
-                      記事がありません
-                    </h3>
-                    <p class="mb-4 leading-relaxed" style="color: var(--color-text-muted);">
-                      「<span class="font-medium" style="color: var(--color-accent);">{categoryName}</span>」カテゴリーの記事はまだ投稿されていません。
-              </p>
-
-                    <!-- Suggestions -->
-                    <div class="text-sm space-y-1" style="color: var(--color-text-muted);">
-                      <p>• 他のカテゴリーもご覧ください</p>
-                      <p>• 新しい記事をお待ちください</p>
-                    </div>
-
-                    <!-- Decorative elements -->
-                    <div class="absolute -top-2 -right-2 w-4 h-4 rounded-full" style="background: var(--color-accent-light);"></div>
-                    <div class="absolute -bottom-2 -left-2 w-6 h-6 rounded-full" style="background: var(--color-accent-light);"></div>
-                  </div>
-                </div>
-              </div>
-            )
-          }
-        </div>
-      </div>
-      <Sidebar />
-    </div>
+  <main class="editorial-page">
+    <div class="editorial-page-shell">
+      <Breadcrumb items={breadcrumbItems} />
+      <EditorialPageHeader eyebrow="TOPIC" title={categoryName || 'カテゴリ'} description={`${posts.length}件の記事`} />
+      {posts.length > 0 ? (
+        <ol class="editorial-listing editorial-listing--narrow">
+          {posts.map((post) => (
+            <li>
+              <a href={`/blog/${post.id}/`}>
+                <time datetime={post.publishedAt}>{new Date(post.publishedAt).toLocaleDateString('ja-JP')}</time>
+                <span class="editorial-listing__category">{post.category[0] || 'ブログ'}</span>
+                <span class="editorial-listing__copy">
+                  <span class="editorial-listing__title">{post.title}</span>
+                  <span class="editorial-listing__description">{post.description}</span>
+                </span>
+                <span class="editorial-listing__arrow" aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      ) : <p class="editorial-empty-state">このカテゴリの記事はまだありません。<a href="/category/">カテゴリ一覧へ →</a></p>}
     </div>
   </main>
 </BaseLayout>

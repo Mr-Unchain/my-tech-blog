@@ -2,7 +2,7 @@
 // src/pages/category/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
-import Sidebar from "../../components/Sidebar.astro";
+import EditorialPageHeader from "../../components/EditorialPageHeader.astro";
 import { getBlogs } from "../../lib/blogs";
 
 // すべての記事からカテゴリを集計（microCMS の 100 件制限に対応してページング）
@@ -38,40 +38,21 @@ const pageDescription = "Monologger のカテゴリ一覧ページです。カ�
 ---
 
 <BaseLayout pageTitle={pageTitle} pageDescription={pageDescription}>
-  <main class="min-h-screen" style="background: var(--color-bg-primary);">
-    <div class="container mx-auto px-6 py-10 md:py-14 max-w-6xl">
-      <Breadcrumb items={breadcrumbItems} class="mb-6" />
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-        <div class="lg:col-span-2">
-          <header class="mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">カテゴリ一覧</h1>
-            <p class="mt-2" style="color: var(--color-text-muted);">カテゴリーを選んで記事を絞り込みできます。</p>
-          </header>
-
-          {categories.length > 0 ? (
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
-              {categories.map((cat) => (
-                <a
-                  href={`/category/${encodeURIComponent(cat.name)}`}
-                  class="group rounded-xl transition shadow-lg p-5 flex items-center justify-between"
-                  style="border: 1px solid var(--color-border); background: var(--color-bg-card);"
-                >
-                  <div class="flex items-center gap-3">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full font-bold" style="background: var(--color-accent-light); color: var(--color-accent);">#</span>
-                    <span class="font-semibold" style="color: var(--color-text-primary);">{cat.name}</span>
-                  </div>
-                  <span class="text-sm" style="color: var(--color-text-muted);">{cat.count}</span>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <div style="color: var(--color-text-muted);">カテゴリがまだありません。</div>
-          )}
-        </div>
-
-        <Sidebar hideCategories={true} />
-      </div>
+  <main class="editorial-page">
+    <div class="editorial-page-shell">
+      <Breadcrumb items={breadcrumbItems} />
+      <EditorialPageHeader eyebrow="TOPICS" title="カテゴリ" description="関心のあるテーマから記事を探せます。" />
+      {categories.length > 0 ? (
+        <ul class="editorial-category-list">
+          {categories.map((category) => (
+            <li>
+              <a href={`/category/${encodeURIComponent(category.name)}/`}>
+                <span>{category.name}</span><span>{category.count}件 →</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : <p class="editorial-empty-state">カテゴリはまだありません。</p>}
     </div>
   </main>
 </BaseLayout>

@@ -1,8 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
+import EditorialPageHeader from "../components/EditorialPageHeader.astro";
 
 // お問い合わせフォームのエンドポイント
 const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
+const breadcrumbItems = [{ name: 'ホーム', href: '/' }, { name: 'お問い合わせ' }];
 ---
 
 <style>
@@ -29,105 +32,35 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
   pageDescription="ご意見、ご感想、お仕事のご依頼などはこちらからお願いいたします。お気軽にご連絡ください。"
   keywords="お問い合わせ, 連絡, 仕事依頼, フィードバック, コンタクト, AI, コーディング"
 >
-  <main class="min-h-screen" style="background: var(--color-bg-primary)">
-    <div class="container mx-auto px-4 py-12 md:py-20">
-    <div
-        class="max-w-xl mx-auto p-8 md:p-12 rounded-xl shadow-xl backdrop-blur-sm relative overflow-hidden"
-        style="background: var(--color-bg-secondary); border: 1px solid var(--color-border)"
-    >
-        <!-- Background tech pattern -->
-        <div class="absolute inset-0 bg-tech-grid bg-tech-grid opacity-5 pointer-events-none"></div>
-        
-        <!-- Content wrapper with z-index -->
-        <div class="relative z-10">
-      <header class="text-center mb-10">
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-2 tracking-tight" style="color: var(--color-text-heading)">
-          お問い合わせ
-        </h1>
-        <p class="mt-2 text-base md:text-lg leading-relaxed" style="color: var(--color-text-secondary)">
-          ご意見、ご感想、記事内容に関するご質問など、お気軽にご連絡ください。
-        </p>
-      </header>
-
-      <form action={formspreeEndpoint} method="POST" class="space-y-7">
-        <!-- 名前 -->
+  <main class="editorial-page">
+    <div class="editorial-page-shell">
+      <Breadcrumb items={breadcrumbItems} />
+      <EditorialPageHeader eyebrow="CONTACT" title="お問い合わせ" description="ご意見、ご感想、記事内容に関するご質問などをお送りください。" />
+      <form action={formspreeEndpoint} method="POST" class="editorial-form">
         <div>
-          <label for="name" class="block text-base font-semibold mb-2 tracking-wide" style="color: var(--color-text-primary)">
-            お名前
-          </label>
-          <input
-            type="text"
-            name="name"
-            id="name"
-            required
-            class="block w-full rounded-lg py-3 px-4 transition-all duration-300 shadow-sm backdrop-blur-sm"
-            style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); color: var(--color-text-primary)"
-            placeholder="山田 太郎"
-          />
+          <label for="name">お名前</label>
+          <input type="text" name="name" id="name" required autocomplete="name" placeholder="山田 太郎" />
         </div>
-        <!-- メールアドレス -->
         <div>
-          <label for="email" class="block text-base font-semibold mb-2 tracking-wide" style="color: var(--color-text-primary)">
-            メールアドレス
-          </label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            required
-            class="block w-full rounded-lg py-3 px-4 transition-all duration-300 shadow-sm backdrop-blur-sm"
-            style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); color: var(--color-text-primary)"
-            placeholder="your.email@example.com"
-          />
+          <label for="email">メールアドレス</label>
+          <input type="email" name="email" id="email" required autocomplete="email" placeholder="your.email@example.com" />
         </div>
-        <!-- 件名 -->
         <div>
-          <label for="subject" class="block text-base font-semibold mb-2 tracking-wide" style="color: var(--color-text-primary)">
-            件名
-          </label>
-          <input
-            type="text"
-            name="subject"
-            id="subject"
-            required
-            class="block w-full rounded-lg py-3 px-4 transition-all duration-300 shadow-sm backdrop-blur-sm"
-            style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); color: var(--color-text-primary)"
-            placeholder="お仕事のご依頼について"
-          />
+          <label for="subject">件名</label>
+          <input type="text" name="subject" id="subject" required placeholder="お問い合わせの件名" />
         </div>
-        <!-- お問い合わせ内容 -->
         <div>
-          <label for="message" class="block text-base font-semibold mb-2 tracking-wide" style="color: var(--color-text-primary)">
-            お問い合わせ内容
-          </label>
-          <textarea
-            name="message"
-            id="message"
-            rows="6"
-            required
-            class="block w-full rounded-lg py-3 px-4 transition-all duration-300 shadow-sm backdrop-blur-sm resize-none"
-            style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); color: var(--color-text-primary)"
-            placeholder="こちらに内容をご記入ください。"
-          ></textarea>
+          <label for="message">お問い合わせ内容</label>
+          <textarea name="message" id="message" rows="6" required placeholder="こちらに内容をご記入ください。"></textarea>
         </div>
-        <div class="mt-8 text-center">
-          <button
-            type="submit"
-            id="submit-button"
-            class="inline-flex items-center justify-center py-3 px-10 border-none shadow-lg text-lg font-bold rounded-full transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
-            style="background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover)); color: #fff"
-          >
+        <div>
+          <button type="submit" id="submit-button" class="editorial-button">
             <span id="button-text">送信する</span>
-            <svg id="button-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+            <svg id="button-spinner" class="hidden animate-spin ml-3 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-width="2" /></svg>
           </button>
         </div>
       </form>
-      <div id="form-feedback" class="mt-8 text-center text-base hidden"></div>
-        </div>
-      </div>
+      <p id="form-feedback" class="hidden editorial-form__feedback" role="status" aria-live="polite"></p>
     </div>
   </main>
 </BaseLayout>
@@ -162,18 +95,18 @@ const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
         // 成功した場合
         form.reset();
         formFeedback.textContent = "ありがとうございます！メッセージは正常に送信されました。";
-        formFeedback.className = "mt-8 text-center text-base text-emerald-400 font-medium";
+        formFeedback.className = "editorial-form__feedback editorial-form__feedback--success";
       } else {
         // Formspree側でのバリデーションエラーなど
         const errorData = await response.json();
         const errorMessage = errorData.errors?.map((err) => err.message).join(", ") || "フォームの送信に失敗しました。";
         formFeedback.textContent = `エラー: ${errorMessage}`;
-        formFeedback.className = "mt-8 text-center text-base text-red-400 font-medium";
+        formFeedback.className = "editorial-form__feedback editorial-form__feedback--error";
       }
     } catch {
       // ネットワークエラーなど
       formFeedback.textContent = "エラー: ネットワーク接続に問題がある可能性があります。";
-      formFeedback.className = "mt-8 text-center text-base text-red-400 font-medium";
+      formFeedback.className = "editorial-form__feedback editorial-form__feedback--error";
     } finally {
       // ボタンの状態を元に戻す
       submitButton.disabled = false;

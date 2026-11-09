@@ -1,8 +1,7 @@
 ---
 // src/pages/blog/index.astro
-import ArticleCard from "../../components/ArticleCard.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
-import Sidebar from "../../components/Sidebar.astro";
+import EditorialPageHeader from "../../components/EditorialPageHeader.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getBlogs, type BlogQueries } from "../../lib/blogs";
 import type { Blog } from "../../lib/microcms";
@@ -14,7 +13,7 @@ const PAGE_SIZE = 12;
 const pageParam = Astro.url.searchParams.get("page");
 const sortParam = Astro.url.searchParams.get("sort") || "-publishedAt";
 const categoryParam = Astro.url.searchParams.get("category");
-const viewParam = Astro.url.searchParams.get("view") || "grid";
+const viewParam = Astro.url.searchParams.get("view") || "list";
 
 const currentPage = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
 const offset = (currentPage - 1) * PAGE_SIZE;
@@ -92,406 +91,102 @@ const canonicalUrlForList = (() => {
   if (currentPage > 1) url.searchParams.set('page', String(currentPage));
   return url.href;
 })();
+const listHref = (page: number, view = viewParam) => {
+  const params = new URLSearchParams();
+  if (sortParam !== '-publishedAt') params.set('sort', sortParam);
+  if (categoryParam && categoryParam !== 'all') params.set('category', categoryParam);
+  if (view !== 'list') params.set('view', view);
+  if (page > 1) params.set('page', String(page));
+  return `/blog/${params.size ? `?${params}` : ''}`;
+};
 ---
 
-<BaseLayout 
+<BaseLayout
   pageTitle={pageTitle}
   pageDescription="Monologgerのブログ記事一覧です。ITに触れて気づいたことや、試してよかったツールのメモが並びます。"
   keywords="ブログ, 記事一覧, テクノロジー, ガジェット, 開発, プログラミング, コーディング, AI, 備忘録, 気づき"
   canonicalUrl={canonicalUrlForList}
 >
-  <div class="min-h-screen" style="background: var(--color-bg-primary); color: var(--color-text-primary);">
-    <!-- ヒーローセクション -->
-    <section class="relative py-16 md:py-24" style="background: linear-gradient(to bottom, var(--color-bg-secondary), var(--color-bg-primary), var(--color-bg-primary));">
-      <!-- 背景パターン -->
-      <div class="absolute inset-0 bg-tech-grid opacity-5 pointer-events-none"></div>
-      <div aria-hidden="true" class="absolute inset-0 hidden dark:block pointer-events-none" style="background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.5), var(--color-bg-primary));"></div>
-      
-      <div class="relative container mx-auto px-6 max-w-7xl text-center">
-        <div class="flex items-center justify-center space-x-3 mb-6">
-          <div class="w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse"></div>
-          <div class="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" style="animation-delay: 0.5s"></div>
-          <div class="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse" style="animation-delay: 1s"></div>
-        </div>
-        
-        <h1 class="text-4xl md:text-6xl font-bold mb-6" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-          Blog Articles
-        </h1>
+  <main class="editorial-page editorial-blog-list">
+    <div class="editorial-page-shell">
+      <Breadcrumb items={breadcrumbItems} />
+      <EditorialPageHeader
+        eyebrow="ARCHIVE"
+        title={categoryParam && categoryParam !== 'all' ? `#${categoryParam}` : '記事一覧'}
+        description="つくったもの、試したこと、考えたことを日付順に記録しています。"
+      />
 
-        <p class="text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed" style="color: var(--color-text-secondary);">
-          ITに触れて気づいたことや、試してよかったツールのメモをまとめています
-        </p>
-
-        {categoryParam && categoryParam !== "all" && (
-          <div class="mt-8 inline-flex items-center px-6 py-3 rounded-full" style="background: var(--color-accent-light); border: 1px solid var(--color-accent);">
-            <span class="font-medium" style="color: var(--color-accent);">カテゴリ: {categoryParam}</span>
-          </div>
-        )}
-      </div>
-    </section>
-
-    <div class="container mx-auto px-6 max-w-7xl py-12">
-      <!-- パンくずリスト -->
-      <Breadcrumb items={breadcrumbItems} class="mb-8" />
-      
-      <div class="flex flex-col lg:flex-row gap-12">
-        <!-- メインコンテンツ -->
-        <main class="flex-1">
-          <!-- フィルター・ソートバー -->
-          <div class="backdrop-blur-sm rounded-xl p-4 md:p-6 mb-8" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
-            <!-- モバイル表示 -->
-            <div class="flex md:hidden flex-col space-y-4">
-              <!-- 記事数 -->
-              <div class="text-center" style="color: var(--color-text-secondary);">
-                <span class="font-bold text-lg" style="color: var(--color-accent);">{totalCount}</span>
-                <span class="ml-1">件の記事</span>
-                {categoryParam && categoryParam !== "all" && (
-                  <span class="ml-2" style="color: var(--color-text-muted);">（{categoryParam}）</span>
-                )}
-              </div>
-              
-              <!-- コントロール行 -->
-              <div class="flex items-center justify-between space-x-3">
-                <!-- ソート選択（コンパクト） -->
-                <div class="flex items-center space-x-2 flex-1">
-                  <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-text-muted);">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"></path>
-                  </svg>
-                  <select
-                    id="sort-select"
-                    class="rounded-lg px-2 py-2 text-sm transition-all duration-200 flex-1 min-w-0"
-                    style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                  >
-                    {sortOptions.map(option => (
-                      <option value={option.value} selected={sortParam === option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <!-- 表示切り替え -->
-                <div class="flex items-center space-x-1 rounded-lg p-1 flex-shrink-0" style="background: var(--color-bg-tertiary);">
-                  <button
-                    id="grid-view"
-                    class="p-2 rounded-md transition-all duration-200"
-                    style={viewParam === 'grid' ? 'background: var(--color-accent); color: #fff;' : 'color: var(--color-text-muted);'}
-                    title="グリッド表示"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                    </svg>
-                  </button>
-                  <button
-                    id="list-view"
-                    class="p-2 rounded-md transition-all duration-200"
-                    style={viewParam === 'list' ? 'background: var(--color-accent); color: #fff;' : 'color: var(--color-text-muted);'}
-                    title="リスト表示"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- デスクトップ表示 -->
-            <div class="hidden md:flex items-center justify-between">
-              <!-- 記事数表示 -->
-              <div class="flex items-center space-x-4">
-                <div style="color: var(--color-text-secondary);">
-                  <span class="font-bold text-lg" style="color: var(--color-accent);">{totalCount}</span>
-                  <span class="ml-1">件の記事</span>
-                  {categoryParam && categoryParam !== "all" && (
-                    <span class="ml-2" style="color: var(--color-text-muted);">（{categoryParam}）</span>
-                  )}
-                </div>
-              </div>
-
-              <!-- コントロール -->
-              <div class="flex items-center space-x-6">
-                <!-- ソート選択 -->
-                <div class="flex items-center space-x-3">
-                  <label class="text-sm font-medium whitespace-nowrap" style="color: var(--color-text-secondary);">並び順：</label>
-                  <select
-                    id="sort-select-desktop"
-                    class="rounded-lg px-3 py-2 text-sm transition-all duration-200"
-                    style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                  >
-                    {sortOptions.map(option => (
-                      <option value={option.value} selected={sortParam === option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <!-- 表示切り替え -->
-                <div class="flex items-center space-x-2 rounded-lg p-1" style="background: var(--color-bg-tertiary);">
-                  <button
-                    id="grid-view-desktop"
-                    class="p-2 rounded-md transition-all duration-200"
-                    style={viewParam === 'grid' ? 'background: var(--color-accent); color: #fff;' : 'color: var(--color-text-muted);'}
-                    title="グリッド表示"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                    </svg>
-                  </button>
-                  <button
-                    id="list-view-desktop"
-                    class="p-2 rounded-md transition-all duration-200"
-                    style={viewParam === 'list' ? 'background: var(--color-accent); color: #fff;' : 'color: var(--color-text-muted);'}
-                    title="リスト表示"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 記事一覧 -->
-          {posts.length > 0 ? (
-            <div id="article-list-container">
-              <div 
-                id="articles-grid" 
-                class={viewParam === 'list' ? 'space-y-6' : 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8'}
-              >
-                {posts.map((post: Blog, index: number) => (
-                  <div style={`animation-delay: ${index * 0.1}s`} class="animate-fade-in">
-                    <ArticleCard 
-                      class={viewParam === 'list' ? 'article-card list-view' : 'article-card'}
-                      id={post.id}
-                      category={post.category}
-                      title={post.title}
-                      description={post.description}
-                      date={post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("ja-JP") : ""}
-                      imageUrl={post.eyecatch?.url ? post.eyecatch.url + "?w=400&h=225&fit=crop" : "/placeholder.svg"}
-                      imageUrlList={post.eyecatch?.url ? post.eyecatch.url + "?w=256&h=144&fit=crop" : "/placeholder.svg"}
-                    />
-                  </div>
+      <div class="editorial-page-grid">
+        <div>
+          <form class="editorial-filter" method="get" action="/blog/" aria-label="記事を絞り込む">
+            <label>カテゴリ
+              <select name="category">
+                <option value="all" selected={!categoryParam || categoryParam === 'all'}>すべて</option>
+                {categories.map((category) => (
+                  <option value={category.name} selected={category.name === categoryParam}>{category.name}</option>
                 ))}
-              </div>
-            </div>
+              </select>
+            </label>
+            <label>並び順
+              <select name="sort">
+                {sortOptions.map((option) => (
+                  <option value={option.value} selected={sortParam === option.value}>{option.label}</option>
+                ))}
+              </select>
+            </label>
+            <input type="hidden" name="view" value={viewParam} />
+            <button class="editorial-button" type="submit">絞り込む</button>
+          </form>
+
+          <div class="editorial-listing-toolbar">
+            <p class="editorial-result-count">{totalCount}件の記事</p>
+            <nav aria-label="表示形式">
+              <a href={listHref(1, 'list')} aria-current={viewParam === 'list' ? 'page' : undefined}>一覧</a>
+              <a href={listHref(1, 'grid')} aria-current={viewParam === 'grid' ? 'page' : undefined}>タイル</a>
+            </nav>
+          </div>
+
+          {posts.length > 0 ? (
+            <ol class:list={['editorial-listing', { 'editorial-listing--grid': viewParam === 'grid' }]}>
+              {posts.map((post) => (
+                <li>
+                  <a href={`/blog/${post.id}/`}>
+                    <time datetime={post.publishedAt}>
+                      {new Date(post.publishedAt).toLocaleDateString('ja-JP')}
+                    </time>
+                    <span class="editorial-listing__category">{post.category[0] || 'ブログ'}</span>
+                    <span class="editorial-listing__copy">
+                      <span class="editorial-listing__title">{post.title}</span>
+                      <span class="editorial-listing__description">{post.description}</span>
+                    </span>
+                    <span class="editorial-listing__arrow" aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
           ) : (
-            <div class="text-center py-16 rounded-xl" style="background: linear-gradient(to bottom, var(--color-bg-secondary), var(--color-bg-tertiary)); border: 1px solid var(--color-border);">
-              <div class="text-6xl mb-4">📝</div>
-              <h3 class="text-2xl font-bold mb-2" style="color: var(--color-text-heading);">記事が見つかりません</h3>
-              <p class="mb-6" style="color: var(--color-text-muted);">指定された条件に該当する記事がありません</p>
-              <a
-                href="/blog"
-                class="inline-flex items-center px-6 py-3 font-medium rounded-lg transition-all duration-300 transform hover:scale-105"
-                style="background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover)); color: #fff;"
-              >
-                すべての記事を見る
-              </a>
-            </div>
+            <p class="editorial-empty-state">該当する記事はありません。<a href="/blog/">すべての記事を見る →</a></p>
           )}
 
-          <!-- ページネーション -->
           {totalPages > 1 && (
-            <nav class="mt-12 flex justify-center" aria-label="ページネーション">
-              <div class="flex items-center space-x-2">
-                {hasPrevPage && (
-                  <a
-                    href={`/blog?page=${currentPage - 1}&sort=${sortParam}&category=${categoryParam || 'all'}&view=${viewParam}`}
-                    class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-                    style="background: var(--color-bg-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border);"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                    <span>前へ</span>
-                  </a>
-                )}
-
-                {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
-                  const pageNum = i + 1;
-                  const isActive = pageNum === currentPage;
-
-                  return (
-                    <a
-                      href={`/blog?page=${pageNum}&sort=${sortParam}&category=${categoryParam || 'all'}&view=${viewParam}`}
-                      class="px-4 py-2 rounded-lg transition-all duration-200"
-                      style={isActive
-                        ? 'background: var(--color-accent); color: #fff; border: 1px solid transparent; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);'
-                        : 'background: var(--color-bg-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border);'}
-                    >
-                      {pageNum}
-                    </a>
-                  );
-                })}
-
-                {hasNextPage && (
-                  <a
-                    href={`/blog?page=${currentPage + 1}&sort=${sortParam}&category=${categoryParam || 'all'}&view=${viewParam}`}
-                    class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-                    style="background: var(--color-bg-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border);"
-                  >
-                    <span>次へ</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                  </a>
-                )}
-              </div>
+            <nav class="editorial-pagination" aria-label="記事ページ">
+              {hasPrevPage && <a href={listHref(currentPage - 1)} rel="prev">← 前へ</a>}
+              <span>{currentPage} / {totalPages}</span>
+              {hasNextPage && <a href={listHref(currentPage + 1)} rel="next">次へ →</a>}
             </nav>
           )}
-        </main>
+        </div>
 
-        <!-- サイドバー -->
-        <aside class="lg:w-80">
-          <div class="sticky top-24 space-y-8">
-            <Sidebar hideCategories={true} />
-            
-            <!-- カテゴリフィルター -->
-            <div class="rounded-xl shadow-xl backdrop-blur-sm p-6" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
-              <h3 class="text-xl font-bold mb-6 relative" style="background: linear-gradient(to right, var(--color-text-heading), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                カテゴリ
-                <span class="absolute -bottom-2 left-0 w-12 h-0.5 rounded-full" style="background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover));"></span>
-              </h3>
-              
-              <div class="space-y-2">
-                <a
-                  href={`/blog?sort=${sortParam}&view=${viewParam}`}
-                  class="block p-3 rounded-lg transition-all duration-200"
-                  style={!categoryParam || categoryParam === 'all'
-                    ? 'background: var(--color-accent-light); border: 1px solid var(--color-accent); color: var(--color-accent);'
-                    : 'border: 1px solid var(--color-border); color: var(--color-text-secondary);'}
-                >
-                  <div class="flex justify-between items-center">
-                    <span class="font-medium">すべて</span>
-                    <span class="text-sm px-2 py-1 rounded-full" style="background: var(--color-bg-tertiary);">{totalCount}</span>
-                  </div>
-                </a>
-
-                {categories.map(category => (
-                  <a
-                    href={`/blog?category=${category.name}&sort=${sortParam}&view=${viewParam}`}
-                    class="block p-3 rounded-lg transition-all duration-200"
-                    style={categoryParam === category.name
-                      ? 'background: var(--color-accent-light); border: 1px solid var(--color-accent); color: var(--color-accent);'
-                      : 'border: 1px solid var(--color-border); color: var(--color-text-secondary);'}
-                  >
-                    <div class="flex justify-between items-center">
-                      <span class="font-medium">{category.name}</span>
-                      <span class="text-sm px-2 py-1 rounded-full" style="background: var(--color-bg-tertiary);">{category.count}</span>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
+        <aside class="editorial-page-sidebar" aria-label="カテゴリ">
+          <h2>カテゴリ</h2>
+          <ul>
+            {categories.map((category) => (
+              <li><a href={`/category/${encodeURIComponent(category.name)}/`}><span>{category.name}</span><span>{category.count}</span></a></li>
+            ))}
+          </ul>
+          <p class="editorial-page-sidebar__more"><a href="/category/">カテゴリ一覧 →</a></p>
         </aside>
       </div>
     </div>
-  </div>
+  </main>
 </BaseLayout>
-
-<script>
-  // ソート機能（モバイル・デスクトップ両対応）
-  function handleSortChange(e: Event) {
-    const newSort = (e.target as HTMLSelectElement).value;
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('sort', newSort);
-    urlParams.set('page', '1'); // ソート変更時は1ページ目に戻す
-    window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
-  }
-
-  const sortSelectMobile = document.getElementById('sort-select') as HTMLSelectElement;
-  const sortSelectDesktop = document.getElementById('sort-select-desktop') as HTMLSelectElement;
-  
-  if (sortSelectMobile) {
-    sortSelectMobile.addEventListener('change', handleSortChange);
-  }
-  if (sortSelectDesktop) {
-    sortSelectDesktop.addEventListener('change', handleSortChange);
-  }
-
-  // 表示切り替え機能
-  function updateView(viewType: 'grid' | 'list') {
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('view', viewType);
-    window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
-  }
-
-  // モバイル用ボタン
-  const gridViewBtnMobile = document.getElementById('grid-view');
-  const listViewBtnMobile = document.getElementById('list-view');
-  
-  // デスクトップ用ボタン
-  const gridViewBtnDesktop = document.getElementById('grid-view-desktop');
-  const listViewBtnDesktop = document.getElementById('list-view-desktop');
-
-  if (gridViewBtnMobile) {
-    gridViewBtnMobile.addEventListener('click', () => updateView('grid'));
-  }
-  if (listViewBtnMobile) {
-    listViewBtnMobile.addEventListener('click', () => updateView('list'));
-  }
-  if (gridViewBtnDesktop) {
-    gridViewBtnDesktop.addEventListener('click', () => updateView('grid'));
-  }
-  if (listViewBtnDesktop) {
-    listViewBtnDesktop.addEventListener('click', () => updateView('list'));
-  }
-
-  // アニメーション
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('animate-fade-in');
-      }
-    });
-  }, observerOptions);
-
-  // 記事カードにアニメーションを適用
-  document.querySelectorAll('#articles-grid > div').forEach(card => {
-    observer.observe(card);
-  });
-</script>
-
-<style>
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.6s ease-out forwards;
-    opacity: 0;
-  }
-
-  /* カスタムスクロールバー */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: var(--color-bg-secondary);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, var(--color-accent-hover), var(--color-accent));
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, var(--color-accent), var(--color-accent-hover));
-  }
-</style>
