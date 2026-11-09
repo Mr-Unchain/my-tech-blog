@@ -647,3 +647,11 @@
 **User Input**: "ポートフォリオはメンテできてないし満足いく出来ではないので、非公開にしましょう。"
 **AI Response**: Prepared a main-based patch to remove the portfolio route, desktop/mobile/footer links, and sitemap entry. The broader editorial redesign remains isolated on its preview branch. The historical blog post is retained, and the old page remains recoverable from Git history. Build, lint, route, and sitemap verification are in progress.
 **Security Compliance**: No new dependencies, APIs, data stores, identities, or external calls. Removing a public page reduces exposure; applicable Security Baseline rules remain unchanged.
+
+---
+
+## Editorial Design PR Preparation
+**Timestamp**: 2026-11-09T16:41:12+09:00
+**User Input**: Approved the improved article presentation and requested a PR.
+**AI Response**: Integrated main (including merged PR #34), preserving both audit histories and the portfolio withdrawal plan. The integration changes no application code relative to the verified preview. Recorded desktop home and mobile article screenshots for review. Existing verification covers 75 unit tests, ESLint, production build, two Chromium navigation cases, popular article navigation, Giscus reload, and desktop/mobile article typography. Prepared the PR against main with the final design and functional fixes.
+**Security Compliance**: Review documentation and screenshots only; no new dependency, permission or data handling.
