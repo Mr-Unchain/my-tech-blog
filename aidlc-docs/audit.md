@@ -639,3 +639,11 @@
 **User Input**: Article body dividers look excessive; improve the reading experience and clarify whether headings add them automatically.
 **AI Response**: Found both automatic heading borders and explicit Markdown dividers. Removed heading borders and 12 redundant dividers adjacent to headings across the five published articles. Established section hierarchy through type and spacing, kept remaining thematic breaks as short centered rules, and set article body text to at least 16 px on mobile. Article wording, code blocks and metadata are preserved. Content validation and production build passed; preview visual verification follows.
 **Security Compliance**: Typography and redundant Markdown separator cleanup only. No changes to dependencies, permissions or data handling.
+
+---
+
+## Portfolio Withdrawal (Production Isolated Patch)
+**Timestamp**: 2026-11-09T02:26:35Z
+**User Input**: "ポートフォリオはメンテできてないし満足いく出来ではないので、非公開にしましょう。"
+**AI Response**: Prepared a main-based patch to remove the portfolio route, desktop/mobile/footer links, and sitemap entry. The broader editorial redesign remains isolated on its preview branch. The historical blog post is retained, and the old page remains recoverable from Git history. Build, lint, route, and sitemap verification are in progress.
+**Security Compliance**: No new dependencies, APIs, data stores, identities, or external calls. Removing a public page reduces exposure; applicable Security Baseline rules remain unchanged.

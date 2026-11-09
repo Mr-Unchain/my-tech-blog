@@ -4,11 +4,11 @@
 - **Project**: my-tech-blog
 - **Type**: Brownfield (existing codebase)
 - **Created**: 2026-03-13
-- **Current Workflow**: Sitewide Editorial Design (2026-11-09, preview verification)
+- **Current Workflow**: Sitewide Editorial Design (2026-11-09, PR preparation)
 
 ## Current Phase
 - **Phase**: CONSTRUCTION
-- **Stage**: Portfolio withdrawal and preview verification
+- **Stage**: Verified preview approved; PR preparation
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -36,6 +36,11 @@
 - **Preview**: Deploy the existing protected Vercel preview branch after local verification. Production remains unchanged.
 - **Portfolio follow-up**: The user requested that the unmaintained portfolio page be unpublished. Remove its route, navigation links, and sitemap entry; keep the historical blog article as editorial content.
 - **Previous workflow**: Markdown Authoring / CMS Cutover remains documented below.
+
+## Previous Workflow (2026-11-09, Merged)
+- **Name**: Portfolio Withdrawal
+- **Plan**: `aidlc-docs/construction/plans/portfolio-withdrawal.md`.
+- **Result**: Merged as PR #34; portfolio route and navigation removed.
 
 ## Previous Workflow (2026-11-08, Locally Verified)
 - **Name**: Markdown Authoring / CMS Cutover
