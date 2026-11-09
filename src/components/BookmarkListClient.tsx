@@ -121,7 +121,7 @@ export default function BookmarkListClient() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="bookmark-list space-y-4">
       <p className="text-sm mb-4" style={{ color: 'var(--color-text-muted)' }}>
         {bookmarks.length}件のブックマーク
       </p>
@@ -129,7 +129,7 @@ export default function BookmarkListClient() {
       {articles.map((article) => (
         <div
           key={article.id}
-          className="flex items-start gap-4 p-4 rounded-xl transition-all duration-200"
+          className="bookmark-list__item flex items-start gap-4 p-4 rounded-xl transition-all duration-200"
           style={{
             background: 'var(--color-bg-card)',
             border: '1px solid var(--color-border)',
@@ -139,7 +139,7 @@ export default function BookmarkListClient() {
           {article.eyecatch?.url && (
             <a
               href={`/blog/${article.id}/`}
-              className="flex-shrink-0 rounded-lg overflow-hidden"
+              className="bookmark-list__image flex-shrink-0 rounded-lg overflow-hidden"
               style={{ width: '120px', height: '75px' }}
             >
               <img
@@ -155,7 +155,7 @@ export default function BookmarkListClient() {
           <div className="flex-1 min-w-0">
             <a
               href={`/blog/${article.id}/`}
-              className="block font-bold text-base leading-tight mb-1 transition-colors hover:underline"
+              className="bookmark-list__title block font-bold text-base leading-tight mb-1 transition-colors hover:underline"
               style={{ color: 'var(--color-text-heading)' }}
             >
               {article.title}

@@ -1,18 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getLocalDrafts } from '../lib/blogs';
+import EditorialPageHeader from '../components/EditorialPageHeader.astro';
 
 if (!import.meta.env.DEV) return new Response(null, { status: 404 });
 const drafts = await getLocalDrafts();
 ---
 
 <BaseLayout pageTitle="ローカル下書き" noIndex={true}>
-  <main class="container mx-auto max-w-3xl px-4 py-12">
-    <h1 class="text-3xl font-bold mb-6">ローカル下書き</h1>
-    <p class="mb-6">この一覧は開発サーバー専用です。下書きファイルは Git 管理外に置いてください。</p>
-    <ul class="space-y-4">
-      {drafts.map((draft) => <li><a href={draft.urlPath}>{draft.title}</a></li>)}
+  <main class="editorial-page">
+    <div class="editorial-page-shell">
+    <EditorialPageHeader eyebrow="LOCAL DRAFTS" title="ローカル下書き" description="この一覧は開発サーバー専用です。下書きファイルは Git 管理外に置いてください。" />
+    <ul class="editorial-category-list">
+      {drafts.map((draft) => <li><a href={draft.urlPath}><span>{draft.title}</span><span>→</span></a></li>)}
     </ul>
     {drafts.length === 0 && <p>npm run article:new -- article-id "記事タイトル" で下書きを作成できます。</p>}
+    </div>
   </main>
 </BaseLayout>

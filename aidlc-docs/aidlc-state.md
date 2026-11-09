@@ -4,11 +4,11 @@
 - **Project**: my-tech-blog
 - **Type**: Brownfield (existing codebase)
 - **Created**: 2026-03-13
-- **Current Workflow**: Portfolio Withdrawal (2026-11-09, implementation verification)
+- **Current Workflow**: Sitewide Editorial Design (2026-11-09, PR preparation)
 
 ## Current Phase
 - **Phase**: CONSTRUCTION
-- **Stage**: Portfolio route and navigation removal - implementation verification
+- **Stage**: PR #35 review corrections and rereview
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -29,11 +29,18 @@
 |---|---|---|
 | Security Baseline | Yes | Requirements Analysis |
 
-## Current Workflow (2026-11-09, Implementation Verification)
+## Current Workflow (2026-11-09, Preview Verification)
+- **Name**: Sitewide Editorial Design
+- **Goal**: Extend the approved home and article typography, spacing, colors, and restrained surfaces to every visible page while retaining navigation and forms.
+- **Plan**: `aidlc-docs/construction/plans/sitewide-editorial-design.md`.
+- **Preview**: Deploy the existing protected Vercel preview branch after local verification. Production remains unchanged.
+- **Portfolio follow-up**: The user requested that the unmaintained portfolio page be unpublished. Remove its route, navigation links, and sitemap entry; keep the historical blog article as editorial content.
+- **Previous workflow**: Markdown Authoring / CMS Cutover remains documented below.
+
+## Previous Workflow (2026-11-09, Merged)
 - **Name**: Portfolio Withdrawal
-- **Goal**: Stop publishing the unmaintained portfolio while preserving the rest of the live site.
 - **Plan**: `aidlc-docs/construction/plans/portfolio-withdrawal.md`.
-- **Deployment**: Main-based isolated change; the editorial redesign remains on its preview branch.
+- **Result**: Merged as PR #34; portfolio route and navigation removed.
 
 ## Previous Workflow (2026-11-08, Locally Verified)
 - **Name**: Markdown Authoring / CMS Cutover

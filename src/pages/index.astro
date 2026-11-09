@@ -1,45 +1,13 @@
 ---
 // src/pages/index.astro
 import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
-import ArticleCard from "../components/ArticleCard.astro";
-import HeroRecommendations from "../components/HeroSlideshowReact";
-import Sidebar from "../components/Sidebar.astro";
-import TabNavigation from "../components/TabNavigation.astro";
+import EditorialFeatureVisual from "../components/EditorialFeatureVisual.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { db } from "../lib/firebase";
-import { getBlogs } from "../lib/blogs";
-import type { Blog } from "../lib/microcms";
-
-// ★ 人気記事取得（推薦カード用）
-let heroPosts: Blog[] = [];
-if (db) {
-  const viewsQuery = query(
-    collection(db, "views"),
-    orderBy("count", "desc"),
-    limit(3)
-  );
-  const querySnapshot = await getDocs(viewsQuery);
-  const popularPostIds = querySnapshot.docs.map((doc) => doc.id);
-
-  if (popularPostIds.length > 0) {
-    const filters = popularPostIds.map((id) => `id[equals]${id}`).join("[or]");
-    const { contents: microCMSData } = await getBlogs({
-      filters: filters,
-    });
-    heroPosts = popularPostIds
-      .map((id) => {
-        const post = microCMSData.find((post: Blog) => post.id === id);
-        if (!post) return undefined;
-        return {
-          ...post,
-          category: Array.isArray(post.category)
-            ? [...post.category]
-            : [post.category],
-        };
-      })
-      .filter((post): post is Blog => !!post);
-  }
-}
+import { getBlogs, getPublicBlogsByIds } from "../lib/blogs";
+import { getProfile, type Blog } from "../lib/microcms";
+import { calculateReadingTimeSimple } from "../utils/readingTime";
+import { cmsImageUrl } from "../utils/cmsImage";
 
 // ★ ページネーション
 const PAGE_SIZE = 20;
@@ -47,7 +15,7 @@ const pageParam = Astro.url.searchParams.get("page");
 const currentPage = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
 const offset = (currentPage - 1) * PAGE_SIZE;
 
-// ★ タブナビゲーション
+// 一覧の表示条件
 const activeTab = Astro.url.searchParams.get("tab") || "latest";
 
 // タブに応じた記事取得
@@ -63,16 +31,8 @@ if (activeTab === "popular" && db) {
   );
   const popSnapshot = await getDocs(popQuery);
   const popIds = popSnapshot.docs.map((doc) => doc.id);
-
-  if (popIds.length > 0) {
-    const filters = popIds.map((id) => `id[equals]${id}`).join("[or]");
-    const { contents: popPosts } = await getBlogs({ filters });
-    // Firestoreの順序を維持
-    pagedPosts = popIds
-      .map((id) => popPosts.find((p: Blog) => p.id === id))
-      .filter((p): p is Blog => !!p);
-    totalCount = pagedPosts.length;
-  }
+  pagedPosts = await getPublicBlogsByIds(popIds);
+  totalCount = pagedPosts.length;
 } else if (activeTab.startsWith("category-")) {
   // カテゴリタブ: microCMSのフィルタで絞り込み
   const categoryName = decodeURIComponent(activeTab.replace("category-", ""));
@@ -96,20 +56,19 @@ if (activeTab === "popular" && db) {
 }
 const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
 
-// ★ 全記事からカテゴリを取得（タブに依存しない一貫したカテゴリ一覧）
+// カテゴリ数を記事一覧とは独立して取得
 const { contents: allPostsForCategories } = await getBlogs({
   limit: 100,
   fields: 'category',
 });
-const categoryChips: string[] = Array.from(
-  new Set(
-    (allPostsForCategories as Blog[]).flatMap((p: Blog) =>
-      Array.isArray(p.category)
-        ? (p.category as string[])
-        : (p.category ? [String(p.category)] : [])
-    )
-  )
-).slice(0, 6);
+const categoryCounts = (allPostsForCategories as Blog[]).reduce<Record<string, number>>((counts, post) => {
+  for (const category of post.category) counts[category] = (counts[category] || 0) + 1;
+  return counts;
+}, {});
+const profile = await getProfile();
+const featuredPost = activeTab === 'latest' && currentPage === 1 ? pagedPosts[0] : undefined;
+const listPosts = featuredPost ? pagedPosts.slice(1) : pagedPosts;
+const pageHref = (page: number) => `/?tab=${encodeURIComponent(activeTab)}&page=${page}`;
 
 // カノニカルURL
 const canonicalHome = (() => {
@@ -120,7 +79,6 @@ const canonicalHome = (() => {
 ---
 
 <BaseLayout
-  pageTitle="Monologger"
   pageDescription="ITに触れて生まれた日々の気づきや備忘録をゆるくまとめています。ガジェットや開発の小ネタ、作業をラクにするヒントなど。"
   keywords="テクノロジー, ガジェット, 開発, プログラミング, コーディング, AI, Web開発, JavaScript, React, Astro, 備忘録, 気づき"
   canonicalUrl={canonicalHome}
@@ -128,7 +86,6 @@ const canonicalHome = (() => {
   <Fragment slot="head">
     {
       [
-        ...(heroPosts || []).slice(0,3).map((p: Blog) => p.eyecatch?.url).filter(Boolean),
         ...(pagedPosts || []).slice(0,3).map((p: Blog) => p.eyecatch?.url).filter(Boolean)
       ].slice(0,6).map((url: string) => (
         <link rel="preload" as="image" href={`${url}?w=800&q=70`} />
@@ -173,232 +130,104 @@ const canonicalHome = (() => {
       })}
   </script>
 
-  <main class="min-h-screen transition-colors duration-200" style="background: var(--color-bg-primary);">
-    <!-- ヘッダーエリア: 検索 + タイトル -->
-    <section class="border-b transition-colors duration-200" style="border-color: var(--color-border);">
-      <div class="container mx-auto px-4 md:px-6 pt-8 pb-6 max-w-7xl">
-        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 hero-typing" style="color: var(--color-text-heading);" data-testid="hero-title">
-          Monologger
-        </h1>
-        <p class="text-sm md:text-base mb-5 hero-fade-in" style="color: var(--color-text-secondary);" data-testid="hero-subtitle">
-          Build. Learn. Share.
-        </p>
-        <form id="fv-search" method="get" action="/search" class="flex w-full max-w-xl rounded-lg overflow-hidden border transition-colors duration-200 hero-fade-in hero-fade-in--delay" style="border-color: var(--color-border);">
-          <input
-            name="q"
-            id="fv-q"
-            list="fv-suggest"
-            class="flex-1 px-4 py-2.5 text-sm focus:outline-none transition-colors duration-200"
-            style="background: var(--color-bg-secondary); color: var(--color-text-primary);"
-            placeholder="記事を検索..."
-          />
-          <datalist id="fv-suggest"></datalist>
-          <button type="submit" class="px-4 text-white text-sm font-medium" style="background: var(--color-accent);">
-            検索
-          </button>
-        </form>
-      </div>
-    </section>
-
-    <!-- 推薦記事（人気記事） -->
-    {heroPosts.length > 0 && (
-      <section class="border-b transition-colors duration-200" style="border-color: var(--color-border);">
-        <div class="container mx-auto px-4 md:px-6 py-6 max-w-7xl">
-          <h2 class="text-lg font-bold mb-4" style="color: var(--color-text-heading);">
-            おすすめ記事
-          </h2>
-          <HeroRecommendations client:idle posts={heroPosts} />
-        </div>
+  <main class="editorial-home">
+    <div class="editorial-shell">
+      <section class="editorial-masthead" aria-labelledby="site-title">
+        <h1 id="site-title" class="editorial-title-reveal" data-testid="hero-title">Monologger</h1>
+        <p data-testid="hero-subtitle">つくる・学ぶ・共有する。</p>
       </section>
-    )}
 
-    <!-- タブナビゲーション -->
-    <div class="container mx-auto px-4 md:px-6 max-w-7xl">
-      <TabNavigation activeTab={activeTab} categories={categoryChips} />
-    </div>
-
-    <!-- メインコンテンツ -->
-    <div class="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-        <div class="lg:col-span-3">
-          <section>
-            <!-- ビュー切替 -->
-            <div class="flex justify-between items-center mb-6">
-              <h2 class="text-xl font-bold" style="color: var(--color-text-heading);">
-                {activeTab === "popular" ? "人気記事" : activeTab.startsWith("category-") ? `#${decodeURIComponent(activeTab.replace("category-", ""))}` : "最新記事"}
-              </h2>
-              <div class="flex space-x-2">
-                <button
-                  id="view-grid"
-                  title="グリッド表示"
-                  aria-label="記事をグリッド形式で表示"
-                  class="p-2 rounded-lg border transition-colors duration-200"
-                  style="border-color: var(--color-border); color: var(--color-accent); background: var(--color-bg-secondary);"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z"></path>
-                  </svg>
-                </button>
-                <button
-                  id="view-list"
-                  title="リスト表示"
-                  aria-label="記事をリスト形式で表示"
-                  class="p-2 rounded-lg border transition-colors duration-200"
-                  style="border-color: var(--color-border); color: var(--color-text-muted); background: var(--color-bg-secondary);"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- 記事グリッド -->
-            <div
-              id="article-list-container"
-              class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
-              style="transition: all 0.3s ease;"
-            >
-              {
-                pagedPosts.map((post: Blog) => (
-                  <ArticleCard
-                    class="article-card"
-                    id={post.id}
-                    category={post.category}
-                    title={post.title}
-                    description={post.description}
-                    date={
-                      post.publishedAt
-                        ? new Date(post.publishedAt).toLocaleDateString("ja-JP")
-                        : ""
-                    }
-                    imageUrl={
-                      post.eyecatch?.url
-                        ? post.eyecatch.url + "?w=400&h=225&fit=crop"
-                        : "/placeholder.svg"
-                    }
-                    imageUrlList={
-                      post.eyecatch?.url
-                        ? post.eyecatch.url + "?w=320&h=180&fit=crop"
-                        : "/placeholder.svg"
-                    }
-                  />
-                ))
-              }
-            </div>
-
-            <!-- ページネーション -->
-            {totalPages > 1 && (
-              <div class="mt-10 flex justify-center">
-                <nav class="flex items-center space-x-2">
-                  <a
-                    href={`?page=${currentPage - 1}`}
-                    class:list={[
-                      'flex items-center justify-center h-10 w-10 rounded-lg border text-sm transition-colors duration-200',
-                      currentPage === 1 ? 'pointer-events-none opacity-40' : '',
-                    ]}
-                    style={`border-color: var(--color-border); color: var(--color-text-secondary); background: var(--color-bg-card);`}
-                    aria-label="前のページへ"
-                    rel="prev"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                  </a>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) =>
-                    page === currentPage ? (
-                      <span
-                        aria-current="page"
-                        class="flex items-center justify-center h-10 w-10 text-white font-bold rounded-lg text-sm"
-                        style="background: var(--color-accent);"
-                      >
-                        {page}
-                      </span>
-                    ) : (
-                      <a
-                        href={`?page=${page}`}
-                        class="flex items-center justify-center h-10 w-10 rounded-lg border text-sm transition-colors duration-200 hover:opacity-80"
-                        style={`border-color: var(--color-border); color: var(--color-text-secondary); background: var(--color-bg-card);`}
-                        aria-label={`${page}ページ目へ`}
-                        rel={page === currentPage - 1 ? 'prev' : page === currentPage + 1 ? 'next' : undefined}
-                      >
-                        {page}
-                      </a>
-                    )
-                  )}
-                  <a
-                    href={`?page=${currentPage + 1}`}
-                    class:list={[
-                      'flex items-center justify-center h-10 w-10 rounded-lg border text-sm transition-colors duration-200',
-                      currentPage === totalPages ? 'pointer-events-none opacity-40' : '',
-                    ]}
-                    style={`border-color: var(--color-border); color: var(--color-text-secondary); background: var(--color-bg-card);`}
-                    aria-label="次のページへ"
-                    rel="next"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                  </a>
-                </nav>
-              </div>
+      {featuredPost && (
+        <section class="editorial-lead" aria-labelledby="featured-title">
+          <div class="editorial-lead__copy">
+            <p class="editorial-eyebrow">最新記事</p>
+            <h2 id="featured-title"><a href={`/blog/${featuredPost.id}/`}>{featuredPost.title}</a></h2>
+            <p class="editorial-lead__meta">
+              <time datetime={featuredPost.publishedAt}>
+                {new Date(featuredPost.publishedAt).toLocaleDateString('ja-JP')}
+              </time>
+              <span aria-hidden="true">・</span>
+              <span>約{calculateReadingTimeSimple(featuredPost.content || '')}分</span>
+              <span aria-hidden="true">・</span>
+              <span>{featuredPost.category.join(' / ')}</span>
+            </p>
+            <p class="editorial-lead__summary">{featuredPost.description}</p>
+            <a class="editorial-read-link" href={`/blog/${featuredPost.id}/`}>
+              記事を読む <span aria-hidden="true">→</span>
+            </a>
+          </div>
+          <a class="editorial-lead__visual" href={`/blog/${featuredPost.id}/`} aria-label={`${featuredPost.title}を読む`}>
+            {featuredPost.id === 'docker-intro-part1' ? (
+              <EditorialFeatureVisual />
+            ) : featuredPost.eyecatch?.url ? (
+              <img src={cmsImageUrl(featuredPost.eyecatch.url, 800)} alt="" loading="eager" decoding="async" />
+            ) : (
+              <div class="editorial-lead__placeholder" aria-hidden="true">Monologger</div>
             )}
+          </a>
+        </section>
+      )}
 
-            <!-- ブログ一覧へのリンク -->
-            <div class="mt-10 text-center">
-              <a
-                href="/blog"
-                class="inline-flex items-center space-x-2 px-6 py-3 text-sm font-medium rounded-lg border transition-colors duration-200 hover:opacity-80"
-                style={`border-color: var(--color-border); color: var(--color-accent); background: var(--color-bg-card);`}
-              >
-                <span>すべての記事を見る</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                </svg>
-              </a>
+      <div class="editorial-content">
+        <section class="editorial-content__main" aria-labelledby="recent-heading">
+          <div class="editorial-section-heading">
+            <h2 id="recent-heading">
+              {activeTab === 'popular' ? '人気記事' : activeTab.startsWith('category-') ? `#${decodeURIComponent(activeTab.replace('category-', ''))}` : '最近の投稿'}
+            </h2>
+            <div class="editorial-section-heading__links">
+              <a href="/?tab=latest" aria-current={activeTab === 'latest' ? 'page' : undefined}>最新</a>
+              <a href="/?tab=popular" aria-current={activeTab === 'popular' ? 'page' : undefined}>人気</a>
+              <a href="/blog/">すべての記事 <span aria-hidden="true">→</span></a>
             </div>
+          </div>
+          {listPosts.length > 0 ? (
+            <ol class="editorial-index">
+              {listPosts.map((post) => (
+                <li>
+                  <a href={`/blog/${post.id}/`}>
+                    <time datetime={post.publishedAt}>
+                      {new Date(post.publishedAt).toLocaleDateString('ja-JP')}
+                    </time>
+                    <span class="editorial-index__category">{post.category[0] || 'ブログ'}</span>
+                    <span class="editorial-index__title">{post.title}</span>
+                    <span class="editorial-index__arrow" aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p class="editorial-empty">表示できる記事はまだありません。</p>
+          )}
+          {totalPages > 1 && (
+            <nav class="editorial-pagination" aria-label="記事ページ">
+              {currentPage > 1 && <a href={pageHref(currentPage - 1)} rel="prev">← 前へ</a>}
+              <span>{currentPage} / {totalPages}</span>
+              {currentPage < totalPages && <a href={pageHref(currentPage + 1)} rel="next">次へ →</a>}
+            </nav>
+          )}
+        </section>
+
+        <aside class="editorial-sidebar" aria-label="ブログについて">
+          <section>
+            <h2>書き手</h2>
+            <p class="editorial-sidebar__name">{profile?.name || 'Monologger'}</p>
+            <p>{profile?.description || '技術の学びと制作の記録を残しています。'}</p>
+            <a href="/profile/">プロフィールを見る <span aria-hidden="true">→</span></a>
           </section>
-        </div>
-        <Sidebar />
+          <section>
+            <h2>カテゴリ</h2>
+            <ul>
+              {Object.entries(categoryCounts).map(([category, count]) => (
+                <li>
+                  <a href={`/category/${encodeURIComponent(category)}/`}>
+                    <span>{category}</span><span>{count}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </aside>
       </div>
     </div>
   </main>
 </BaseLayout>
-
-<script>
-  import { initializeViewToggle } from '../lib/view-toggle';
-  import { initializeSearchHistory } from '../lib/search-history';
-
-  document.addEventListener('astro:page-load', initializeViewToggle);
-  document.addEventListener('swup:contentReplaced', initializeViewToggle);
-  document.addEventListener('DOMContentLoaded', initializeViewToggle);
-
-  initializeSearchHistory();
-
-  // Hero typing animation: remove caret after typing completes
-  function initHeroAnimation() {
-    const heroTitle = document.querySelector('.hero-typing') as HTMLElement | null;
-    if (!heroTitle) return;
-
-    // Reset animation for Swup page transitions
-    heroTitle.style.animation = 'none';
-    heroTitle.classList.remove('typing-done');
-    void heroTitle.offsetHeight; // trigger reflow
-    heroTitle.style.animation = '';
-
-    // Remove caret after typing animation ends
-    heroTitle.addEventListener('animationend', (e) => {
-      if (e.animationName === 'hero-typing') {
-        heroTitle.classList.add('typing-done');
-      }
-    }, { once: true });
-
-    // Reset fade-in elements for Swup transitions
-    document.querySelectorAll('.hero-fade-in').forEach((el) => {
-      const htmlEl = el as HTMLElement;
-      htmlEl.style.animation = 'none';
-      void htmlEl.offsetHeight;
-      htmlEl.style.animation = '';
-    });
-  }
-
-  initHeroAnimation();
-  document.addEventListener('astro:page-load', initHeroAnimation);
-  document.addEventListener('swup:contentReplaced', initHeroAnimation);
-</script>

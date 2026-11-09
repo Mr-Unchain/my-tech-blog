@@ -3,6 +3,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import BookmarkListClient from "../components/BookmarkListClient";
+import EditorialPageHeader from "../components/EditorialPageHeader.astro";
 
 const breadcrumbItems = [
   { name: "ホーム", href: "/" },
@@ -11,27 +12,15 @@ const breadcrumbItems = [
 ---
 
 <BaseLayout
-  pageTitle="ブックマーク | Monologger"
+  pageTitle="ブックマーク"
   pageDescription="ブックマーク済みの記事一覧"
   noIndex={true}
 >
-  <main style="background: var(--color-bg-primary); min-height: 60vh;">
-    <div class="max-w-3xl mx-auto px-4 py-8">
+  <main class="editorial-page editorial-bookmarks">
+    <div class="editorial-page-shell">
       <Breadcrumb items={breadcrumbItems} />
-
-      <div class="mb-8">
-        <h1
-          class="text-2xl font-bold mb-2"
-          style="color: var(--color-text-heading);"
-        >
-          ブックマーク
-        </h1>
-        <p class="text-sm" style="color: var(--color-text-muted);">
-          お気に入りの記事をまとめて確認できます。
-        </p>
-      </div>
-
-      <BookmarkListClient client:load />
+      <EditorialPageHeader eyebrow="SAVED ARTICLES" title="ブックマーク" description="あとで読みたい記事をまとめて確認できます。" />
+      <div class="editorial-bookmarks__list"><BookmarkListClient client:load /></div>
     </div>
   </main>
 </BaseLayout>

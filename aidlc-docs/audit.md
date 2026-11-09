@@ -594,8 +594,72 @@
 
 ---
 
+## Sitewide Editorial Design
+**Timestamp**: 2026-11-09T01:42:37Z
+**User Input**: Approved the protected editorial preview and asked to apply the home and article page style to all pages.
+**AI Response**: Reused the approved preview branch and the existing AI-DLC assets. Applied shared editorial headings, filters, lists, forms and prose to all visual routes; restrained the profile and portfolio decoration; retained content and interactions. Corrected pre-existing inline module scripts in BaseLayout after browser verification showed Swup was not running. Local production build, ESLint, 74 unit tests, desktop/mobile route rendering and primary interactions passed. Protected preview deployment is the next step; production is unchanged.
+**Security Compliance**: No new stores, APIs, permissions, dependencies, or external scripts. SECURITY-10 lockfile unchanged; SECURITY-13 search suggestions use safe DOM nodes and search result text is escaped before highlighting. Other baseline rules are unchanged or not applicable to this visual scope.
+
+---
+
+## Portfolio Withdrawal
+**Timestamp**: 2026-11-09T02:26:35Z
+**User Input**: "ポートフォリオはメンテできてないし満足いく出来ではないので、非公開にしましょう。"
+**AI Response**: Removed the portfolio route from the editorial preview, removed desktop/mobile/footer links, excluded it from the sitemap, and removed its unused editorial CSS. Retained the historical blog post about creating the portfolio. The old page remains recoverable from Git history. A separate main-based patch will withdraw the existing production page without shipping the broader design preview.
+**Security Compliance**: Removing a public route reduces exposure. No new dependencies, APIs, permissions, or data handling; applicable SECURITY rules remain unchanged.
+
+---
+
+## Editorial Article Navigation Preview Fix
+**Timestamp**: 2026-11-09T15:31:02+09:00
+**User Input**: Preview feedback on the Docker article: the next-article arrow is too large on mobile.
+**AI Response**: Confirmed the deployed preview omitted the ArticleNavigation component styles, leaving its SVG at 540.8 px. Moved the navigation rules into the shared editorial stylesheet, constrained the arrow to 16 px, and kept the mobile card in one column. Verified the Docker article at 596 px: arrow 16 × 16 px, link card 540.8 × 74.9 px, with no horizontal overflow. All 74 unit tests, ESLint and production build passed.
+**Security Compliance**: Visual CSS and component style cleanup only; no new dependencies, scripts, data handling or permissions. Security Baseline remains unchanged.
+
+---
+
+## Popular Articles Preview Repair
+**Timestamp**: 2026-11-09T15:49:20+09:00
+**User Input**: The home page's popular articles button produces an error in the preview.
+**AI Response**: Reproduced the failed navigation and confirmed the Vercel runtime error `Unsupported article filter` in `index.astro`. Firestore view IDs were being concatenated into the Markdown article filter grammar, which rejects legacy IDs. Replaced that conversion with direct matching against published article IDs while preserving view order and excluding stale or draft IDs. Added a regression test for a legacy path ID and a draft ID. All 75 unit tests, ESLint, content validation and production build passed before redeployment.
+**Security Compliance**: Reads the same published articles and view IDs without expanding access. Stale and draft IDs are excluded; no new dependency, permission, API or data store.
+
+---
+
+## Giscus Navigation Repair
+**Timestamp**: 2026-11-09T16:06:31+09:00
+**User Input**: Giscus does not display, and its reload button does not restore it.
+**AI Response**: Reproduced the issue when navigating from home to an article. Direct article loads showed Giscus, but Swup's scripts plugin reran inline scripts during navigation and raised `Identifier 't' has already been declared`; Giscus initialization and the reload handler then did not run. Removed Swup navigation so each page executes its scripts through a normal page load, and initialized Giscus exactly once per load. Updated the navigation browser test for the current search heading and added a home-to-article comment controls case. Verified 75 unit tests, ESLint, production build and both Chromium navigation tests before redeployment.
+**Security Compliance**: No new dependency, external script, data flow or permission. Existing Giscus configuration and origin remain unchanged.
+
+---
+
+## Article Reading Presentation
+**Timestamp**: 2026-11-09T16:14:04+09:00
+**User Input**: Article body dividers look excessive; improve the reading experience and clarify whether headings add them automatically.
+**AI Response**: Found both automatic heading borders and explicit Markdown dividers. Removed heading borders and 12 redundant dividers adjacent to headings across the five published articles. Established section hierarchy through type and spacing, kept remaining thematic breaks as short centered rules, and set article body text to at least 16 px on mobile. Article wording, code blocks and metadata are preserved. Content validation and production build passed; preview visual verification follows.
+**Security Compliance**: Typography and redundant Markdown separator cleanup only. No changes to dependencies, permissions or data handling.
+
+---
+
 ## Portfolio Withdrawal (Production Isolated Patch)
 **Timestamp**: 2026-11-09T02:26:35Z
 **User Input**: "ポートフォリオはメンテできてないし満足いく出来ではないので、非公開にしましょう。"
 **AI Response**: Prepared a main-based patch to remove the portfolio route, desktop/mobile/footer links, and sitemap entry. The broader editorial redesign remains isolated on its preview branch. The historical blog post is retained, and the old page remains recoverable from Git history. Build, lint, route, and sitemap verification are in progress.
 **Security Compliance**: No new dependencies, APIs, data stores, identities, or external calls. Removing a public page reduces exposure; applicable Security Baseline rules remain unchanged.
+
+---
+
+## Editorial Design PR Preparation
+**Timestamp**: 2026-11-09T16:41:12+09:00
+**User Input**: Approved the improved article presentation and requested a PR.
+**AI Response**: Integrated main (including merged PR #34), preserving both audit histories and the portfolio withdrawal plan. The integration changes no application code relative to the verified preview. Recorded desktop home and mobile article screenshots for review. Existing verification covers 75 unit tests, ESLint, production build, two Chromium navigation cases, popular article navigation, Giscus reload, and desktop/mobile article typography. Prepared the PR against main with the final design and functional fixes.
+**Security Compliance**: Review documentation and screenshots only; no new dependency, permission or data handling.
+
+---
+
+## PR #35 Keyboard Navigation Review Fix
+**Timestamp**: 2026-11-09T16:56:05+09:00
+**User Input**: Monitor the Codex review and address findings when they arrive.
+**AI Response**: Confirmed the P2 finding: the t shortcut still targeted the removed `.toc-scroll-area`. Updated it to select the visible editorial TOC and open the mobile details before focusing its first link. Added desktop (1280 px) and mobile (390 px) browser regression tests; both Chromium cases, ESLint, content validation and production build passed. Prepared the fix for PR #35 and rereview.
+**Security Compliance**: Existing keyboard behavior only; no new dependency, permission or data flow.
