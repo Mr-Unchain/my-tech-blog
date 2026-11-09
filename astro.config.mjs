@@ -45,6 +45,7 @@ export default defineConfig({
       customPages: dynamicPages,
       filter: (page) =>
         !page.includes('/search') &&
+        !page.includes('/portfolio') &&
         !page.includes('/404') &&
         !page.includes('/drafts') &&
         !page.includes('/api/'),

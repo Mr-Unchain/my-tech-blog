@@ -591,3 +591,11 @@
 **Context**: CONSTRUCTION - PR review correction and browser regression verification complete.
 
 ---
+
+---
+
+## Portfolio Withdrawal (Production Isolated Patch)
+**Timestamp**: 2026-11-09T02:26:35Z
+**User Input**: "ポートフォリオはメンテできてないし満足いく出来ではないので、非公開にしましょう。"
+**AI Response**: Prepared a main-based patch to remove the portfolio route, desktop/mobile/footer links, and sitemap entry. The broader editorial redesign remains isolated on its preview branch. The historical blog post is retained, and the old page remains recoverable from Git history. Build, lint, route, and sitemap verification are in progress.
+**Security Compliance**: No new dependencies, APIs, data stores, identities, or external calls. Removing a public page reduces exposure; applicable Security Baseline rules remain unchanged.
