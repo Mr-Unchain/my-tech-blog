@@ -1,0 +1,92 @@
+---
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+---
+
+<div
+  class:list={['editorial-feature-visual', { 'editorial-feature-visual--compact': compact }]}
+  role="img"
+  aria-label="Dockerからコンテナを動かし、アプリを実行する概念図"
+>
+  <div class="editorial-feature-visual__bar" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="editorial-feature-visual__body" aria-hidden="true">
+    <div class="editorial-feature-visual__commands">
+      <span>$ docker run -d nginx</span>
+      <span>$ docker ps</span>
+    </div>
+    <div class="editorial-feature-visual__flow">
+      <span>Docker</span><b>→</b><span>コンテナ</span><b>→</b><span>アプリ</span>
+    </div>
+    <p>同じ環境を、どこでも再現する。</p>
+  </div>
+</div>
+
+<style>
+  .editorial-feature-visual {
+    width: 100%;
+    min-height: 290px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #15222e;
+    color: #f7fafc;
+    font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  }
+
+  .editorial-feature-visual__bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 20px;
+    background: #243644;
+  }
+
+  .editorial-feature-visual__bar span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #f37274;
+  }
+
+  .editorial-feature-visual__bar span:nth-child(2) { background: #e8c05a; }
+  .editorial-feature-visual__bar span:nth-child(3) { background: #5dc98b; }
+
+  .editorial-feature-visual__body { padding: 27px 30px 25px; }
+  .editorial-feature-visual__commands { display: grid; gap: 3px; font-size: 1rem; }
+  .editorial-feature-visual__commands span::first-letter { color: #5dc98b; }
+  .editorial-feature-visual__flow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 31px;
+    padding-top: 27px;
+    border-top: 1px solid #607180;
+    font-family: var(--font-base);
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .editorial-feature-visual__flow b { color: #9ecfe6; font-weight: 400; }
+  .editorial-feature-visual__body p { margin: 23px 0 0; color: #b8dce8; font: 0.9rem var(--font-base); }
+
+  .editorial-feature-visual--compact { min-height: 0; }
+  .editorial-feature-visual--compact .editorial-feature-visual__body { padding: 20px 24px; }
+  .editorial-feature-visual--compact .editorial-feature-visual__flow { margin-top: 22px; padding-top: 18px; }
+  .editorial-feature-visual--compact .editorial-feature-visual__body p { display: none; }
+
+  @media (max-width: 600px) {
+    .editorial-feature-visual { min-height: 0; }
+    .editorial-feature-visual__bar { height: 28px; }
+    .editorial-feature-visual__body { padding: 17px 20px 21px; }
+    .editorial-feature-visual__commands { font-size: 0.85rem; }
+    .editorial-feature-visual__flow { margin-top: 16px; padding-top: 15px; font-size: 0.95rem; }
+    .editorial-feature-visual__body p { display: none; }
+  }
+</style>
