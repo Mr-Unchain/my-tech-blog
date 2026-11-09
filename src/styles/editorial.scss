@@ -610,7 +610,7 @@
   .editorial-category-list li:nth-child(2) { border-top: 0; }
 }
 
-/* Profile, portfolio, saved articles, and the error page use the same paper-like surfaces. */
+/* Profile, saved articles, and the error page use the same paper-like surfaces. */
 .editorial-not-found { padding-top: clamp(55px, 10vw, 130px); }
 .editorial-not-found .editorial-page-header { max-width: 760px; }
 .editorial-not-found__links { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -625,33 +625,6 @@
 .editorial-profile #contact-email { border-radius: 2px; }
 .editorial-profile .prose { color: var(--ed-ink); line-height: 1.9; }
 
-.editorial-portfolio [class*='bg-[radial-gradient'] { display: none; }
-.editorial-portfolio .editorial-page-shell { max-width: 1120px; }
-.editorial-portfolio .editorial-page-shell > section:first-of-type { padding: 0 0 45px; border: 0 !important; border-bottom: 1px solid var(--ed-line) !important; border-radius: 0; background: transparent !important; }
-.editorial-portfolio .editorial-page-shell > section:first-of-type h1 { font-size: clamp(2.2rem, 4vw, 3.6rem); }
-.editorial-portfolio .editorial-page-shell > section:first-of-type h1 span { background: none !important; -webkit-text-fill-color: var(--ed-ink) !important; }
-.editorial-portfolio .editorial-page-shell > section:first-of-type h1 span + span { color: var(--ed-muted); -webkit-text-fill-color: var(--ed-muted) !important; font-family: var(--ed-body); font-size: 0.55em; font-weight: 500; }
-.editorial-portfolio .editorial-page-shell > section:first-of-type .animate-pulse { display: none; }
-.editorial-portfolio .editorial-page-shell > section:first-of-type [style*='background: var(--color-bg-tertiary)'] { background: transparent !important; }
-.editorial-portfolio .editorial-page-shell > section:first-of-type p[style*='background: linear-gradient'] { background: none !important; -webkit-text-fill-color: var(--ed-ink) !important; }
-.editorial-portfolio section h2 { font-family: var(--ed-display); font-size: clamp(1.5rem, 2.8vw, 2.1rem); }
-.editorial-portfolio section h2[style*='background: linear-gradient'] { background: none !important; -webkit-text-fill-color: var(--ed-ink) !important; }
-.editorial-portfolio section .w-1\.5.h-12 { display: none; }
-.editorial-portfolio section :is(.rounded-xl, .rounded-2xl, .rounded-3xl) { border-radius: 2px; }
-.editorial-portfolio section :is(.rounded-full) { border-radius: 2px; }
-.editorial-portfolio .project-card { border: 1px solid var(--ed-line); border-radius: 2px; background: transparent; box-shadow: none; transform: none; }
-.editorial-portfolio .project-card:hover { box-shadow: none; transform: none; border-color: var(--ed-blue); }
-.editorial-portfolio .project-card > .absolute { display: none; }
-.editorial-portfolio .project-card__achievements { background: var(--ed-soft); border: 0; border-radius: 2px; }
-.editorial-portfolio .project-card__badge,
-.editorial-portfolio .project-card__role-badge,
-.editorial-portfolio .project-card__tech { background: transparent; border: 1px solid var(--ed-line); border-radius: 2px; }
-.editorial-portfolio #projects .grid { max-width: 760px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
-.editorial-portfolio .article-card { border-color: var(--ed-line); border-radius: 2px; box-shadow: none; }
-.editorial-portfolio .portfolio-prose { background: transparent !important; border: 0 !important; border-top: 1px solid var(--ed-line) !important; padding-inline: 0; }
-.editorial-portfolio .bg-gradient-to-br { display: none; }
-.editorial-portfolio section :is(p, li) { line-height: 1.8; }
-
 .editorial-bookmarks .bookmark-list { max-width: 850px; }
 .editorial-bookmarks .bookmark-list__item { border: 0 !important; border-bottom: 1px solid var(--ed-line) !important; border-radius: 0 !important; padding-inline: 0; }
 .editorial-bookmarks .bookmark-list__item:first-of-type { border-top: 1px solid var(--ed-line) !important; }
@@ -661,6 +634,5 @@
 @media (max-width: 600px) {
   .editorial-profile header { text-align: center; }
   .editorial-profile__sheet { padding: 0 !important; }
-  .editorial-portfolio .editorial-page-shell > section:first-of-type { padding-bottom: 30px; }
   .editorial-bookmarks .bookmark-list__item { flex-wrap: wrap; }
 }

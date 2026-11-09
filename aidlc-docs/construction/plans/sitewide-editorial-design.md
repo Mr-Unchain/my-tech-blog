@@ -20,3 +20,7 @@ The user approved the hybrid editorial direction in the protected preview and as
 ## Security compliance
 
 This change adds no store, API, identity, dependency, or infrastructure resource. SECURITY-01 through SECURITY-09, SECURITY-11 through SECURITY-12, and SECURITY-14 through SECURITY-15 are unchanged or not applicable to this visual change. SECURITY-10 keeps the existing lockfile. SECURITY-13 applies to the search suggestions and highlighting: suggestions use DOM option nodes and highlighted text is HTML escaped before the trusted mark tag is inserted.
+
+## Portfolio withdrawal (2026-11-09)
+
+The user requested the portfolio be unpublished because it is not maintained and is not ready to show. Remove the Astro route so direct visits receive the site's 404 response; remove desktop, mobile, and footer links; and exclude the path from the sitemap. The old page remains recoverable from Git history. The historical article about building a portfolio remains published because it is a separate post.

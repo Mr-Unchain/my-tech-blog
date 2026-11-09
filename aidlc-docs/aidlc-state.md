@@ -8,7 +8,7 @@
 
 ## Current Phase
 - **Phase**: CONSTRUCTION
-- **Stage**: Sitewide editorial style implementation and preview verification
+- **Stage**: Portfolio withdrawal and preview verification
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -34,6 +34,7 @@
 - **Goal**: Extend the approved home and article typography, spacing, colors, and restrained surfaces to every visible page while retaining navigation and forms.
 - **Plan**: `aidlc-docs/construction/plans/sitewide-editorial-design.md`.
 - **Preview**: Deploy the existing protected Vercel preview branch after local verification. Production remains unchanged.
+- **Portfolio follow-up**: The user requested that the unmaintained portfolio page be unpublished. Remove its route, navigation links, and sitemap entry; keep the historical blog article as editorial content.
 - **Previous workflow**: Markdown Authoring / CMS Cutover remains documented below.
 
 ## Previous Workflow (2026-11-08, Locally Verified)

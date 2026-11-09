@@ -599,3 +599,11 @@
 **User Input**: Approved the protected editorial preview and asked to apply the home and article page style to all pages.
 **AI Response**: Reused the approved preview branch and the existing AI-DLC assets. Applied shared editorial headings, filters, lists, forms and prose to all visual routes; restrained the profile and portfolio decoration; retained content and interactions. Corrected pre-existing inline module scripts in BaseLayout after browser verification showed Swup was not running. Local production build, ESLint, 74 unit tests, desktop/mobile route rendering and primary interactions passed. Protected preview deployment is the next step; production is unchanged.
 **Security Compliance**: No new stores, APIs, permissions, dependencies, or external scripts. SECURITY-10 lockfile unchanged; SECURITY-13 search suggestions use safe DOM nodes and search result text is escaped before highlighting. Other baseline rules are unchanged or not applicable to this visual scope.
+
+---
+
+## Portfolio Withdrawal
+**Timestamp**: 2026-11-09T02:26:35Z
+**User Input**: "ポートフォリオはメンテできてないし満足いく出来ではないので、非公開にしましょう。"
+**AI Response**: Removed the portfolio route from the editorial preview, removed desktop/mobile/footer links, excluded it from the sitemap, and removed its unused editorial CSS. Retained the historical blog post about creating the portfolio. The old page remains recoverable from Git history. A separate main-based patch will withdraw the existing production page without shipping the broader design preview.
+**Security Compliance**: Removing a public route reduces exposure. No new dependencies, APIs, permissions, or data handling; applicable SECURITY rules remain unchanged.
