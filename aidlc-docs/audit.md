@@ -663,3 +663,27 @@
 **User Input**: Monitor the Codex review and address findings when they arrive.
 **AI Response**: Confirmed the P2 finding: the t shortcut still targeted the removed `.toc-scroll-area`. Updated it to select the visible editorial TOC and open the mobile details before focusing its first link. Added desktop (1280 px) and mobile (390 px) browser regression tests; both Chromium cases, ESLint, content validation and production build passed. Prepared the fix for PR #35 and rereview.
 **Security Compliance**: Existing keyboard behavior only; no new dependency, permission or data flow.
+
+---
+
+## Illustrated Design Retrospective Draft
+**Timestamp**: 2026-11-09T17:36:27+09:00
+**User Input**: "今回のデザインの見直しを記事にしたいです。画像もいれつつ、いい感じの記事にしてください。"
+**AI Response**: Created a separate main-based authoring worktree and a local-only draft at src/content/drafts/blog-redesign-20261109.md. Wrote a roughly seven-minute Japanese retrospective with four actual screenshots, captions and descriptive alternative text: home before/after and mobile article before/after. Clearly labeled the body-before image as an intermediate preview. Covered layout, typography, separator cleanup, preview discoveries and Codex review without claiming measured reader outcomes. Verified draft schema, all four image references, rendered desktop/mobile layout and Git exclusion. Local preview uses port 4322; no publication requested.
+**Security Compliance**: Draft remains Git-ignored. Images are of previously public site content; no credentials, new external embeds or permissions.
+
+---
+
+## Draft Voice and Inline Link Contrast
+**Timestamp**: 2026-11-09T17:45:18+09:00
+**User Input**: "リンクの色薄い" / "あと、文体は私の既存記事から学習して模倣してほしい。間違いなどは模倣しなくていいですが。"
+**AI Response**: Read the four existing development logs and rewrote the local draft with shorter paragraphs, direct change descriptions and conversational reflections. Retained image captions, alternative text and verified technical details. Recorded reusable writing guidance in construction/authoring-environment/writing-style.md. Replaced the legacy hard-coded cyan inline-link color with the editorial theme color and a full-color underline. Confirmed light-theme color #1474b9 on #f8f5f0 (contrast 4.57:1); dark theme palette contrast 9.05:1. Draft validation, four local image references, ESLint and production build passed.
+**Security Compliance**: Local draft stays ignored; no new dependency, external request, permission or published content.
+
+---
+
+## Design Retrospective Publication PR
+**Timestamp**: 2026-11-09T18:11:34+09:00
+**User Input**: "OK。じゃあPR作成しておいて。"
+**AI Response**: Moved the approved article into src/content/blog/blog-redesign-20261109.md with draft:false, following the authoring guide. Included its four local comparison screenshots, the inline link contrast fix, a confirmation screenshot and the reusable writing guidance. All six article metadata entries, four image references, 75 unit tests, ESLint and production build passed. Prepared a main-based PR; publishing to the live site occurs through its merge.
+**Security Compliance**: User-approved article and previously public screenshots only; no new dependency, external service, credential or permission.

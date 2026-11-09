@@ -4,11 +4,11 @@
 - **Project**: my-tech-blog
 - **Type**: Brownfield (existing codebase)
 - **Created**: 2026-03-13
-- **Current Workflow**: Sitewide Editorial Design (2026-11-09, PR preparation)
+- **Current Workflow**: Illustrated Design Retrospective (2026-11-09, PR preparation)
 
 ## Current Phase
 - **Phase**: CONSTRUCTION
-- **Stage**: PR #35 review corrections and rereview
+- **Stage**: Approved article and inline link contrast fix - publication PR preparation
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -29,7 +29,13 @@
 |---|---|---|
 | Security Baseline | Yes | Requirements Analysis |
 
-## Current Workflow (2026-11-09, Preview Verification)
+## Current Workflow (2026-11-09, Article Publication)
+- **Goal**: Publish the approved design retrospective with four comparison screenshots and the corrected inline link color through a PR.
+- **Article**: `src/content/blog/blog-redesign-20261109.md`.
+- **Writing guidance**: `aidlc-docs/construction/authoring-environment/writing-style.md`.
+- **Validation**: Validate all article metadata and local images, then build the production site before submitting the PR.
+
+## Previous Workflow (2026-11-09, Merged as PR #35)
 - **Name**: Sitewide Editorial Design
 - **Goal**: Extend the approved home and article typography, spacing, colors, and restrained surfaces to every visible page while retaining navigation and forms.
 - **Plan**: `aidlc-docs/construction/plans/sitewide-editorial-design.md`.
