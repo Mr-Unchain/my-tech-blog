@@ -4,11 +4,11 @@
 - **Project**: my-tech-blog
 - **Type**: Brownfield (existing codebase)
 - **Created**: 2026-03-13
-- **Current Workflow**: Markdown Authoring / CMS Cutover (2026-11-08, locally verified)
+- **Current Workflow**: Portfolio Withdrawal (2026-11-09, implementation verification)
 
 ## Current Phase
 - **Phase**: CONSTRUCTION
-- **Stage**: Markdown articles, local assets, link previews and CMS page recovery - locally verified
+- **Stage**: Portfolio route and navigation removal - implementation verification
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -29,7 +29,13 @@
 |---|---|---|
 | Security Baseline | Yes | Requirements Analysis |
 
-## Current Workflow (2026-11-08, Locally Verified)
+## Current Workflow (2026-11-09, Implementation Verification)
+- **Name**: Portfolio Withdrawal
+- **Goal**: Stop publishing the unmaintained portfolio while preserving the rest of the live site.
+- **Plan**: `aidlc-docs/construction/plans/portfolio-withdrawal.md`.
+- **Deployment**: Main-based isolated change; the editorial redesign remains on its preview branch.
+
+## Previous Workflow (2026-11-08, Locally Verified)
 - **Name**: Markdown Authoring / CMS Cutover
 - **Goal**: Write plain Markdown on PC in this repository and preview locally; smartphone authoring is out of scope.
 - **Current Gate**: Review the local implementation before committing or deploying. No production deployment has been performed.
