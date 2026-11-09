@@ -615,3 +615,11 @@
 **User Input**: Preview feedback on the Docker article: the next-article arrow is too large on mobile.
 **AI Response**: Confirmed the deployed preview omitted the ArticleNavigation component styles, leaving its SVG at 540.8 px. Moved the navigation rules into the shared editorial stylesheet, constrained the arrow to 16 px, and kept the mobile card in one column. Verified the Docker article at 596 px: arrow 16 × 16 px, link card 540.8 × 74.9 px, with no horizontal overflow. All 74 unit tests, ESLint and production build passed.
 **Security Compliance**: Visual CSS and component style cleanup only; no new dependencies, scripts, data handling or permissions. Security Baseline remains unchanged.
+
+---
+
+## Popular Articles Preview Repair
+**Timestamp**: 2026-11-09T15:49:20+09:00
+**User Input**: The home page's popular articles button produces an error in the preview.
+**AI Response**: Reproduced the failed navigation and confirmed the Vercel runtime error `Unsupported article filter` in `index.astro`. Firestore view IDs were being concatenated into the Markdown article filter grammar, which rejects legacy IDs. Replaced that conversion with direct matching against published article IDs while preserving view order and excluding stale or draft IDs. Added a regression test for a legacy path ID and a draft ID. All 75 unit tests, ESLint, content validation and production build passed before redeployment.
+**Security Compliance**: Reads the same published articles and view IDs without expanding access. Stale and draft IDs are excluded; no new dependency, permission, API or data store.

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getBlogDetail, getBlogs } from '../../src/lib/blogs';
+import { getBlogDetail, getBlogs, getPublicBlogsByIds } from '../../src/lib/blogs';
 import type { ArticleCollectionReader } from '../../src/lib/articles/repository';
 
 const reader: ArticleCollectionReader = async () => [
@@ -95,6 +95,14 @@ describe('Markdown blog queries', () => {
         )
       ).totalCount
     ).toBe(2);
+  });
+
+  it('ranks published articles by view IDs while skipping legacy and draft IDs', async () => {
+    const posts = await getPublicBlogsByIds(
+      ['legacy/article/path', 'second', 'private-draft', 'first'],
+      reader
+    );
+    expect(posts.map((post) => post.id)).toEqual(['second', 'first']);
   });
 
   it('returns rendered Markdown and preserves IDs and image paths', async () => {

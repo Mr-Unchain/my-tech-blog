@@ -91,6 +91,22 @@ export const getBlogs = async (
   return { contents, totalCount, offset, limit };
 };
 
+export const getPublicBlogsByIds = async (
+  ids: string[],
+  reader?: ArticleCollectionReader
+): Promise<Blog[]> => {
+  if (ids.length === 0) return [];
+  const articlesById = new Map(
+    (await getPublicArticles(reader)).map((article) => [article.id, article])
+  );
+  return Promise.all(
+    ids.flatMap((id) => {
+      const article = articlesById.get(id);
+      return article ? [toBlog(article)] : [];
+    })
+  );
+};
+
 export const getBlogDetail = async (
   id: string,
   options: { includeDrafts?: boolean } = {},

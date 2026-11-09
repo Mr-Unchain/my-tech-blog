@@ -4,7 +4,7 @@ import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 import EditorialFeatureVisual from "../components/EditorialFeatureVisual.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { db } from "../lib/firebase";
-import { getBlogs } from "../lib/blogs";
+import { getBlogs, getPublicBlogsByIds } from "../lib/blogs";
 import { getProfile, type Blog } from "../lib/microcms";
 import { calculateReadingTimeSimple } from "../utils/readingTime";
 import { cmsImageUrl } from "../utils/cmsImage";
@@ -31,16 +31,8 @@ if (activeTab === "popular" && db) {
   );
   const popSnapshot = await getDocs(popQuery);
   const popIds = popSnapshot.docs.map((doc) => doc.id);
-
-  if (popIds.length > 0) {
-    const filters = popIds.map((id) => `id[equals]${id}`).join("[or]");
-    const { contents: popPosts } = await getBlogs({ filters });
-    // Firestoreの順序を維持
-    pagedPosts = popIds
-      .map((id) => popPosts.find((p: Blog) => p.id === id))
-      .filter((p): p is Blog => !!p);
-    totalCount = pagedPosts.length;
-  }
+  pagedPosts = await getPublicBlogsByIds(popIds);
+  totalCount = pagedPosts.length;
 } else if (activeTab.startsWith("category-")) {
   // カテゴリタブ: microCMSのフィルタで絞り込み
   const categoryName = decodeURIComponent(activeTab.replace("category-", ""));
