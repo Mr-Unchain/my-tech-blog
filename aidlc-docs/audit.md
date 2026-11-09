@@ -623,3 +623,11 @@
 **User Input**: The home page's popular articles button produces an error in the preview.
 **AI Response**: Reproduced the failed navigation and confirmed the Vercel runtime error `Unsupported article filter` in `index.astro`. Firestore view IDs were being concatenated into the Markdown article filter grammar, which rejects legacy IDs. Replaced that conversion with direct matching against published article IDs while preserving view order and excluding stale or draft IDs. Added a regression test for a legacy path ID and a draft ID. All 75 unit tests, ESLint, content validation and production build passed before redeployment.
 **Security Compliance**: Reads the same published articles and view IDs without expanding access. Stale and draft IDs are excluded; no new dependency, permission, API or data store.
+
+---
+
+## Giscus Navigation Repair
+**Timestamp**: 2026-11-09T16:06:31+09:00
+**User Input**: Giscus does not display, and its reload button does not restore it.
+**AI Response**: Reproduced the issue when navigating from home to an article. Direct article loads showed Giscus, but Swup's scripts plugin reran inline scripts during navigation and raised `Identifier 't' has already been declared`; Giscus initialization and the reload handler then did not run. Removed Swup navigation so each page executes its scripts through a normal page load, and initialized Giscus exactly once per load. Updated the navigation browser test for the current search heading and added a home-to-article comment controls case. Verified 75 unit tests, ESLint, production build and both Chromium navigation tests before redeployment.
+**Security Compliance**: No new dependency, external script, data flow or permission. Existing Giscus configuration and origin remain unchanged.

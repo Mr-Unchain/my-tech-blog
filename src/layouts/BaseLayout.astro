@@ -198,15 +198,6 @@ const canonicalUrl = canonicalUrlOverride || buildDefaultCanonicalUrl();
     </main>
     <Footer />
 
-    <script>
-      import Swup from 'swup';
-      import SwupScriptsPlugin from '@swup/scripts-plugin';
-
-      window.swup = new Swup({
-        plugins: [new SwupScriptsPlugin()]
-      });
-    </script>
-
     <!-- Register Service Worker only in production to avoid HMR conflicts -->
     <script>
       if ('serviceWorker' in navigator) {
