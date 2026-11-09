@@ -123,8 +123,11 @@
      * 目次にフォーカス
      */
     function focusToc() {
-      const toc = document.querySelector('.toc-scroll-area');
+      const toc = Array.from(document.querySelectorAll(
+        '.editorial-article__toc-desktop, .editorial-article__toc-mobile'
+      )).find((element) => getComputedStyle(element).display !== 'none');
       if (toc) {
+        if (toc instanceof HTMLDetailsElement) toc.open = true;
         const firstLink = toc.querySelector('a');
         if (firstLink) {
           firstLink.focus();
