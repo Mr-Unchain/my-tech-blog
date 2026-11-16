@@ -30,12 +30,15 @@ Revisit overrides when upstream constraints are fixed; do not apply npm audit fi
 ## Verification plan
 - [x] Inspect official npm engine/peer metadata and existing imports.
 - [x] Test the dependency candidate and achieve zero audit findings.
-- [ ] Verify committed lockfile with fresh npm ci, strict npm audit, 77 unit tests, lint and production build.
-- [ ] Verify rendered JSON-LD with PR #37 included.
-- [ ] Verify Chromium rendering, Tailwind utilities and PC/mobile widths.
-- [ ] Remove temporary branch-only CI and open the dependency PR against PR #37's branch.
+- [x] Verify committed lockfile with fresh npm ci, strict npm audit, 77 unit tests, lint and production build.
+- [x] Verify rendered JSON-LD with PR #37 included.
+- [x] Verify Chromium rendering, Tailwind utilities and PC/mobile widths.
+- [x] Remove temporary branch-only CI and open the dependency PR against PR #37's branch.
 
 ## Security and limits
 SECURITY-06/10/13: read-only pinned-action verifier, official npm registry, committed lockfile and explicit patch constraints.
 Other infrastructure/authentication rules are N/A: no new endpoint, permission, credential, or production deployment configuration.
 Existing global formatting drift is separate and must not be hidden or reported as healthy.
+
+## Final verification
+Application commit bea346d2455feb91ce1063e4138034da8ae59e7e, run 43806832219: fresh npm ci, npm audit 0 findings, 77 tests, lint, build, changed-file formatting, three rendered JSON-LD routes and six Chromium viewport/route combinations passed. Removed the old localhost:3000 HMR override; the browser check verifies each actual HMR connection. Temporary workflow deletion and final records do not change verified application source.
