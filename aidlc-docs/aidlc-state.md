@@ -8,7 +8,7 @@
 
 ## Current Phase
 - **Phase**: CONSTRUCTION
-- **Stage**: Combined diagnostic verification; review PRs pending
+- **Stage**: All six diagnostics healthy on remediation branch; review PRs pending
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -101,8 +101,12 @@
 - **Rendering repair**: PR #37; 77 tests, lint, build and rendered JSON-LD verified.
 - **Dependency repair**: Branch codex/security-dependencies-20261116; run 43806832219 verified a clean npm ci, zero audit findings, 77 tests, lint, build, JSON-LD and six Chromium page/viewport cases with working HMR.
 - **Runtime**: Node >=22.23.4 within 22.x (.nvmrc: 22.23.4).
-- **Remaining work**: Separate mechanical formatting PR; do not treat main as repaired until review PRs are merged and main diagnostics confirm it.
+- **Remaining work**: Review PR #37, PR #38 and the formatting-only PR in order. Do not treat main as repaired until these PRs are merged and main diagnostics confirm it.
 - **Infrastructure limit**: Cloud executor capability lookup failed; repository changes were verified in isolated read-only GitHub Actions jobs. Reusable Cloud settings were not changed.
 
 - **Review order**: PR #37, PR #38, then the formatting-only branch codex/format-diagnostics-baseline-20261116.
 - **Formatting scope**: 70 mechanical source-file changes; package files and article bodies are unchanged relative to PR #38.
+
+- **Combined verification**: Run 43807869408, application SHA cbac13d53ffa3781d9bc45077c99b83aeb42f48c; healthy at 2026-11-16T05:05:24.811Z; 6/6 checks, 77 tests, 0 audit findings and 6 Chromium route/viewport cases including React interaction passed.
+- **Original artifact inspected**: Artifact 13650912486 from run 42564755361; ZIP digest matched and the JSON confirmed the known format/dependency failures.
+- **Main is awaiting human review**: No automatic merge, direct push or manual diagnostic dispatch was performed.
