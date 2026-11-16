@@ -687,3 +687,29 @@
 **User Input**: "OK。じゃあPR作成しておいて。"
 **AI Response**: Moved the approved article into src/content/blog/blog-redesign-20261109.md with draft:false, following the authoring guide. Included its four local comparison screenshots, the inline link contrast fix, a confirmation screenshot and the reusable writing guidance. All six article metadata entries, four image references, 75 unit tests, ESLint and production build passed. Prepared a main-based PR; publishing to the live site occurs through its merge.
 **Security Compliance**: User-approved article and previously public screenshots only; no new dependency, external service, credential or permission.
+
+
+---
+
+## Diagnostic Remediation
+**Timestamp**: 2026-11-16T04:30:00Z
+**User Input**: 「では早速対応をお願い。」
+**AI Response**: Loaded repository workflow state and applicable rules. Cloud startup remained unavailable, so used a branch-only GitHub Actions verifier with contents:read and pinned actions. Reproduced the latest main's 75 passing tests and confirmed JSON-LD parsing errors. Prepared a shared less-than-escaping JSON-LD serializer, Astro set:html rendering, an ArticleCard comment cleanup and two regression tests. Candidate verification passed 77 tests, lint and production build. Rejected npm audit fix's expanded dependency tree (56 to 66 findings); no candidate lockfile is included in this rendering patch. Final committed-source verification and separate targeted dependency work follow.
+**Security Compliance**: SECURITY-04/05/13/15: escaped script boundary and JSON round-trip tests. SECURITY-06/10: least-privilege verifier and existing lockfile. Other infrastructure/authentication rules are N/A to the changes.
+
+
+---
+
+## Diagnostic Rendering Patch Verification
+**Timestamp**: 2026-11-16T04:34:23Z
+**AI Response**: Verified committed application source acdd7d1105ba9d949ef1dd48e985bfde51cd8130 in GitHub Actions run 43804711236: npm ci, 77 unit tests, ESLint, production build and changed-file Prettier checks passed. HTTP checks parsed two JSON-LD blocks on home, three on the Docker article and two on the IT category page. Removed the temporary branch-only verifier from the PR diff. No dependency updates are included; existing global style drift and dependency audit findings remain explicitly unresolved pending the separate dependency work.
+**Security Compliance**: Escaped script boundary tested; no added permission, credential or production infrastructure. The original scheduled diagnostic workflow is unchanged.
+
+
+---
+
+## Targeted Dependency Remediation
+**Timestamp**: 2026-11-16T04:42:38Z
+**User Input**: 「では早速対応をお願い。」 (continuing the authorized remediation)
+**AI Response**: Rejected an unscoped audit-fix tree. Used official engine/peer metadata to prepare supported framework, adapter, Firebase and test-tool versions; kept Tailwind 3 with its existing CSS/PostCSS configuration and removed the unused repository-local Vercel CLI. Scoped overrides patch vulnerable transitive pins. Candidate run 43805364881 passed 75 tests, lint, production build and npm audit with zero findings. Integrated PR #37's source into the dependency branch for final committed-lockfile, JSON-LD and browser verification. Required runtime is Node >=22.23.4 within 22.x; no deployment or main update is performed.
+**Security Compliance**: SECURITY-06/10/13: read-only pinned-action CI, official registry and committed lockfile. Runtime/authentication infrastructure is unchanged. Final verification remains pending.

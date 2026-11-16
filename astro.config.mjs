@@ -1,7 +1,6 @@
 // astro.config.mjs
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@astrojs/tailwind";
 import vercel from "@astrojs/vercel"; // vercelをインポート
 import partytown from "@astrojs/partytown";
 import { defineConfig } from "astro/config";
@@ -40,7 +39,6 @@ export default defineConfig({
   trailingSlash: 'ignore',
   adapter: vercel(), // adapterをvercel()に変更
   integrations: [
-    tailwind(),
     sitemap({
       customPages: dynamicPages,
       filter: (page) =>
