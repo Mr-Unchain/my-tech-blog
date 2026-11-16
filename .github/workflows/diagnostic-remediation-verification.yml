@@ -2,6 +2,9 @@ name: Diagnostic remediation verification
 on:
   push:
     branches: [codex/fix-repository-diagnostics-20261116]
+concurrency:
+  group: diagnostic-remediation-verification
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -25,7 +28,7 @@ jobs:
           const files = ['src/layouts/BaseLayout.astro', 'src/pages/index.astro', 'src/pages/blog/[id].astro', 'src/pages/category/[categoryName].astro'];
           for (const path of files) {
             let source = fs.readFileSync(path, 'utf8');
-            const relative = path.split('/').length === 3 ? '../../lib/structured-data' : '../lib/structured-data';
+            const relative = path.split('/').length === 4 ? '../../lib/structured-data' : '../lib/structured-data';
             source = source.replace(/^---\n/, '---\nimport { serializeJsonLd } from "' + relative + '";\n');
             let count = 0;
             source = source.replace(/<script([^>]*type="application\/ld\+json"[^>]*)>([\s\S]*?)<\/script>/g, (full, attrs, body) => {
