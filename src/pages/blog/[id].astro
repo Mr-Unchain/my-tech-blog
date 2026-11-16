@@ -1,6 +1,7 @@
 ---
+import { serializeJsonLd } from "../../lib/structured-data";
 // src/pages/blog/[id].astro
-import { getEntry, render } from 'astro:content';
+import { getEntry, render } from "astro:content";
 import { doc, increment, setDoc } from "firebase/firestore";
 import ArticleNavigation from "../../components/ArticleNavigation.astro";
 import CodeBlockEnhancer from "../../components/CodeBlockEnhancer.astro";
@@ -32,7 +33,7 @@ if (!post) {
   return new Response(null, { status: 404 });
 }
 
-const entry = await getEntry('blog', id);
+const entry = await getEntry("blog", id);
 if (!entry) return new Response(null, { status: 404 });
 const { Content, headings: markdownHeadings } = await render(entry);
 
@@ -42,24 +43,36 @@ if (import.meta.env.PROD && !draftKey && db) {
     const viewRef = doc(db, "views", id);
     await setDoc(viewRef, { count: increment(1) }, { merge: true });
   } catch {
-    console.warn('Article view count could not be updated.');
+    console.warn("Article view count could not be updated.");
   }
 }
 
 // render() resolves Astro image placeholders as well as heading metadata.
 const headings = markdownHeadings
   .filter((heading) => heading.depth === 2 || heading.depth === 3)
-  .map((heading) => ({ text: heading.text, id: heading.slug, tagName: `h${heading.depth}` }));
+  .map((heading) => ({
+    text: heading.text,
+    id: heading.slug,
+    tagName: `h${heading.depth}`,
+  }));
 
 // SEO用のキーワード生成
-const categories = Array.isArray(post.category) ? post.category : [post.category];
+const categories = Array.isArray(post.category)
+  ? post.category
+  : [post.category];
 const categoryNames = categories.filter(Boolean);
 
 // 関連記事取得
 const allBlogs = await getBlogs({ limit: 100, orders: "-publishedAt" });
 const relatedPosts = getRelatedPosts(post, allBlogs.contents);
-const seoKeywords = [...categoryNames, "テクノロジー", "プログラミング", "コーディング", "AI", "開発"].join(", ");
-
+const seoKeywords = [
+  ...categoryNames,
+  "テクノロジー",
+  "プログラミング",
+  "コーディング",
+  "AI",
+  "開発",
+].join(", ");
 ---
 
 <BaseLayout
@@ -74,133 +87,189 @@ const seoKeywords = [...categoryNames, "テクノロジー", "プログラミン
   noIndex={draftKey}
 >
   <Fragment slot="head">
-    {draftKey && (<meta name="robots" content="noindex,nofollow" />)}
-    <script type="application/ld+json" is:inline>{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BlogPosting",
-          "headline": post.title,
-          "description": post.description,
-          "image": post.eyecatch?.url || new URL("/placeholder.svg", Astro.site).href,
-          "datePublished": post.publishedAt,
-          "dateModified": post.updatedAt || post.publishedAt,
-          "author": {
-            "@type": "Person",
-            "name": "Monologger",
-            "url": new URL("/profile", Astro.site).href
+    {draftKey && <meta name="robots" content="noindex,nofollow" />}
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={serializeJsonLd({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: post.title,
+        description: post.description,
+        image:
+          post.eyecatch?.url || new URL("/placeholder.svg", Astro.site).href,
+        datePublished: post.publishedAt,
+        dateModified: post.updatedAt || post.publishedAt,
+        author: {
+          "@type": "Person",
+          name: "Monologger",
+          url: new URL("/profile", Astro.site).href,
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "Monologger",
+          logo: {
+            "@type": "ImageObject",
+            url: new URL("/logo.svg", Astro.site).href,
           },
-          "publisher": {
-            "@type": "Organization",
-            "name": "Monologger",
-            "logo": {
-              "@type": "ImageObject",
-              "url": new URL("/logo.svg", Astro.site).href
-            }
-          },
-          "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": Astro.url.href
-          },
-          "articleSection": categoryNames.join(", "),
-          "keywords": seoKeywords,
-          "wordCount": post.content ? post.content.replace(/<[^>]*>/g, '').length : 0,
-          "inLanguage": "ja-JP",
-          "potentialAction": {
-            "@type": "ReadAction",
-            "target": [Astro.url.href]
-          }
-    })}</script>
+        },
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": Astro.url.href,
+        },
+        articleSection: categoryNames.join(", "),
+        keywords: seoKeywords,
+        wordCount: post.content
+          ? post.content.replace(/<[^>]*>/g, "").length
+          : 0,
+        inLanguage: "ja-JP",
+        potentialAction: {
+          "@type": "ReadAction",
+          target: [Astro.url.href],
+        },
+      })}
+    />
 
-    <script type="application/ld+json" is:inline>{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "position": 1,
-              "name": "ホーム",
-              "item": Astro.site
-            },
-            {
-              "@type": "ListItem",
-              "position": 2,
-              "name": "ブログ",
-              "item": new URL("/blog", Astro.site).href
-            },
-            categoryNames.length > 0 ? {
-              "@type": "ListItem",
-              "position": 3,
-              "name": categoryNames[0],
-              "item": new URL(`/category/${encodeURIComponent(categoryNames[0])}`, Astro.site).href
-            } : null,
-            {
-              "@type": "ListItem",
-              "position": categoryNames.length > 0 ? 4 : 3,
-              "name": post.title,
-              "item": Astro.url.href
-            }
-          ].filter(Boolean)
-    })}</script>
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={serializeJsonLd({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "ホーム",
+            item: Astro.site,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "ブログ",
+            item: new URL("/blog", Astro.site).href,
+          },
+          categoryNames.length > 0
+            ? {
+                "@type": "ListItem",
+                position: 3,
+                name: categoryNames[0],
+                item: new URL(
+                  `/category/${encodeURIComponent(categoryNames[0])}`,
+                  Astro.site
+                ).href,
+              }
+            : null,
+          {
+            "@type": "ListItem",
+            position: categoryNames.length > 0 ? 4 : 3,
+            name: post.title,
+            item: Astro.url.href,
+          },
+        ].filter(Boolean),
+      })}
+    />
   </Fragment>
 
   <main class="editorial-article">
     <div class="reading-progress-container" aria-hidden="true">
-      <div id="reading-progress" class="reading-progress-bar" />
+      <div id="reading-progress" class="reading-progress-bar"></div>
     </div>
     <div class="editorial-article__shell">
-      {draftKey && (
-        <div class="editorial-article__draft">
-          プレビュー表示中（未公開の下書き）。このページは検索エンジンにインデックスされません。
-        </div>
-      )}
+      {
+        draftKey && (
+          <div class="editorial-article__draft">
+            プレビュー表示中（未公開の下書き）。このページは検索エンジンにインデックスされません。
+          </div>
+        )
+      }
       <nav class="editorial-article__breadcrumb" aria-label="パンくず">
         <a href="/">ホーム</a><span aria-hidden="true">/</span>
         <a href="/blog/">ブログ</a>
-        {categoryNames[0] && (
-          <><span aria-hidden="true">/</span><a href={`/category/${encodeURIComponent(categoryNames[0])}/`}>{categoryNames[0]}</a></>
-        )}
+        {
+          categoryNames[0] && (
+            <>
+              <>
+                <span aria-hidden="true">/</span>
+                <a href={`/category/${encodeURIComponent(categoryNames[0])}/`}>
+                  {categoryNames[0]}
+                </a>
+              </>
+            </>
+          )
+        }
       </nav>
 
       <header class="editorial-article__header">
         <p class="editorial-article__categories">
-          {categoryNames.map((category, index) => (
-            <Fragment>
-              {index > 0 && <span aria-hidden="true"> / </span>}
-              <a href={`/category/${encodeURIComponent(category)}/`}>{category}</a>
-            </Fragment>
-          ))}
+          {
+            categoryNames.map((category, index) => (
+              <Fragment>
+                {index > 0 && <span aria-hidden="true"> / </span>}
+                <a href={`/category/${encodeURIComponent(category)}/`}>
+                  {category}
+                </a>
+              </Fragment>
+            ))
+          }
         </p>
         <h1>{post.title}</h1>
         <p class="editorial-article__meta">
-          <time datetime={post.publishedAt}>{new Date(post.publishedAt).toLocaleDateString('ja-JP')}</time>
+          <time datetime={post.publishedAt}
+            >{new Date(post.publishedAt).toLocaleDateString("ja-JP")}</time
+          >
           <span aria-hidden="true">・</span>
-          <span>約{calculateReadingTimeSimple(post.content || '')}分</span>
+          <span>約{calculateReadingTimeSimple(post.content || "")}分</span>
         </p>
       </header>
 
       <div class="editorial-article__layout">
-        <article class="editorial-article__main" itemscope itemtype="https://schema.org/BlogPosting">
-          {post.id === 'docker-intro-part1' ? (
-            <EditorialFeatureVisual compact />
-          ) : post.eyecatch?.url ? (
-            <div class="editorial-article__visual">
-              <img src={cmsImageUrl(post.eyecatch.url, 1200)} width="1200" height="630" alt={`「${post.title}」のアイキャッチ画像`} decoding="async" />
-            </div>
-          ) : null}
+        <article
+          class="editorial-article__main"
+          itemscope
+          itemtype="https://schema.org/BlogPosting"
+        >
+          {
+            post.id === "docker-intro-part1" ? (
+              <EditorialFeatureVisual compact />
+            ) : post.eyecatch?.url ? (
+              <div class="editorial-article__visual">
+                <img
+                  src={cmsImageUrl(post.eyecatch.url, 1200)}
+                  width="1200"
+                  height="630"
+                  alt={`「${post.title}」のアイキャッチ画像`}
+                  decoding="async"
+                />
+              </div>
+            ) : null
+          }
 
-          {headings.length > 0 && (
-            <details class="editorial-article__toc-mobile">
-              <summary>目次を開く</summary>
-              <ol>
-                {headings.map((heading) => (
-                  <li class:list={[{ 'editorial-article__toc-subheading': heading.tagName === 'h3' }]}>
-                    <a href={`#${heading.id}`}>{heading.text}</a>
-                  </li>
-                ))}
-              </ol>
-            </details>
-          )}
+          {
+            headings.length > 0 && (
+              <details class="editorial-article__toc-mobile">
+                <summary>目次を開く</summary>
+                <ol>
+                  {headings.map((heading) => (
+                    <li
+                      class:list={[
+                        {
+                          "editorial-article__toc-subheading":
+                            heading.tagName === "h3",
+                        },
+                      ]}
+                    >
+                      <a href={`#${heading.id}`}>{heading.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            )
+          }
 
-          <div class="blog-article-content article-content editorial-article__body">
+          <div
+            class="blog-article-content article-content editorial-article__body"
+          >
             <Content />
           </div>
 
@@ -211,12 +280,18 @@ const seoKeywords = [...categoryNames, "テクノロジー", "プログラミン
           <KeyboardNavigation />
 
           <div class="editorial-article__actions">
-            {!draftKey && (
-              <div class="editorial-article__reactions">
-                <ReactionButtons client:load blogId={post.id} />
-                <BookmarkButton client:load blogId={post.id} title={post.title} />
-              </div>
-            )}
+            {
+              !draftKey && (
+                <div class="editorial-article__reactions">
+                  <ReactionButtons client:load blogId={post.id} />
+                  <BookmarkButton
+                    client:load
+                    blogId={post.id}
+                    title={post.title}
+                  />
+                </div>
+              )
+            }
             <div class="editorial-article__share" aria-label="記事を共有">
               <button id="share-x" type="button">Xでシェア</button>
               <button id="share-linkedin" type="button">LinkedIn</button>
@@ -225,58 +300,93 @@ const seoKeywords = [...categoryNames, "テクノロジー", "プログラミン
           </div>
 
           <div class="editorial-article__tags">
-            {categoryNames.map((category) => (
-              <a href={`/category/${encodeURIComponent(category)}/`}>#{category}</a>
-            ))}
+            {
+              categoryNames.map((category) => (
+                <a href={`/category/${encodeURIComponent(category)}/`}>
+                  #{category}
+                </a>
+              ))
+            }
           </div>
 
-          <ArticleNavigation currentId={post.id} allArticles={allBlogs.contents} />
+          <ArticleNavigation
+            currentId={post.id}
+            allArticles={allBlogs.contents}
+          />
 
-          {!draftKey && (
-            <section class="editorial-article__comments" aria-labelledby="comments-heading">
-              <h2 id="comments-heading">コメント</h2>
-              <Comments pageUrl={Astro.url.href} pageIdentifier={post.id} pageTitle={post.title} />
-            </section>
-          )}
+          {
+            !draftKey && (
+              <section
+                class="editorial-article__comments"
+                aria-labelledby="comments-heading"
+              >
+                <h2 id="comments-heading">コメント</h2>
+                <Comments
+                  pageUrl={Astro.url.href}
+                  pageIdentifier={post.id}
+                  pageTitle={post.title}
+                />
+              </section>
+            )
+          }
         </article>
 
-        {headings.length > 0 && (
-          <aside class="editorial-article__toc-desktop">
-            <nav aria-label="記事の目次">
-              <h2>目次</h2>
-              <ol>
-                {headings.map((heading) => (
-                  <li class:list={[{ 'editorial-article__toc-subheading': heading.tagName === 'h3' }]}>
-                    <a href={`#${heading.id}`}>{heading.text}</a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          </aside>
-        )}
+        {
+          headings.length > 0 && (
+            <aside class="editorial-article__toc-desktop">
+              <nav aria-label="記事の目次">
+                <h2>目次</h2>
+                <ol>
+                  {headings.map((heading) => (
+                    <li
+                      class:list={[
+                        {
+                          "editorial-article__toc-subheading":
+                            heading.tagName === "h3",
+                        },
+                      ]}
+                    >
+                      <a href={`#${heading.id}`}>{heading.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            </aside>
+          )
+        }
       </div>
 
-      {relatedPosts.length > 0 && (
-        <section class="editorial-article__related" aria-labelledby="related-heading">
-          <h2 id="related-heading">関連記事</h2>
-          <ul>
-            {relatedPosts.map((related) => (
-              <li><a href={`/blog/${related.id}/`}>{related.title}<span aria-hidden="true">↗</span></a></li>
-            ))}
-          </ul>
-        </section>
-      )}
+      {
+        relatedPosts.length > 0 && (
+          <section
+            class="editorial-article__related"
+            aria-labelledby="related-heading"
+          >
+            <h2 id="related-heading">関連記事</h2>
+            <ul>
+              {relatedPosts.map((related) => (
+                <li>
+                  <a href={`/blog/${related.id}/`}>
+                    {related.title}
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
     </div>
   </main>
 </BaseLayout>
 
 <script>
-  import { setupShareButtons } from '../../lib/share-buttons';
-  import { setupReadingProgress } from '../../lib/reading-progress';
+  import { setupShareButtons } from "../../lib/share-buttons";
+  import { setupReadingProgress } from "../../lib/reading-progress";
 
-  document.addEventListener('DOMContentLoaded', setupShareButtons);
-  document.addEventListener('astro:page-load', setupShareButtons);
+  document.addEventListener("DOMContentLoaded", setupShareButtons);
+  document.addEventListener("astro:page-load", setupShareButtons);
 
-  document.addEventListener('DOMContentLoaded', setupReadingProgress);
-  document.addEventListener('astro:page-load', setupReadingProgress);
+  document.addEventListener("DOMContentLoaded", setupReadingProgress);
+  document.addEventListener("astro:page-load", setupReadingProgress);
 </script>

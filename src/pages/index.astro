@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from "../lib/structured-data";
 // src/pages/index.astro
 import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 import EditorialFeatureVisual from "../components/EditorialFeatureVisual.astro";
@@ -59,21 +60,26 @@ const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
 // カテゴリ数を記事一覧とは独立して取得
 const { contents: allPostsForCategories } = await getBlogs({
   limit: 100,
-  fields: 'category',
+  fields: "category",
 });
-const categoryCounts = (allPostsForCategories as Blog[]).reduce<Record<string, number>>((counts, post) => {
-  for (const category of post.category) counts[category] = (counts[category] || 0) + 1;
+const categoryCounts = (allPostsForCategories as Blog[]).reduce<
+  Record<string, number>
+>((counts, post) => {
+  for (const category of post.category)
+    counts[category] = (counts[category] || 0) + 1;
   return counts;
 }, {});
 const profile = await getProfile();
-const featuredPost = activeTab === 'latest' && currentPage === 1 ? pagedPosts[0] : undefined;
+const featuredPost =
+  activeTab === "latest" && currentPage === 1 ? pagedPosts[0] : undefined;
 const listPosts = featuredPost ? pagedPosts.slice(1) : pagedPosts;
-const pageHref = (page: number) => `/?tab=${encodeURIComponent(activeTab)}&page=${page}`;
+const pageHref = (page: number) =>
+  `/?tab=${encodeURIComponent(activeTab)}&page=${page}`;
 
 // カノニカルURL
 const canonicalHome = (() => {
-  const url = new URL('/', Astro.site);
-  if (currentPage > 1) url.searchParams.set('page', String(currentPage));
+  const url = new URL("/", Astro.site);
+  if (currentPage > 1) url.searchParams.set("page", String(currentPage));
   return url.href;
 })();
 ---
@@ -86,144 +92,226 @@ const canonicalHome = (() => {
   <Fragment slot="head">
     {
       [
-        ...(pagedPosts || []).slice(0,3).map((p: Blog) => p.eyecatch?.url).filter(Boolean)
-      ].slice(0,6).map((url: string) => (
-        <link rel="preload" as="image" href={`${url}?w=800&q=70`} />
-      ))
+        ...(pagedPosts || [])
+          .slice(0, 3)
+          .map((p: Blog) => p.eyecatch?.url)
+          .filter(Boolean),
+      ]
+        .slice(0, 6)
+        .map((url: string) => (
+          <link rel="preload" as="image" href={`${url}?w=800&q=70`} />
+        ))
     }
   </Fragment>
-  <script slot="head" type="application/ld+json" is:inline>{JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Blog",
-        "name": "Monologger",
-        "description": "ITの気づきや備忘録をゆるく残すブログ",
-        "url": Astro.site,
-        "author": {
+  <script
+    slot="head"
+    type="application/ld+json"
+    is:inline
+    set:html={serializeJsonLd({
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      name: "Monologger",
+      description: "ITの気づきや備忘録をゆるく残すブログ",
+      url: Astro.site,
+      author: {
+        "@type": "Person",
+        name: "Monologger",
+        url: new URL("/profile", Astro.site).href,
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Monologger",
+        logo: {
+          "@type": "ImageObject",
+          url: new URL("/logo.svg", Astro.site).href,
+        },
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": Astro.site,
+      },
+      blogPost: pagedPosts.slice(0, 10).map((post) => ({
+        "@type": "BlogPosting",
+        headline: post.title,
+        description: post.description,
+        url: new URL(`/blog/${post.id}`, Astro.site).href,
+        datePublished: post.publishedAt,
+        author: {
           "@type": "Person",
-          "name": "Monologger",
-          "url": new URL("/profile", Astro.site).href
+          name: "Monologger",
         },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Monologger",
-          "logo": {
-            "@type": "ImageObject",
-            "url": new URL("/logo.svg", Astro.site).href
-          }
-        },
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": Astro.site
-        },
-        "blogPost": pagedPosts.slice(0, 10).map(post => ({
-          "@type": "BlogPosting",
-          "headline": post.title,
-          "description": post.description,
-          "url": new URL(`/blog/${post.id}`, Astro.site).href,
-          "datePublished": post.publishedAt,
-          "author": {
-            "@type": "Person",
-            "name": "Monologger"
-          },
-          "image": post.eyecatch?.url || new URL("/placeholder.svg", Astro.site).href
-        }))
-      })}
-  </script>
+        image:
+          post.eyecatch?.url || new URL("/placeholder.svg", Astro.site).href,
+      })),
+    })}
+  />
 
   <main class="editorial-home">
     <div class="editorial-shell">
       <section class="editorial-masthead" aria-labelledby="site-title">
-        <h1 id="site-title" class="editorial-title-reveal" data-testid="hero-title">Monologger</h1>
+        <h1
+          id="site-title"
+          class="editorial-title-reveal"
+          data-testid="hero-title"
+        >
+          Monologger
+        </h1>
         <p data-testid="hero-subtitle">つくる・学ぶ・共有する。</p>
       </section>
 
-      {featuredPost && (
-        <section class="editorial-lead" aria-labelledby="featured-title">
-          <div class="editorial-lead__copy">
-            <p class="editorial-eyebrow">最新記事</p>
-            <h2 id="featured-title"><a href={`/blog/${featuredPost.id}/`}>{featuredPost.title}</a></h2>
-            <p class="editorial-lead__meta">
-              <time datetime={featuredPost.publishedAt}>
-                {new Date(featuredPost.publishedAt).toLocaleDateString('ja-JP')}
-              </time>
-              <span aria-hidden="true">・</span>
-              <span>約{calculateReadingTimeSimple(featuredPost.content || '')}分</span>
-              <span aria-hidden="true">・</span>
-              <span>{featuredPost.category.join(' / ')}</span>
-            </p>
-            <p class="editorial-lead__summary">{featuredPost.description}</p>
-            <a class="editorial-read-link" href={`/blog/${featuredPost.id}/`}>
-              記事を読む <span aria-hidden="true">→</span>
+      {
+        featuredPost && (
+          <section class="editorial-lead" aria-labelledby="featured-title">
+            <div class="editorial-lead__copy">
+              <p class="editorial-eyebrow">最新記事</p>
+              <h2 id="featured-title">
+                <a href={`/blog/${featuredPost.id}/`}>{featuredPost.title}</a>
+              </h2>
+              <p class="editorial-lead__meta">
+                <time datetime={featuredPost.publishedAt}>
+                  {new Date(featuredPost.publishedAt).toLocaleDateString(
+                    "ja-JP"
+                  )}
+                </time>
+                <span aria-hidden="true">・</span>
+                <span>
+                  約{calculateReadingTimeSimple(featuredPost.content || "")}分
+                </span>
+                <span aria-hidden="true">・</span>
+                <span>{featuredPost.category.join(" / ")}</span>
+              </p>
+              <p class="editorial-lead__summary">{featuredPost.description}</p>
+              <a class="editorial-read-link" href={`/blog/${featuredPost.id}/`}>
+                記事を読む <span aria-hidden="true">→</span>
+              </a>
+            </div>
+            <a
+              class="editorial-lead__visual"
+              href={`/blog/${featuredPost.id}/`}
+              aria-label={`${featuredPost.title}を読む`}
+            >
+              {featuredPost.id === "docker-intro-part1" ? (
+                <EditorialFeatureVisual />
+              ) : featuredPost.eyecatch?.url ? (
+                <img
+                  src={cmsImageUrl(featuredPost.eyecatch.url, 800)}
+                  alt=""
+                  loading="eager"
+                  decoding="async"
+                />
+              ) : (
+                <div class="editorial-lead__placeholder" aria-hidden="true">
+                  Monologger
+                </div>
+              )}
             </a>
-          </div>
-          <a class="editorial-lead__visual" href={`/blog/${featuredPost.id}/`} aria-label={`${featuredPost.title}を読む`}>
-            {featuredPost.id === 'docker-intro-part1' ? (
-              <EditorialFeatureVisual />
-            ) : featuredPost.eyecatch?.url ? (
-              <img src={cmsImageUrl(featuredPost.eyecatch.url, 800)} alt="" loading="eager" decoding="async" />
-            ) : (
-              <div class="editorial-lead__placeholder" aria-hidden="true">Monologger</div>
-            )}
-          </a>
-        </section>
-      )}
+          </section>
+        )
+      }
 
       <div class="editorial-content">
-        <section class="editorial-content__main" aria-labelledby="recent-heading">
+        <section
+          class="editorial-content__main"
+          aria-labelledby="recent-heading"
+        >
           <div class="editorial-section-heading">
             <h2 id="recent-heading">
-              {activeTab === 'popular' ? '人気記事' : activeTab.startsWith('category-') ? `#${decodeURIComponent(activeTab.replace('category-', ''))}` : '最近の投稿'}
+              {
+                activeTab === "popular"
+                  ? "人気記事"
+                  : activeTab.startsWith("category-")
+                    ? `#${decodeURIComponent(activeTab.replace("category-", ""))}`
+                    : "最近の投稿"
+              }
             </h2>
             <div class="editorial-section-heading__links">
-              <a href="/?tab=latest" aria-current={activeTab === 'latest' ? 'page' : undefined}>最新</a>
-              <a href="/?tab=popular" aria-current={activeTab === 'popular' ? 'page' : undefined}>人気</a>
-              <a href="/blog/">すべての記事 <span aria-hidden="true">→</span></a>
+              <a
+                href="/?tab=latest"
+                aria-current={activeTab === "latest" ? "page" : undefined}
+                >最新</a
+              >
+              <a
+                href="/?tab=popular"
+                aria-current={activeTab === "popular" ? "page" : undefined}
+                >人気</a
+              >
+              <a href="/blog/">すべての記事 <span aria-hidden="true">→</span></a
+              >
             </div>
           </div>
-          {listPosts.length > 0 ? (
-            <ol class="editorial-index">
-              {listPosts.map((post) => (
-                <li>
-                  <a href={`/blog/${post.id}/`}>
-                    <time datetime={post.publishedAt}>
-                      {new Date(post.publishedAt).toLocaleDateString('ja-JP')}
-                    </time>
-                    <span class="editorial-index__category">{post.category[0] || 'ブログ'}</span>
-                    <span class="editorial-index__title">{post.title}</span>
-                    <span class="editorial-index__arrow" aria-hidden="true">↗</span>
+          {
+            listPosts.length > 0 ? (
+              <ol class="editorial-index">
+                {listPosts.map((post) => (
+                  <li>
+                    <a href={`/blog/${post.id}/`}>
+                      <time datetime={post.publishedAt}>
+                        {new Date(post.publishedAt).toLocaleDateString("ja-JP")}
+                      </time>
+                      <span class="editorial-index__category">
+                        {post.category[0] || "ブログ"}
+                      </span>
+                      <span class="editorial-index__title">{post.title}</span>
+                      <span class="editorial-index__arrow" aria-hidden="true">
+                        ↗
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p class="editorial-empty">表示できる記事はまだありません。</p>
+            )
+          }
+          {
+            totalPages > 1 && (
+              <nav class="editorial-pagination" aria-label="記事ページ">
+                {currentPage > 1 && (
+                  <a href={pageHref(currentPage - 1)} rel="prev">
+                    ← 前へ
                   </a>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p class="editorial-empty">表示できる記事はまだありません。</p>
-          )}
-          {totalPages > 1 && (
-            <nav class="editorial-pagination" aria-label="記事ページ">
-              {currentPage > 1 && <a href={pageHref(currentPage - 1)} rel="prev">← 前へ</a>}
-              <span>{currentPage} / {totalPages}</span>
-              {currentPage < totalPages && <a href={pageHref(currentPage + 1)} rel="next">次へ →</a>}
-            </nav>
-          )}
+                )}
+                <span>
+                  {currentPage} / {totalPages}
+                </span>
+                {currentPage < totalPages && (
+                  <a href={pageHref(currentPage + 1)} rel="next">
+                    次へ →
+                  </a>
+                )}
+              </nav>
+            )
+          }
         </section>
 
         <aside class="editorial-sidebar" aria-label="ブログについて">
           <section>
             <h2>書き手</h2>
-            <p class="editorial-sidebar__name">{profile?.name || 'Monologger'}</p>
-            <p>{profile?.description || '技術の学びと制作の記録を残しています。'}</p>
-            <a href="/profile/">プロフィールを見る <span aria-hidden="true">→</span></a>
+            <p class="editorial-sidebar__name">
+              {profile?.name || "Monologger"}
+            </p>
+            <p>
+              {profile?.description || "技術の学びと制作の記録を残しています。"}
+            </p>
+            <a href="/profile/"
+              >プロフィールを見る <span aria-hidden="true">→</span></a
+            >
           </section>
           <section>
             <h2>カテゴリ</h2>
             <ul>
-              {Object.entries(categoryCounts).map(([category, count]) => (
-                <li>
-                  <a href={`/category/${encodeURIComponent(category)}/`}>
-                    <span>{category}</span><span>{count}</span>
-                  </a>
-                </li>
-              ))}
+              {
+                Object.entries(categoryCounts).map(([category, count]) => (
+                  <li>
+                    <a href={`/category/${encodeURIComponent(category)}/`}>
+                      <>
+                        <span>{category}</span>
+                        <span>{count}</span>
+                      </>
+                    </a>
+                  </li>
+                ))
+              }
             </ul>
           </section>
         </aside>
