@@ -25,7 +25,7 @@ jobs:
         run: |
           node --input-type=module <<'DEPENDENCY_CANDIDATE'
           import fs from 'node:fs';
-          import {execFileSync} from 'node:child_process';
+          import {execFileSync,spawnSync} from 'node:child_process';
           const p = JSON.parse(fs.readFileSync('package.json','utf8'));
           Object.assign(p.dependencies, {
             '@astrojs/markdown-remark':'7.3.9', '@astrojs/react':'7.1.9', '@astrojs/sitemap':'3.7.5',
@@ -38,14 +38,23 @@ jobs:
           delete p.devDependencies['@astrojs/tailwind'];
           delete p.devDependencies.vercel;
           p.engines = {...p.engines, node:'>=22.23.4 <23'};
+          p.overrides = {...p.overrides,
+            '@grpc/grpc-js':'1.13.6',
+            'path-to-regexp':'6.3.0',
+            zod:'4.6.7',
+            'postcss-selector-parser@6.0.10':'6.1.6',
+            'minimatch@9':'11.0.8'
+          };
+          const testConfig='vitest.config.ts';
+          fs.writeFileSync(testConfig,fs.readFileSync(testConfig,'utf8').replace('export default defineConfig({','export default defineConfig({\n  oxc: { jsx: { runtime: "automatic" } },'));
           fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');
           const config='astro.config.mjs';
           fs.writeFileSync(config,fs.readFileSync(config,'utf8').replace(/^import tailwind from "@astrojs\/tailwind";\r?\n/m,'').replace(/^    tailwind\(\),\r?\n/m,''));
           const layout='src/layouts/BaseLayout.astro';
           fs.writeFileSync(layout,fs.readFileSync(layout,'utf8').replace('import "../styles/main.scss";','import "../styles/global.css";\nimport "../styles/main.scss";'));
           execFileSync('npm',['install','--ignore-scripts','--no-audit'],{stdio:'inherit'});
-          const fix = execFileSync('npm',['audit','fix','--ignore-scripts'],{stdio:'pipe',encoding:'utf8'});
-          console.log(fix);
+          const fix = spawnSync('npm',['audit','fix','--ignore-scripts'],{stdio:'inherit'});
+          if (fix.error) throw fix.error;
           
           DEPENDENCY_CANDIDATE
       - name: Export candidate
