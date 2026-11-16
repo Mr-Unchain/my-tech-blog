@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from "../../lib/structured-data";
 // src/pages/category/[categoryName].astro
 import EditorialPageHeader from "../../components/EditorialPageHeader.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -37,7 +38,7 @@ const keywords = `${categoryName}, テクノロジー, ブログ, 記事一覧, 
 const breadcrumbItems = [
   { name: "ホーム", href: "/" },
   { name: "カテゴリ", href: "/category" },
-  { name: categoryName }
+  { name: categoryName },
 ];
 ---
 
@@ -46,52 +47,75 @@ const breadcrumbItems = [
   pageDescription={pageDescription}
   keywords={keywords}
 >
-  <script slot="head" type="application/ld+json" is:inline>{JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        "name": pageTitle,
-        "description": pageDescription,
-        "url": Astro.url.href,
-        "mainEntity": {
-          "@type": "ItemList",
-          "numberOfItems": posts.length,
-          "itemListElement": posts.map((post, index) => ({
-            "@type": "BlogPosting",
-            "position": index + 1,
-            "headline": post.title,
-            "description": post.description,
-            "url": new URL(`/blog/${post.id}`, Astro.site).href,
-            "datePublished": post.publishedAt,
-            "author": {
-              "@type": "Person",
-              "name": "Monologger"
-            }
-          }))
-        }
-      })}
-  </script>
-  
+  <script
+    slot="head"
+    type="application/ld+json"
+    is:inline
+    set:html={serializeJsonLd({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: pageTitle,
+      description: pageDescription,
+      url: Astro.url.href,
+      mainEntity: {
+        "@type": "ItemList",
+        numberOfItems: posts.length,
+        itemListElement: posts.map((post, index) => ({
+          "@type": "BlogPosting",
+          position: index + 1,
+          headline: post.title,
+          description: post.description,
+          url: new URL(`/blog/${post.id}`, Astro.site).href,
+          datePublished: post.publishedAt,
+          author: {
+            "@type": "Person",
+            name: "Monologger",
+          },
+        })),
+      },
+    })}
+  />
+
   <main class="editorial-page">
     <div class="editorial-page-shell">
       <Breadcrumb items={breadcrumbItems} />
-      <EditorialPageHeader eyebrow="TOPIC" title={categoryName || 'カテゴリ'} description={`${posts.length}件の記事`} />
-      {posts.length > 0 ? (
-        <ol class="editorial-listing editorial-listing--narrow">
-          {posts.map((post) => (
-            <li>
-              <a href={`/blog/${post.id}/`}>
-                <time datetime={post.publishedAt}>{new Date(post.publishedAt).toLocaleDateString('ja-JP')}</time>
-                <span class="editorial-listing__category">{post.category[0] || 'ブログ'}</span>
-                <span class="editorial-listing__copy">
-                  <span class="editorial-listing__title">{post.title}</span>
-                  <span class="editorial-listing__description">{post.description}</span>
-                </span>
-                <span class="editorial-listing__arrow" aria-hidden="true">↗</span>
-              </a>
-            </li>
-          ))}
-        </ol>
-      ) : <p class="editorial-empty-state">このカテゴリの記事はまだありません。<a href="/category/">カテゴリ一覧へ →</a></p>}
+      <EditorialPageHeader
+        eyebrow="TOPIC"
+        title={categoryName || "カテゴリ"}
+        description={`${posts.length}件の記事`}
+      />
+      {
+        posts.length > 0 ? (
+          <ol class="editorial-listing editorial-listing--narrow">
+            {posts.map((post) => (
+              <li>
+                <a href={`/blog/${post.id}/`}>
+                  <time datetime={post.publishedAt}>
+                    {new Date(post.publishedAt).toLocaleDateString("ja-JP")}
+                  </time>
+                  <span class="editorial-listing__category">
+                    {post.category[0] || "ブログ"}
+                  </span>
+                  <span class="editorial-listing__copy">
+                    <span class="editorial-listing__title">{post.title}</span>
+                    <span class="editorial-listing__description">
+                      {post.description}
+                    </span>
+                  </span>
+                  <span class="editorial-listing__arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="editorial-empty-state">
+            このカテゴリの記事はまだありません。
+            <a href="/category/">カテゴリ一覧へ →</a>
+          </p>
+        )
+      }
     </div>
   </main>
 </BaseLayout>
