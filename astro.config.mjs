@@ -66,11 +66,6 @@ export default defineConfig({
   vite: {
     server: {
       host: '127.0.0.1',
-      hmr: {
-        clientPort: Number(process.env.PORT) || 3000,
-        host: 'localhost',
-        protocol: 'ws'
-      },
       watch: { usePolling: true },
       strictPort: false
     },
