@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * 見出しの型定義
  */
 interface Heading {
-  text: string;    // 見出しのテキスト
-  id: string;      // 見出しのID（アンカーリンク用）
+  text: string; // 見出しのテキスト
+  id: string; // 見出しのID（アンカーリンク用）
   tagName: string; // タグ名（h2, h3など）
 }
 
@@ -26,7 +26,7 @@ interface TableOfContentsProps {
  */
 export default function TableOfContents({ headings }: TableOfContentsProps) {
   // 現在アクティブな見出しのIDを管理
-  const [activeId, setActiveId] = useState<string>('');
+  const [activeId, setActiveId] = useState<string>("");
 
   /**
    * Intersection Observerによる見出し監視
@@ -38,7 +38,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
     // Observerのオプション設定
     // rootMargin: 上部80px、下部70%を除外して中央付近を監視領域とする
     const observerOptions: IntersectionObserverInit = {
-      rootMargin: '-80px 0px -70% 0px',
+      rootMargin: "-80px 0px -70% 0px",
       threshold: 0,
     };
 
@@ -50,13 +50,18 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
       if (visibleEntries.length > 0) {
         // 最も上にある見出しを選択
         const topEntry = visibleEntries.reduce((prev, curr) => {
-          return prev.boundingClientRect.top < curr.boundingClientRect.top ? prev : curr;
+          return prev.boundingClientRect.top < curr.boundingClientRect.top
+            ? prev
+            : curr;
         });
         setActiveId(topEntry.target.id);
       }
     };
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    const observer = new IntersectionObserver(
+      observerCallback,
+      observerOptions
+    );
 
     // 全ての見出しを監視対象に追加
     headings.forEach((heading) => {
@@ -86,7 +91,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
 
       // 画面最上部付近ではアクティブ状態をクリア
       if (currentScrollY < 100) {
-        setActiveId('');
+        setActiveId("");
         lastScrollY = currentScrollY;
         return;
       }
@@ -114,10 +119,10 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
     };
 
     // パッシブリスナーとして登録（スクロールパフォーマンス向上）
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [headings]);
 
@@ -137,7 +142,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth',
+        behavior: "smooth",
       });
 
       // UX向上のため、クリック時に即座にアクティブ状態を更新
@@ -155,11 +160,14 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
       {headings.map((heading) => (
         <li
           key={heading.id}
-          className={`${heading.tagName === 'h2' ? 'toc-h2' : 'toc-h3'}${
-            activeId === heading.id ? ' toc-active' : ''
+          className={`${heading.tagName === "h2" ? "toc-h2" : "toc-h3"}${
+            activeId === heading.id ? " toc-active" : ""
           }`}
         >
-          <a href={`#${heading.id}`} onClick={(e) => handleClick(e, heading.id)}>
+          <a
+            href={`#${heading.id}`}
+            onClick={(e) => handleClick(e, heading.id)}
+          >
             {heading.text}
           </a>
         </li>

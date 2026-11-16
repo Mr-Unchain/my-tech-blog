@@ -30,10 +30,10 @@
      * 見出しリストを更新
      */
     function updateHeadings() {
-      const article = document.querySelector('.blog-article-content');
+      const article = document.querySelector(".blog-article-content");
       if (!article) return;
 
-      headings = Array.from(article.querySelectorAll('h2, h3'));
+      headings = Array.from(article.querySelectorAll("h2, h3"));
     }
 
     /**
@@ -68,7 +68,7 @@
 
       window.scrollTo({
         top: elementTop - offset,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
 
       // 視覚的フィードバック
@@ -114,24 +114,26 @@
     function scrollToTop() {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
-      showNavigationFeedback('ページトップ', 0, 0);
+      showNavigationFeedback("ページトップ", 0, 0);
     }
 
     /**
      * 目次にフォーカス
      */
     function focusToc() {
-      const toc = Array.from(document.querySelectorAll(
-        '.editorial-article__toc-desktop, .editorial-article__toc-mobile'
-      )).find((element) => getComputedStyle(element).display !== 'none');
+      const toc = Array.from(
+        document.querySelectorAll(
+          ".editorial-article__toc-desktop, .editorial-article__toc-mobile"
+        )
+      ).find((element) => getComputedStyle(element).display !== "none");
       if (toc) {
         if (toc instanceof HTMLDetailsElement) toc.open = true;
-        const firstLink = toc.querySelector('a');
+        const firstLink = toc.querySelector("a");
         if (firstLink) {
           firstLink.focus();
-          showNavigationFeedback('目次にフォーカス', 0, 0);
+          showNavigationFeedback("目次にフォーカス", 0, 0);
         }
       }
     }
@@ -141,21 +143,21 @@
      */
     function showNavigationFeedback(text, current, total) {
       // 既存のフィードバックを削除
-      const existing = document.querySelector('.keyboard-nav-feedback');
+      const existing = document.querySelector(".keyboard-nav-feedback");
       if (existing) existing.remove();
 
-      const feedback = document.createElement('div');
-      feedback.className = 'keyboard-nav-feedback';
+      const feedback = document.createElement("div");
+      feedback.className = "keyboard-nav-feedback";
       feedback.innerHTML = `
         <span class="feedback-text">${text}</span>
-        ${total > 0 ? `<span class="feedback-count">${current} / ${total}</span>` : ''}
+        ${total > 0 ? `<span class="feedback-count">${current} / ${total}</span>` : ""}
       `;
 
       document.body.appendChild(feedback);
 
       // アニメーション後に削除
       setTimeout(() => {
-        feedback.classList.add('fade-out');
+        feedback.classList.add("fade-out");
         setTimeout(() => feedback.remove(), 300);
       }, 1500);
     }
@@ -170,8 +172,8 @@
         return;
       }
 
-      helpModal = document.createElement('div');
-      helpModal.className = 'keyboard-help-modal';
+      helpModal = document.createElement("div");
+      helpModal.className = "keyboard-help-modal";
       helpModal.innerHTML = `
         <div class="keyboard-help-content">
           <div class="keyboard-help-header">
@@ -212,12 +214,14 @@
       document.body.appendChild(helpModal);
 
       // 閉じるボタンのイベント
-      helpModal.querySelector('.keyboard-help-close').addEventListener('click', () => {
-        toggleHelpModal();
-      });
+      helpModal
+        .querySelector(".keyboard-help-close")
+        .addEventListener("click", () => {
+          toggleHelpModal();
+        });
 
       // 背景クリックで閉じる
-      helpModal.addEventListener('click', (e) => {
+      helpModal.addEventListener("click", (e) => {
         if (e.target === helpModal) {
           toggleHelpModal();
         }
@@ -231,36 +235,36 @@
       // 入力フィールドにフォーカスがある場合は無視
       const activeElement = document.activeElement;
       const isInputFocused =
-        activeElement?.tagName === 'INPUT' ||
-        activeElement?.tagName === 'TEXTAREA' ||
+        activeElement?.tagName === "INPUT" ||
+        activeElement?.tagName === "TEXTAREA" ||
         activeElement?.isContentEditable;
 
       if (isInputFocused) return;
 
       // モーダルが開いている場合はEscapeで閉じる
-      if (helpModal && e.key === 'Escape') {
+      if (helpModal && e.key === "Escape") {
         toggleHelpModal();
         return;
       }
 
       switch (e.key) {
-        case 'j':
+        case "j":
           e.preventDefault();
           goToNextHeading();
           break;
-        case 'k':
+        case "k":
           e.preventDefault();
           goToPrevHeading();
           break;
-        case 'Escape':
+        case "Escape":
           e.preventDefault();
           scrollToTop();
           break;
-        case 't':
+        case "t":
           e.preventDefault();
           focusToc();
           break;
-        case '?':
+        case "?":
           e.preventDefault();
           toggleHelpModal();
           break;
@@ -268,15 +272,15 @@
     }
 
     // イベントリスナーを登録
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
 
     // 初期化時に見出しを取得
     updateHeadings();
   }
 
   // ページ読み込み時に初期化
-  document.addEventListener('DOMContentLoaded', initKeyboardNavigation);
-  document.addEventListener('astro:page-load', () => {
+  document.addEventListener("DOMContentLoaded", initKeyboardNavigation);
+  document.addEventListener("astro:page-load", () => {
     window.__keyboardNavInitialized = false;
     initKeyboardNavigation();
   });

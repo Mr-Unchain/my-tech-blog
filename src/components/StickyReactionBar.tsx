@@ -9,10 +9,10 @@
  * - position: sticky で画面に固定
  * - モバイルでは非表示（lg以上で表示）
  */
-import { useState } from 'react';
-import { useReactions, type ReactionType } from '../hooks/useReactions';
-import { REACTIONS } from '../lib/firebase-collections';
-import BookmarkButton from './BookmarkButton';
+import { useState } from "react";
+import { useReactions, type ReactionType } from "../hooks/useReactions";
+import { REACTIONS } from "../lib/firebase-collections";
+import BookmarkButton from "./BookmarkButton";
 
 interface Props {
   blogId: string;
@@ -20,9 +20,15 @@ interface Props {
 }
 
 export default function StickyReactionBar({ blogId, title }: Props) {
-  const { reactionCounts, loading, toggleReaction, hasReacted, getTotalReactions } =
-    useReactions(blogId);
-  const [animatingReaction, setAnimatingReaction] = useState<ReactionType | null>(null);
+  const {
+    reactionCounts,
+    loading,
+    toggleReaction,
+    hasReacted,
+    getTotalReactions,
+  } = useReactions(blogId);
+  const [animatingReaction, setAnimatingReaction] =
+    useState<ReactionType | null>(null);
   const [showCopyToast, setShowCopyToast] = useState(false);
 
   /**
@@ -36,7 +42,7 @@ export default function StickyReactionBar({ blogId, title }: Props) {
     try {
       await toggleReaction(reactionType);
     } catch (error) {
-      console.error('Reaction toggle failed:', error);
+      console.error("Reaction toggle failed:", error);
     } finally {
       setTimeout(() => {
         setAnimatingReaction(null);
@@ -51,7 +57,7 @@ export default function StickyReactionBar({ blogId, title }: Props) {
     const url = window.location.href;
     const text = encodeURIComponent(title);
     const shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`;
-    window.open(shareUrl, '_blank', 'noopener');
+    window.open(shareUrl, "_blank", "noopener");
   };
 
   /**
@@ -60,7 +66,7 @@ export default function StickyReactionBar({ blogId, title }: Props) {
   const shareOnLinkedIn = () => {
     const url = window.location.href;
     const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-    window.open(shareUrl, '_blank', 'noopener');
+    window.open(shareUrl, "_blank", "noopener");
   };
 
   /**
@@ -75,14 +81,14 @@ export default function StickyReactionBar({ blogId, title }: Props) {
         await navigator.clipboard.writeText(url);
       } else {
         // フォールバック: テキストエリアを使用
-        const textArea = document.createElement('textarea');
+        const textArea = document.createElement("textarea");
         textArea.value = url;
-        textArea.style.position = 'fixed';
-        textArea.style.top = '-1000px';
+        textArea.style.position = "fixed";
+        textArea.style.top = "-1000px";
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        document.execCommand('copy');
+        document.execCommand("copy");
         document.body.removeChild(textArea);
       }
 
@@ -90,7 +96,7 @@ export default function StickyReactionBar({ blogId, title }: Props) {
       setShowCopyToast(true);
       setTimeout(() => setShowCopyToast(false), 2000);
     } catch (error) {
-      console.error('Copy failed:', error);
+      console.error("Copy failed:", error);
     }
   };
 
@@ -112,14 +118,18 @@ export default function StickyReactionBar({ blogId, title }: Props) {
               key={reactionType}
               onClick={() => handleReactionClick(reactionType)}
               disabled={loading}
-              className={`sticky-reaction-btn ${reactionType} ${isReacted ? 'reacted' : ''} ${isAnimating ? 'animating' : ''}`}
-              aria-label={`${reactionConfig.label} ${isReacted ? '済み' : ''} ${count > 0 ? `(${count})` : ''}`}
-              title={`${reactionConfig.label}${isReacted ? ' - クリックで取り消し' : ''}`}
+              className={`sticky-reaction-btn ${reactionType} ${isReacted ? "reacted" : ""} ${isAnimating ? "animating" : ""}`}
+              aria-label={`${reactionConfig.label} ${isReacted ? "済み" : ""} ${count > 0 ? `(${count})` : ""}`}
+              title={`${reactionConfig.label}${isReacted ? " - クリックで取り消し" : ""}`}
             >
-              <span className={`sticky-reaction-emoji ${isAnimating ? 'bounce' : ''}`}>
+              <span
+                className={`sticky-reaction-emoji ${isAnimating ? "bounce" : ""}`}
+              >
                 {reactionConfig.emoji}
               </span>
-              {count > 0 && <span className="sticky-reaction-count">{count}</span>}
+              {count > 0 && (
+                <span className="sticky-reaction-count">{count}</span>
+              )}
             </button>
           );
         })}
@@ -150,7 +160,11 @@ export default function StickyReactionBar({ blogId, title }: Props) {
           aria-label="Xでシェア"
           title="Xでシェア"
         >
-          <svg viewBox="0 0 24 24" fill="currentColor" className="sticky-share-icon">
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="sticky-share-icon"
+          >
             <path d="M18.9 2H22l-7.7 8.8L23.5 22H16l-5.2-6.8L4.8 22H2l8.3-9.5L.7 2h7l4.7 6.2L18.9 2z" />
           </svg>
         </button>
@@ -162,7 +176,11 @@ export default function StickyReactionBar({ blogId, title }: Props) {
           aria-label="LinkedInでシェア"
           title="LinkedInでシェア"
         >
-          <svg viewBox="0 0 24 24" fill="currentColor" className="sticky-share-icon">
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="sticky-share-icon"
+          >
             <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M8.34 17.34V10.5H6V17.34H8.34M7.17 9.41A1.41 1.41 0 1 0 7.17 6.59 1.41 1.41 0 0 0 7.17 9.41M18 17.34V13.61C18 11.5 16.88 10.41 15.19 10.41A3 3 0 0 0 12.88 11.65H12.84V10.5H10.5V17.34H12.88V13.98C12.88 13 13.06 12.08 14.22 12.08C15.36 12.08 15.38 13.12 15.38 14.04V17.34H18Z" />
           </svg>
         </button>
@@ -174,7 +192,11 @@ export default function StickyReactionBar({ blogId, title }: Props) {
           aria-label="リンクをコピー"
           title="リンクをコピー"
         >
-          <svg viewBox="0 0 24 24" fill="currentColor" className="sticky-share-icon">
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="sticky-share-icon"
+          >
             <path d="M19 21H8V7H19M19 3H7A2 2 0 0 0 5 5V19A2 2 0 0 0 7 21H19A2 2 0 0 0 21 19V5A2 2 0 0 0 19 3M3 17V3H17V1H3A2 2 0 0 0 1 3V17H3Z" />
           </svg>
         </button>

@@ -19,41 +19,42 @@
     if (window.__imageOptimizerInitialized) return;
     window.__imageOptimizerInitialized = true;
 
-    const articleContent = document.querySelector('.blog-article-content');
+    const articleContent = document.querySelector(".blog-article-content");
     if (!articleContent) return;
 
-    const images = [...articleContent.querySelectorAll('img:not([data-optimized])')]
-      .filter((img) => !img.closest('.article-link-preview'));
+    const images = [
+      ...articleContent.querySelectorAll("img:not([data-optimized])"),
+    ].filter((img) => !img.closest(".article-link-preview"));
 
     images.forEach((img) => {
       // 最適化済みマーク
-      img.setAttribute('data-optimized', 'true');
+      img.setAttribute("data-optimized", "true");
 
       // loading属性を追加（まだない場合）
-      if (!img.hasAttribute('loading')) {
-        img.setAttribute('loading', 'lazy');
+      if (!img.hasAttribute("loading")) {
+        img.setAttribute("loading", "lazy");
       }
 
       // decoding属性を追加
-      img.setAttribute('decoding', 'async');
+      img.setAttribute("decoding", "async");
 
       // 画像にクラスを追加（ラッパーは作らず、元のサイズを維持）
-      img.classList.add('optimized-image');
+      img.classList.add("optimized-image");
 
       // 読み込み完了時の処理
       const handleLoad = () => {
-        img.classList.add('loaded');
+        img.classList.add("loaded");
       };
 
       if (img.complete) {
         handleLoad();
       } else {
-        img.addEventListener('load', handleLoad);
+        img.addEventListener("load", handleLoad);
       }
 
       // クリックで拡大表示
-      img.style.cursor = 'zoom-in';
-      img.addEventListener('click', () => {
+      img.style.cursor = "zoom-in";
+      img.addEventListener("click", () => {
         openImageLightbox(img.src, img.alt);
       });
     });
@@ -64,11 +65,11 @@
    */
   function openImageLightbox(src, alt) {
     // 既存のライトボックスを削除
-    const existing = document.querySelector('.image-lightbox');
+    const existing = document.querySelector(".image-lightbox");
     if (existing) existing.remove();
 
-    const lightbox = document.createElement('div');
-    lightbox.className = 'image-lightbox';
+    const lightbox = document.createElement("div");
+    lightbox.className = "image-lightbox";
     lightbox.innerHTML = `
       <div class="lightbox-backdrop"></div>
       <div class="lightbox-content">
@@ -80,44 +81,46 @@
       </div>
     `;
 
-    const image = document.createElement('img');
+    const image = document.createElement("img");
     image.src = src;
-    image.alt = alt || '';
-    lightbox.querySelector('.lightbox-content').prepend(image);
+    image.alt = alt || "";
+    lightbox.querySelector(".lightbox-content").prepend(image);
 
     document.body.appendChild(lightbox);
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
 
     // アニメーション
     requestAnimationFrame(() => {
-      lightbox.classList.add('active');
+      lightbox.classList.add("active");
     });
 
     // 閉じる処理
     const close = () => {
-      lightbox.classList.remove('active');
+      lightbox.classList.remove("active");
       setTimeout(() => {
         lightbox.remove();
-        document.body.style.overflow = '';
+        document.body.style.overflow = "";
       }, 300);
     };
 
-    lightbox.querySelector('.lightbox-backdrop').addEventListener('click', close);
-    lightbox.querySelector('.lightbox-close').addEventListener('click', close);
+    lightbox
+      .querySelector(".lightbox-backdrop")
+      .addEventListener("click", close);
+    lightbox.querySelector(".lightbox-close").addEventListener("click", close);
 
     // Escapeキーで閉じる
     const handleEscape = (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         close();
-        document.removeEventListener('keydown', handleEscape);
+        document.removeEventListener("keydown", handleEscape);
       }
     };
-    document.addEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
   }
 
   // ページ読み込み時に初期化
-  document.addEventListener('DOMContentLoaded', initImageOptimizer);
-  document.addEventListener('astro:page-load', () => {
+  document.addEventListener("DOMContentLoaded", initImageOptimizer);
+  document.addEventListener("astro:page-load", () => {
     window.__imageOptimizerInitialized = false;
     initImageOptimizer();
   });

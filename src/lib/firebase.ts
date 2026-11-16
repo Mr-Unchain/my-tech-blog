@@ -18,7 +18,9 @@ const firebaseConfig = {
 };
 
 // Firebase設定の検証
-const hasValidConfig = Object.values(firebaseConfig).every(value => value && value !== 'undefined');
+const hasValidConfig = Object.values(firebaseConfig).every(
+  (value) => value && value !== "undefined"
+);
 
 let _app: FirebaseApp | null = null;
 let _db: Firestore | null = null;
@@ -34,7 +36,7 @@ if (hasValidConfig) {
     _db = getFirestore(_app);
     _auth = getAuth(_app);
   } catch (error) {
-    console.warn('Firebase initialization failed:', error);
+    console.warn("Firebase initialization failed:", error);
   }
 }
 

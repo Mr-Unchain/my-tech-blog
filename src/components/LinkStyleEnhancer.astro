@@ -15,31 +15,30 @@
    */
   function enhanceLinks() {
     // 記事コンテンツ内のリンクを取得
-    const articleContent = document.querySelector('.blog-article-content');
+    const articleContent = document.querySelector(".blog-article-content");
     if (!articleContent) return;
 
     // 段落内の単独リンクを検出
-    const paragraphs = articleContent.querySelectorAll('p');
+    const paragraphs = articleContent.querySelectorAll("p");
 
     paragraphs.forEach((p) => {
       // 段落内にリンクが1つだけで、他のテキストがほとんどない場合
-      const links = p.querySelectorAll('a');
+      const links = p.querySelectorAll("a");
       if (links.length !== 1) return;
 
       const link = links[0];
-      const textContent = p.textContent?.trim() || '';
-      const linkText = link.textContent?.trim() || '';
+      const textContent = p.textContent?.trim() || "";
+      const linkText = link.textContent?.trim() || "";
 
       // リンクテキストと段落テキストがほぼ同じ（単独リンク）
       // または、リンクがURL形式のテキストを持つ場合
       const isStandaloneLink =
-        textContent === linkText ||
-        /^https?:\/\//.test(linkText);
+        textContent === linkText || /^https?:\/\//.test(linkText);
 
       if (!isStandaloneLink) return;
 
       // 既に強化済みならスキップ
-      if (link.classList.contains('enhanced-link')) return;
+      if (link.classList.contains("enhanced-link")) return;
 
       // 外部リンクのみ対象
       try {
@@ -47,34 +46,34 @@
         if (url.hostname === window.location.hostname) return;
 
         // リンクを強化
-        link.classList.add('enhanced-link');
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
+        link.classList.add("enhanced-link");
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
 
         // ドメイン名を取得
-        const hostname = url.hostname.replace('www.', '');
+        const hostname = url.hostname.replace("www.", "");
 
         // ファビコンとドメイン名を追加
-        const favicon = document.createElement('img');
+        const favicon = document.createElement("img");
         favicon.src = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
-        favicon.alt = '';
-        favicon.className = 'enhanced-link-favicon';
+        favicon.alt = "";
+        favicon.className = "enhanced-link-favicon";
         favicon.width = 16;
         favicon.height = 16;
 
-        const domain = document.createElement('span');
-        domain.className = 'enhanced-link-domain';
+        const domain = document.createElement("span");
+        domain.className = "enhanced-link-domain";
         domain.textContent = hostname;
 
-        const arrow = document.createElement('span');
-        arrow.className = 'enhanced-link-arrow';
+        const arrow = document.createElement("span");
+        arrow.className = "enhanced-link-arrow";
         arrow.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>`;
 
         // 既存のコンテンツをラップ
-        const textSpan = document.createElement('span');
-        textSpan.className = 'enhanced-link-text';
+        const textSpan = document.createElement("span");
+        textSpan.className = "enhanced-link-text";
         textSpan.textContent = link.textContent;
-        link.textContent = '';
+        link.textContent = "";
 
         // 要素を追加
         link.appendChild(favicon);
@@ -83,7 +82,7 @@
         link.appendChild(arrow);
 
         // 段落にもクラスを追加
-        p.classList.add('has-enhanced-link');
+        p.classList.add("has-enhanced-link");
       } catch {
         // 無効なURLはスキップ
       }
@@ -91,8 +90,8 @@
   }
 
   // ページ読み込み時に実行
-  document.addEventListener('DOMContentLoaded', enhanceLinks);
-  document.addEventListener('astro:page-load', enhanceLinks);
+  document.addEventListener("DOMContentLoaded", enhanceLinks);
+  document.addEventListener("astro:page-load", enhanceLinks);
 </script>
 
 <style is:global>

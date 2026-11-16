@@ -39,9 +39,7 @@ const linkLabel = project.link?.includes("github.com")
             />
           </div>
         ) : (
-          <div
-            class="project-card__placeholder w-20 h-20 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg transition-all duration-300"
-          >
+          <div class="project-card__placeholder w-20 h-20 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg transition-all duration-300">
             {project.title.slice(0, 2)}
           </div>
         )
@@ -146,7 +144,7 @@ const linkLabel = project.link?.includes("github.com")
               />
             </svg>
             {new Date(
-              project.updatedAt || project.createdAt || new Date(),
+              project.updatedAt || project.createdAt || new Date()
             ).toLocaleDateString("ja-JP")}
           </div>
         </div>
@@ -161,7 +159,8 @@ const linkLabel = project.link?.includes("github.com")
     border: 1px solid var(--color-border);
   }
   .project-card:hover {
-    box-shadow: 0 20px 40px color-mix(in srgb, var(--color-accent) 15%, transparent);
+    box-shadow: 0 20px 40px
+      color-mix(in srgb, var(--color-accent) 15%, transparent);
     border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
   }
 

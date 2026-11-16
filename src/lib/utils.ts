@@ -6,14 +6,16 @@
  * SSR環境でも安全に動作する
  */
 export function generateSessionId(): string {
-  const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+  const isBrowser =
+    typeof window !== "undefined" && typeof localStorage !== "undefined";
   if (!isBrowser) {
-    return 'session_ssr';
+    return "session_ssr";
   }
-  const existingId = localStorage.getItem('user_session_id');
+  const existingId = localStorage.getItem("user_session_id");
   if (existingId) return existingId;
-  const newId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  localStorage.setItem('user_session_id', newId);
+  const newId =
+    "session_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem("user_session_id", newId);
   return newId;
 }
 
@@ -27,7 +29,7 @@ export function normalizeToArray<T>(value: T | T[] | undefined | null): T[] {
   if (Array.isArray(value)) {
     return value;
   }
-  if (value !== undefined && value !== null && value !== '') {
+  if (value !== undefined && value !== null && value !== "") {
     return [value] as T[];
   }
   return [];

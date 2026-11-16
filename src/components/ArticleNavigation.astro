@@ -28,49 +28,68 @@ const sortedArticles = [...allArticles].sort((a, b) => {
 });
 
 // 現在の記事のインデックスを取得
-const currentIndex = sortedArticles.findIndex((article) => article.id === currentId);
+const currentIndex = sortedArticles.findIndex(
+  (article) => article.id === currentId
+);
 
 // 前後の記事を取得（新しい順なので、prevは新しい記事、nextは古い記事）
 const prevArticle = currentIndex > 0 ? sortedArticles[currentIndex - 1] : null;
-const nextArticle = currentIndex < sortedArticles.length - 1 ? sortedArticles[currentIndex + 1] : null;
+const nextArticle =
+  currentIndex < sortedArticles.length - 1
+    ? sortedArticles[currentIndex + 1]
+    : null;
 ---
 
-{(prevArticle || nextArticle) && (
-  <nav class="article-navigation" aria-label="記事ナビゲーション">
-    <div class="nav-grid">
-      {/* 前の記事（より新しい記事） */}
-      <div class="nav-item nav-prev">
-        {prevArticle ? (
-          <a href={`/blog/${prevArticle.id}/`} class="nav-link group">
-            <span class="nav-direction">
-              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-              <span>前の記事</span>
-            </span>
-            <span class="nav-title">{prevArticle.title}</span>
-          </a>
-        ) : (
-          <div class="nav-placeholder" />
-        )}
-      </div>
+{
+  (prevArticle || nextArticle) && (
+    <nav class="article-navigation" aria-label="記事ナビゲーション">
+      <div class="nav-grid">
+        {/* 前の記事（より新しい記事） */}
+        <div class="nav-item nav-prev">
+          {prevArticle ? (
+            <a href={`/blog/${prevArticle.id}/`} class="nav-link group">
+              <span class="nav-direction">
+                <svg
+                  class="nav-arrow"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+                <span>前の記事</span>
+              </span>
+              <span class="nav-title">{prevArticle.title}</span>
+            </a>
+          ) : (
+            <div class="nav-placeholder" />
+          )}
+        </div>
 
-      {/* 次の記事（より古い記事） */}
-      <div class="nav-item nav-next">
-        {nextArticle ? (
-          <a href={`/blog/${nextArticle.id}/`} class="nav-link group">
-            <span class="nav-direction">
-              <span>次の記事</span>
-              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </span>
-            <span class="nav-title">{nextArticle.title}</span>
-          </a>
-        ) : (
-          <div class="nav-placeholder" />
-        )}
+        {/* 次の記事（より古い記事） */}
+        <div class="nav-item nav-next">
+          {nextArticle ? (
+            <a href={`/blog/${nextArticle.id}/`} class="nav-link group">
+              <span class="nav-direction">
+                <span>次の記事</span>
+                <svg
+                  class="nav-arrow"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </span>
+              <span class="nav-title">{nextArticle.title}</span>
+            </a>
+          ) : (
+            <div class="nav-placeholder" />
+          )}
+        </div>
       </div>
-    </div>
-  </nav>
-)}
+    </nav>
+  )
+}

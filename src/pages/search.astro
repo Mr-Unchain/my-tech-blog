@@ -15,19 +15,30 @@ const catParam = Astro.url.searchParams.get("cat") || "";
 
 // microCMSの全文検索API(q)を使って記事を検索
 // タイトル・本文・カテゴリ名すべてを対象に軽いフィルタリング
-const { contents: all } = await getBlogs({ limit: 100, orders: "-publishedAt" });
-const qRaw = (query || '').trim();
+const { contents: all } = await getBlogs({
+  limit: 100,
+  orders: "-publishedAt",
+});
+const qRaw = (query || "").trim();
 const q = qRaw.toLowerCase();
 // 一意カテゴリ一覧
 const categorySet = new Set<string>();
-all.forEach((p: Blog) => (Array.isArray(p.category) ? p.category : []).forEach((c) => c && categorySet.add(String(c))));
-const categoriesAll = Array.from(categorySet).sort((a,b)=>a.localeCompare(b,'ja'));
+all.forEach((p: Blog) =>
+  (Array.isArray(p.category) ? p.category : []).forEach(
+    (c) => c && categorySet.add(String(c))
+  )
+);
+const categoriesAll = Array.from(categorySet).sort((a, b) =>
+  a.localeCompare(b, "ja")
+);
 
 const posts = all.filter((p: Blog) => {
   const inTitle = p.title?.toLowerCase().includes(q);
   const inDesc = p.description?.toLowerCase().includes(q);
   const inContent = p.content?.toLowerCase().includes(q);
-  const inCategoryText = Array.isArray(p.category) && p.category.some(c => String(c).toLowerCase().includes(q));
+  const inCategoryText =
+    Array.isArray(p.category) &&
+    p.category.some((c) => String(c).toLowerCase().includes(q));
   // キーワード未指定時はテキスト一致は常にtrue（＝全件表示）
   let ok = !q || inTitle || inDesc || inContent || inCategoryText;
   if (!ok) return false;
@@ -40,24 +51,27 @@ const posts = all.filter((p: Blog) => {
 });
 
 // 簡易ハイライト（XSS対策: キーワードのみ<mark>）
-const escapeHtml = (s: string) => s
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;');
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const mark = (text: string) => {
-  if (!qRaw) return escapeHtml(text || '');
-  const re = new RegExp(`(${qRaw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'ig');
-  return escapeHtml(text || '').replace(re, '<mark>$1</mark>');
+  if (!qRaw) return escapeHtml(text || "");
+  const re = new RegExp(
+    `(${qRaw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+    "ig"
+  );
+  return escapeHtml(text || "").replace(re, "<mark>$1</mark>");
 };
 
 // SEO用情報の準備
 const pageTitle = query ? `「${query}」の検索結果` : "記事検索";
-const pageDescription = query ? 
-  `「${query}」に関する記事の検索結果です。${posts.length}件の記事が見つかりました。` :
-  "ブログ記事を検索できます。キーワードを入力して関連する記事を見つけてください。";
-const keywords = query ? `${query}, 検索, ブログ検索, AI, コーディング` : "検索, ブログ検索, 記事検索, AI, コーディング";
-const breadcrumbItems = [{ name: 'ホーム', href: '/' }, { name: '検索' }];
+const pageDescription = query
+  ? `「${query}」に関する記事の検索結果です。${posts.length}件の記事が見つかりました。`
+  : "ブログ記事を検索できます。キーワードを入力して関連する記事を見つけてください。";
+const keywords = query
+  ? `${query}, 検索, ブログ検索, AI, コーディング`
+  : "検索, ブログ検索, 記事検索, AI, コーディング";
+const breadcrumbItems = [{ name: "ホーム", href: "/" }, { name: "検索" }];
 ---
 
 <BaseLayout
@@ -69,41 +83,85 @@ const breadcrumbItems = [{ name: 'ホーム', href: '/' }, { name: '検索' }];
   <main class="editorial-page">
     <div class="editorial-page-shell">
       <Breadcrumb items={breadcrumbItems} />
-      <EditorialPageHeader eyebrow="FIND AN ARTICLE" title={query ? `「${query}」の検索結果` : '記事を探す'} description="キーワードやカテゴリから、読みたい記事を探せます。" />
-      <form class="editorial-filter" method="get" action="/search/" aria-label="記事検索">
-        <label>キーワード
-          <input id="q" name="q" type="search" list="search-suggestions" value={query || ''} placeholder="キーワードを入力" />
+      <EditorialPageHeader
+        eyebrow="FIND AN ARTICLE"
+        title={query ? `「${query}」の検索結果` : "記事を探す"}
+        description="キーワードやカテゴリから、読みたい記事を探せます。"
+      />
+      <form
+        class="editorial-filter"
+        method="get"
+        action="/search/"
+        aria-label="記事検索"
+      >
+        <label
+          >キーワード
+          <input
+            id="q"
+            name="q"
+            type="search"
+            list="search-suggestions"
+            value={query || ""}
+            placeholder="キーワードを入力"
+          />
           <datalist id="search-suggestions"></datalist>
         </label>
-        <label>カテゴリ
+        <label
+          >カテゴリ
           <select id="cat" name="cat">
             <option value="" selected={!catParam}>すべて</option>
-            {categoriesAll.map((category) => (
-              <option value={category} selected={category === catParam}>{category}</option>
-            ))}
+            {
+              categoriesAll.map((category) => (
+                <option value={category} selected={category === catParam}>
+                  {category}
+                </option>
+              ))
+            }
           </select>
         </label>
         <button class="editorial-button" type="submit">検索</button>
-        {(query || catParam) && <a class="editorial-button editorial-button--plain" href="/search/">クリア</a>}
+        {
+          (query || catParam) && (
+            <a class="editorial-button editorial-button--plain" href="/search/">
+              クリア
+            </a>
+          )
+        }
       </form>
       <p class="editorial-result-count">{posts.length}件の記事</p>
-      {posts.length > 0 ? (
-        <ol class="editorial-listing editorial-listing--narrow">
-          {posts.map((post) => (
-            <li>
-              <a href={`/blog/${post.id}/`}>
-                <time datetime={post.publishedAt}>{new Date(post.publishedAt).toLocaleDateString('ja-JP')}</time>
-                <span class="editorial-listing__category">{post.category[0] || 'ブログ'}</span>
-                <span class="editorial-listing__copy">
-                  <span class="editorial-listing__title"><Fragment set:html={mark(post.title)} /></span>
-                  <span class="editorial-listing__description"><Fragment set:html={mark(post.description)} /></span>
-                </span>
-                <span class="editorial-listing__arrow" aria-hidden="true">↗</span>
-              </a>
-            </li>
-          ))}
-        </ol>
-      ) : <p class="editorial-empty-state">該当する記事がありません。別のキーワードやカテゴリを試してください。</p>}
+      {
+        posts.length > 0 ? (
+          <ol class="editorial-listing editorial-listing--narrow">
+            {posts.map((post) => (
+              <li>
+                <a href={`/blog/${post.id}/`}>
+                  <time datetime={post.publishedAt}>
+                    {new Date(post.publishedAt).toLocaleDateString("ja-JP")}
+                  </time>
+                  <span class="editorial-listing__category">
+                    {post.category[0] || "ブログ"}
+                  </span>
+                  <span class="editorial-listing__copy">
+                    <span class="editorial-listing__title">
+                      <Fragment set:html={mark(post.title)} />
+                    </span>
+                    <span class="editorial-listing__description">
+                      <Fragment set:html={mark(post.description)} />
+                    </span>
+                  </span>
+                  <span class="editorial-listing__arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="editorial-empty-state">
+            該当する記事がありません。別のキーワードやカテゴリを試してください。
+          </p>
+        )
+      }
     </div>
   </main>
 </BaseLayout>
@@ -117,35 +175,41 @@ const breadcrumbItems = [{ name: 'ホーム', href: '/' }, { name: '検索' }];
 
 <script is:inline>
   // 検索履歴（LocalStorage）: 'search_history' に最大20件保存
-  (function(){
-    const STORAGE_KEY = 'search_history';
-    function getHistory(){
-      try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }catch{ return []; }
-    }
-    function setHistory(arr){
+  (function () {
+    const STORAGE_KEY = "search_history";
+    function getHistory() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(0,20)));
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch {
+        return [];
+      }
+    }
+    function setHistory(arr) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr.slice(0, 20)));
       } catch (error) {
-        console.warn('Failed to save search history:', error);
+        console.warn("Failed to save search history:", error);
       }
     }
     const form = document.querySelector('form[method="get"]');
-    const input = document.getElementById('q');
-    const datalist = document.getElementById('search-suggestions');
+    const input = document.getElementById("q");
+    const datalist = document.getElementById("search-suggestions");
     const history = getHistory();
     if (datalist && Array.isArray(history)) {
       datalist.replaceChildren();
-      history.filter((item) => typeof item === 'string').forEach((item) => {
-        const option = document.createElement('option');
-        option.value = item;
-        datalist.appendChild(option);
-      });
+      history
+        .filter((item) => typeof item === "string")
+        .forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item;
+          datalist.appendChild(option);
+        });
     }
-    form?.addEventListener('submit', () => {
-      const q = (input?.value || '').trim();
+    form?.addEventListener("submit", () => {
+      const q = (input?.value || "").trim();
       if (!q) return;
       const h = getHistory();
-      const next = [q, ...h.filter((x)=>x!==q)];
+      const next = [q, ...h.filter((x) => x !== q)];
       setHistory(next);
     });
   })();

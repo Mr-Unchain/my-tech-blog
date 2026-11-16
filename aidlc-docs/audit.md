@@ -721,3 +721,20 @@
 **Timestamp**: 2026-11-16T04:57:35Z
 **AI Response**: Run 43806832219 verified committed application source bea346d2455feb91ce1063e4138034da8ae59e7e with a fresh npm ci, zero npm audit findings, 77 tests, lint, production build, changed-file formatting, valid home/article/category JSON-LD and Chromium at 1440/390 px (six page/viewport cases). Browser checks exposed the old fixed localhost:3000 HMR override; removed it so the client follows the actual server port and verified each HMR connection. Removed temporary branch-only CI from the final patch and prepared a review PR based on PR #37. Production Firebase writes and deployment were not performed. Global formatting drift is handled separately.
 **Security Compliance**: Patched supported frameworks, least-privilege CI, committed lockfile and scoped overrides satisfy applicable supply-chain verification. No new identity, API permission or production configuration is introduced.
+
+
+---
+
+## Mechanical Formatting Remediation
+**Timestamp**: 2026-11-16T05:01:00Z
+**User Input**: 「では早速対応をお願い。」 (continuing the authorized remediation)
+**AI Response**: Prepared only the existing 70 source-format deviations with npm run format, preserving formatter settings, ignore rules, dependencies and article bodies. Candidate run 43806859783 passed complete formatting, zero audit findings, 77 tests, lint, build, JSON-LD, working HMR and six Chromium route/viewport cases. Combined committed-source verification follows, including the exact diagnostic script, original artifact digest/JSON and actual React theme interaction. This branch builds on PR #38 and will be reviewed separately.
+**Security Compliance**: Formatting does not change authorization, data handling or infrastructure. The temporary verifier grants only repository-scoped contents/actions read permissions for the requested artifact inspection.
+
+
+---
+
+## Combined Remediation Verified
+**Timestamp**: 2026-11-16T05:10:12Z
+**AI Response**: GitHub Actions run 43807869408 verified committed application source cbac13d53ffa3781d9bc45077c99b83aeb42f48c with a fresh npm ci. The exact scheduled diagnostic script reported healthy at 2026-11-16T05:05:24.811Z: content validation, lint, complete formatting, 77 unit tests, production build and dependency audit all passed (0 vulnerabilities). Chromium verified home/article/category at 1440 and 390 px, real React theme toggles, valid JSON-LD, working HMR, Tailwind utilities and no horizontal overflow or client errors. Downloaded original artifact 13650912486, checked ZIP digest 94658bad573f2d9dbfc1eced5d28e16f78115b66fca35ac566f922e3ad6d4cd6, and parsed its degraded JSON (format and dependency-audit failed) as the comparison baseline. Removed the last temporary verifier from the final diff. PR #37 and PR #38 remain open; prepare the formatting-only PR based on #38. main remains 4f90c775e45f3db0112967baad9482143b10d33c; no direct push or merge occurred.
+**Security Compliance**: All applicable changed-source and dependency checks passed. Temporary actions/contents read permissions were removed with the verifier; production workflow permissions and credentials are unchanged. Cloud executor capability lookup remains unavailable and was not represented as a repository regression.

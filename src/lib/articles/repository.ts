@@ -1,7 +1,7 @@
-import { ArticleValidationAggregateError } from './errors';
-import { validateParsedArticleSources } from './validation';
-import type { Article, ParsedArticleSource } from './types';
-import path from 'node:path';
+import { ArticleValidationAggregateError } from "./errors";
+import { validateParsedArticleSources } from "./validation";
+import type { Article, ParsedArticleSource } from "./types";
+import path from "node:path";
 
 export interface ArticleCollectionEntry {
   id: string;
@@ -14,33 +14,33 @@ export interface ArticleCollectionEntry {
 export type ArticleCollectionReader = () => Promise<ArticleCollectionEntry[]>;
 
 const readBlogCollection: ArticleCollectionReader = async () => {
-  const { getCollection } = await import('astro:content');
-  return (await getCollection('blog')) as ArticleCollectionEntry[];
+  const { getCollection } = await import("astro:content");
+  return (await getCollection("blog")) as ArticleCollectionEntry[];
 };
 
 const toSafeSourcePath = (filePath: string | undefined, id: string): string => {
   if (!filePath) return `src/content/blog/${id}.mdx`;
-  const normalized = filePath.replaceAll('\\', '/');
+  const normalized = filePath.replaceAll("\\", "/");
   if (!path.isAbsolute(filePath)) return normalized;
-  const relative = path.relative(process.cwd(), filePath).replaceAll('\\', '/');
-  return relative.startsWith('..') ? path.basename(filePath) : relative;
+  const relative = path.relative(process.cwd(), filePath).replaceAll("\\", "/");
+  return relative.startsWith("..") ? path.basename(filePath) : relative;
 };
 
 const toParsedSource = (
   entry: ArticleCollectionEntry
 ): ParsedArticleSource => ({
-  absolutePath: '',
+  absolutePath: "",
   sourcePath: toSafeSourcePath(entry.filePath, entry.id),
   filenameStem: entry.filePath
     ? (entry.filePath
-        .replaceAll('\\', '/')
-        .split('/')
+        .replaceAll("\\", "/")
+        .split("/")
         .at(-1)
-        ?.replace(/\.mdx?$/i, '') ?? entry.id)
+        ?.replace(/\.mdx?$/i, "") ?? entry.id)
     : entry.id,
-  content: '',
+  content: "",
   frontmatter: entry.data,
-  body: entry.body ?? '',
+  body: entry.body ?? "",
 });
 
 export const getAllValidatedArticles = async (
@@ -62,7 +62,7 @@ export const getPublicArticles = async (
   reader: ArticleCollectionReader = readBlogCollection
 ): Promise<Article[]> =>
   (await getAllValidatedArticles(reader)).filter(
-    (article) => article.publicationState === 'published'
+    (article) => article.publicationState === "published"
   );
 
 export const getPublicArticleById = async (

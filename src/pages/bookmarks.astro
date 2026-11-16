@@ -19,8 +19,14 @@ const breadcrumbItems = [
   <main class="editorial-page editorial-bookmarks">
     <div class="editorial-page-shell">
       <Breadcrumb items={breadcrumbItems} />
-      <EditorialPageHeader eyebrow="SAVED ARTICLES" title="ブックマーク" description="あとで読みたい記事をまとめて確認できます。" />
-      <div class="editorial-bookmarks__list"><BookmarkListClient client:load /></div>
+      <EditorialPageHeader
+        eyebrow="SAVED ARTICLES"
+        title="ブックマーク"
+        description="あとで読みたい記事をまとめて確認できます。"
+      />
+      <div class="editorial-bookmarks__list">
+        <BookmarkListClient client:load />
+      </div>
     </div>
   </main>
 </BaseLayout>

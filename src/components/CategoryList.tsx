@@ -26,8 +26,8 @@ const CategoryList: React.FC<CategoryListProps> = ({ category, className }) => {
           href={`/category/${cat}`}
           className="text-xs font-medium px-2 py-0.5 rounded-full transition-colors duration-200"
           style={{
-            background: 'var(--color-accent-light)',
-            color: 'var(--color-accent)',
+            background: "var(--color-accent-light)",
+            color: "var(--color-accent)",
           }}
           key={cat + idx}
         >
@@ -37,7 +37,7 @@ const CategoryList: React.FC<CategoryListProps> = ({ category, className }) => {
       {max < category.length && (
         <span
           className="text-xs px-2"
-          style={{ color: 'var(--color-text-muted)' }}
+          style={{ color: "var(--color-text-muted)" }}
         >
           +{category.length - max}
         </span>

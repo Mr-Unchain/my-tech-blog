@@ -1,14 +1,14 @@
-import { normalizeValidationErrors } from './errors';
-import { mapArticle } from './mapper';
-import { articleFrontmatterSchema } from './schema';
-import { parseArticleSource, scanArticleSources } from './source';
+import { normalizeValidationErrors } from "./errors";
+import { mapArticle } from "./mapper";
+import { articleFrontmatterSchema } from "./schema";
+import { parseArticleSource, scanArticleSources } from "./source";
 import type {
   Article,
   ArticleValidationError,
   ArticleValidationResult,
   ParsedArticleSource,
   ValidationOptions,
-} from './types';
+} from "./types";
 
 export const validateArticleEntry = (
   source: ParsedArticleSource
@@ -20,8 +20,8 @@ export const validateArticleEntry = (
     for (const issue of parsed.error.issues) {
       errors.push({
         sourcePath: source.sourcePath,
-        field: issue.path.join('.') || 'frontmatter',
-        code: 'FRONTMATTER_INVALID',
+        field: issue.path.join(".") || "frontmatter",
+        code: "FRONTMATTER_INVALID",
         message: issue.message,
       });
     }
@@ -30,31 +30,31 @@ export const validateArticleEntry = (
   if (!source.body.trim()) {
     errors.push({
       sourcePath: source.sourcePath,
-      field: 'body',
-      code: 'ARTICLE_BODY_EMPTY',
-      message: 'Article body must not be empty.',
+      field: "body",
+      code: "ARTICLE_BODY_EMPTY",
+      message: "Article body must not be empty.",
     });
   }
 
   if (
-    source.sourcePath.replaceAll('\\', '/').includes('/content/drafts/') &&
+    source.sourcePath.replaceAll("\\", "/").includes("/content/drafts/") &&
     parsed.success &&
     !parsed.data.draft
   ) {
     errors.push({
       sourcePath: source.sourcePath,
-      field: 'draft',
-      code: 'FRONTMATTER_INVALID',
-      message: 'Files in the local drafts directory must set draft: true.',
+      field: "draft",
+      code: "FRONTMATTER_INVALID",
+      message: "Files in the local drafts directory must set draft: true.",
     });
   }
 
   if (parsed.success && parsed.data.id !== source.filenameStem) {
     errors.push({
       sourcePath: source.sourcePath,
-      field: 'id',
-      code: 'ARTICLE_ID_FILENAME_MISMATCH',
-      message: 'Article id must match the filename stem.',
+      field: "id",
+      code: "ARTICLE_ID_FILENAME_MISMATCH",
+      message: "Article id must match the filename stem.",
     });
   }
 
@@ -89,9 +89,9 @@ export const validateParsedArticleSources = (
     for (const source of matches) {
       errors.push({
         sourcePath: source.sourcePath,
-        field: 'id',
-        code: 'ARTICLE_ID_DUPLICATE',
-        message: 'Article id is duplicated.',
+        field: "id",
+        code: "ARTICLE_ID_DUPLICATE",
+        message: "Article id is duplicated.",
       });
     }
   }
@@ -115,9 +115,9 @@ export const validateContent = async (
     } catch {
       errors.push({
         sourcePath: source.sourcePath,
-        field: 'frontmatter',
-        code: 'FRONTMATTER_PARSE',
-        message: 'Frontmatter could not be parsed.',
+        field: "frontmatter",
+        code: "FRONTMATTER_PARSE",
+        message: "Frontmatter could not be parsed.",
       });
     }
   }
