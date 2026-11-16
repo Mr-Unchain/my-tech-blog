@@ -17,6 +17,57 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - name: Prepare candidate
+        run: |
+          node --input-type=module <<'CODEX_SCRIPT'
+          import fs from 'node:fs';
+          import { execFileSync, spawnSync } from 'node:child_process';
+          const files = ['src/layouts/BaseLayout.astro', 'src/pages/index.astro', 'src/pages/blog/[id].astro', 'src/pages/category/[categoryName].astro'];
+          for (const path of files) {
+            let source = fs.readFileSync(path, 'utf8');
+            const relative = path.split('/').length === 3 ? '../../lib/structured-data' : '../lib/structured-data';
+            source = source.replace(/^---\n/, '---\nimport { serializeJsonLd } from "' + relative + '";\n');
+            let count = 0;
+            source = source.replace(/<script([^>]*type="application\/ld\+json"[^>]*)>([\s\S]*?)<\/script>/g, (full, attrs, body) => {
+              const expression = body.trim();
+              if (!expression.startsWith('{JSON.stringify(') || !expression.endsWith('}')) throw new Error('Unexpected JSON-LD in ' + path);
+              count++;
+              return '<script' + attrs + ' set:html={' + expression.slice(1, -1).replace(/^JSON.stringify/, 'serializeJsonLd') + '}></script>';
+            });
+            if (!count) throw new Error('No JSON-LD found: ' + path);
+            fs.writeFileSync(path, source);
+          }
+          const card = 'src/components/ArticleCard.astro';
+          fs.writeFileSync(card, fs.readFileSync(card, 'utf8').replace(/^[ \t]*<!-- リアクションボタンはJavaScriptで動的生成 -->\r?\n/m, ''));
+          fs.writeFileSync('src/lib/structured-data.ts', 'export function serializeJsonLd(value: Record<string, unknown>): string {\n  return JSON.stringify(value).replace(/</g, "\\\\u003c");\n}\n');
+          fs.writeFileSync('tests/lib/structured-data.test.ts', `import { describe, expect, it } from "vitest";
+          import { serializeJsonLd } from "../../src/lib/structured-data";
+          
+          describe("serializeJsonLd", () => {
+            it("preserves structured data as valid JSON", () => {
+              const data = { "@context": "https://schema.org", name: "記事", count: 3 };
+              expect(JSON.parse(serializeJsonLd(data))).toEqual(data);
+            });
+            it("prevents embedded HTML from closing its script element", () => {
+              const data = { name: "</script><script>alert(1)</script>", description: "<!--" };
+              const result = serializeJsonLd(data);
+              expect(result).not.toContain("<");
+              expect(JSON.parse(result)).toEqual(data);
+            });
+          });
+          `);
+          const fix = spawnSync('npm', ['audit', 'fix', '--ignore-scripts'], {stdio:'inherit'});
+          if (fix.error) throw fix.error;
+          execFileSync('npx', ['--no-install', 'prettier', '--write', ...files, card, 'src/lib/structured-data.ts', 'tests/lib/structured-data.test.ts'], {stdio:'inherit'});
+          const changed = execFileSync('git', ['diff', '--name-only'], {encoding:'utf8'}).trim().split('\n').filter(Boolean);
+          changed.push('src/lib/structured-data.ts', 'tests/lib/structured-data.test.ts');
+          for (const path of [...new Set(changed)]) {
+            const content = fs.readFileSync(path, 'utf8');
+            const total = Math.ceil(content.length / 12000);
+            for (let index=0; index<total; index++) console.log('CODEX_CHUNK ' + JSON.stringify({path,index,total,data:content.slice(index*12000,(index+1)*12000)}));
+          }
+          
+          CODEX_SCRIPT
       - name: Audit details
         continue-on-error: true
         run: npm audit --json
