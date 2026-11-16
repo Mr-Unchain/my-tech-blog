@@ -76,11 +76,16 @@ jobs:
             for (const width of [1440,390]) {
               const page = await browser.newPage({viewport:{width,height:900}});
               const errors = [];
+              let hmrConnected = false;
+              page.on('websocket', socket => socket.on('framereceived', frame => { try { if (JSON.parse(frame.payload.toString()).type === 'connected') hmrConnected = true; } catch {} }));
               page.on('pageerror', error => errors.push(error.message));
               for (const path of ['/', '/blog/docker-intro-part1/', '/category/IT/']) {
+                hmrConnected = false;
                 const response = await page.goto(base+path,{waitUntil:'domcontentloaded'});
                 assert.equal(response.status(),200,path);
                 await page.locator('h1').first().waitFor();
+                for (let attempt=0; attempt<30 && !hmrConnected; attempt++) await new Promise(resolve => setTimeout(resolve,100));
+                assert(hmrConnected, 'Development HMR connection did not open');
                 const style = await page.evaluate(() => {
                   const probe=document.createElement('div'); probe.className='relative'; document.body.append(probe);
                   const result={position:getComputedStyle(probe).position,margin:getComputedStyle(document.body).margin,boxSizing:getComputedStyle(document.body).boxSizing,overflow:document.documentElement.scrollWidth-window.innerWidth};
