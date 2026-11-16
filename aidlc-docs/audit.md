@@ -704,3 +704,20 @@
 **Timestamp**: 2026-11-16T04:34:23Z
 **AI Response**: Verified committed application source acdd7d1105ba9d949ef1dd48e985bfde51cd8130 in GitHub Actions run 43804711236: npm ci, 77 unit tests, ESLint, production build and changed-file Prettier checks passed. HTTP checks parsed two JSON-LD blocks on home, three on the Docker article and two on the IT category page. Removed the temporary branch-only verifier from the PR diff. No dependency updates are included; existing global style drift and dependency audit findings remain explicitly unresolved pending the separate dependency work.
 **Security Compliance**: Escaped script boundary tested; no added permission, credential or production infrastructure. The original scheduled diagnostic workflow is unchanged.
+
+
+---
+
+## Targeted Dependency Remediation
+**Timestamp**: 2026-11-16T04:42:38Z
+**User Input**: 「では早速対応をお願い。」 (continuing the authorized remediation)
+**AI Response**: Rejected an unscoped audit-fix tree. Used official engine/peer metadata to prepare supported framework, adapter, Firebase and test-tool versions; kept Tailwind 3 with its existing CSS/PostCSS configuration and removed the unused repository-local Vercel CLI. Scoped overrides patch vulnerable transitive pins. Candidate run 43805364881 passed 75 tests, lint, production build and npm audit with zero findings. Integrated PR #37's source into the dependency branch for final committed-lockfile, JSON-LD and browser verification. Required runtime is Node >=22.23.4 within 22.x; no deployment or main update is performed.
+**Security Compliance**: SECURITY-06/10/13: read-only pinned-action CI, official registry and committed lockfile. Runtime/authentication infrastructure is unchanged. Final verification remains pending.
+
+
+---
+
+## Dependency Remediation Verified
+**Timestamp**: 2026-11-16T04:57:35Z
+**AI Response**: Run 43806832219 verified committed application source bea346d2455feb91ce1063e4138034da8ae59e7e with a fresh npm ci, zero npm audit findings, 77 tests, lint, production build, changed-file formatting, valid home/article/category JSON-LD and Chromium at 1440/390 px (six page/viewport cases). Browser checks exposed the old fixed localhost:3000 HMR override; removed it so the client follows the actual server port and verified each HMR connection. Removed temporary branch-only CI from the final patch and prepared a review PR based on PR #37. Production Firebase writes and deployment were not performed. Global formatting drift is handled separately.
+**Security Compliance**: Patched supported frameworks, least-privilege CI, committed lockfile and scoped overrides satisfy applicable supply-chain verification. No new identity, API permission or production configuration is introduced.

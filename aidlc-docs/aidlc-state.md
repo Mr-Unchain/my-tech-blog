@@ -4,11 +4,11 @@
 - **Project**: my-tech-blog
 - **Type**: Brownfield (existing codebase)
 - **Created**: 2026-03-13
-- **Current Workflow**: Illustrated Design Retrospective (2026-11-09, PR preparation)
+- **Current Workflow**: Repository Diagnostics Remediation (2026-11-16, PR review)
 
 ## Current Phase
 - **Phase**: CONSTRUCTION
-- **Stage**: Approved article and inline link contrast fix - publication PR preparation
+- **Stage**: Rendering and dependency fixes verified; formatting cleanup in preparation
 
 ## Workspace State
 - **Existing Code**: Yes
@@ -29,7 +29,7 @@
 |---|---|---|
 | Security Baseline | Yes | Requirements Analysis |
 
-## Current Workflow (2026-11-09, Article Publication)
+## Previous Workflow (2026-11-09, Article Publication)
 - **Goal**: Publish the approved design retrospective with four comparison screenshots and the corrected inline link color through a PR.
 - **Article**: `src/content/blog/blog-redesign-20261109.md`.
 - **Writing guidance**: `aidlc-docs/construction/authoring-environment/writing-style.md`.
@@ -93,3 +93,13 @@
 ### OPERATIONS PHASE
 
 - [ ] Operations (placeholder)
+
+
+## Current Workflow (2026-11-16, Repository Diagnostics Remediation)
+- **User authorization**: Implement minimal fixes, test and open review PRs; never directly push to main or merge.
+- **Baseline diagnostic**: Run 42564755361, main SHA 2b35ebf90d6d94c67ed3120f7e75abc5882404fa, degraded (format and dependency audit).
+- **Rendering repair**: PR #37; 77 tests, lint, build and rendered JSON-LD verified.
+- **Dependency repair**: Branch codex/security-dependencies-20261116; run 43806832219 verified a clean npm ci, zero audit findings, 77 tests, lint, build, JSON-LD and six Chromium page/viewport cases with working HMR.
+- **Runtime**: Node >=22.23.4 within 22.x (.nvmrc: 22.23.4).
+- **Remaining work**: Separate mechanical formatting PR; do not treat main as repaired until review PRs are merged and main diagnostics confirm it.
+- **Infrastructure limit**: Cloud executor capability lookup failed; repository changes were verified in isolated read-only GitHub Actions jobs. Reusable Cloud settings were not changed.
