@@ -16,8 +16,8 @@ Implement minimal fixes for confirmed diagnostics findings, test them and open r
 - [x] Render JSON-LD through a shared serializer and Astro set:html; escape less-than characters to prevent script termination.
 - [x] Remove the redundant HTML comment inside ArticleCard's conditional expression that breaks Prettier's JSX parser.
 - [x] Add JSON round-trip and script-termination regression tests.
-- [ ] Verify committed source with npm ci, 77 unit tests, lint, build, changed-file formatting and rendered JSON-LD checks.
-- [ ] Remove temporary branch-only verification workflow and open a review PR.
+- [x] Verify committed source with npm ci, 77 unit tests, lint, build, changed-file formatting and rendered JSON-LD checks.
+- [x] Remove temporary branch-only verification workflow; submit the verified patch for PR review.
 - [ ] Prepare and test a separate dependency remediation PR.
 
 ## Security compliance
@@ -27,3 +27,6 @@ Other rules: N/A to this rendering/formatter patch; existing infrastructure, aut
 
 ## Validation limits
 Full format:check still reports pre-existing style drift outside this patch. Dependency audit remains degraded until separately addressed. Do not report the repository as healthy.
+
+## Verified rendering patch
+Run 43804711236 (application commit acdd7d1105ba9d949ef1dd48e985bfde51cd8130): npm ci, 77 tests, lint, production build, changed-file formatting and rendered JSON-LD on home/article/category passed. Temporary CI cleanup and documentation do not alter that verified application source.

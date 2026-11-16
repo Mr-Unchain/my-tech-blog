@@ -696,3 +696,11 @@
 **User Input**: 「では早速対応をお願い。」
 **AI Response**: Loaded repository workflow state and applicable rules. Cloud startup remained unavailable, so used a branch-only GitHub Actions verifier with contents:read and pinned actions. Reproduced the latest main's 75 passing tests and confirmed JSON-LD parsing errors. Prepared a shared less-than-escaping JSON-LD serializer, Astro set:html rendering, an ArticleCard comment cleanup and two regression tests. Candidate verification passed 77 tests, lint and production build. Rejected npm audit fix's expanded dependency tree (56 to 66 findings); no candidate lockfile is included in this rendering patch. Final committed-source verification and separate targeted dependency work follow.
 **Security Compliance**: SECURITY-04/05/13/15: escaped script boundary and JSON round-trip tests. SECURITY-06/10: least-privilege verifier and existing lockfile. Other infrastructure/authentication rules are N/A to the changes.
+
+
+---
+
+## Diagnostic Rendering Patch Verification
+**Timestamp**: 2026-11-16T04:34:23Z
+**AI Response**: Verified committed application source acdd7d1105ba9d949ef1dd48e985bfde51cd8130 in GitHub Actions run 43804711236: npm ci, 77 unit tests, ESLint, production build and changed-file Prettier checks passed. HTTP checks parsed two JSON-LD blocks on home, three on the Docker article and two on the IT category page. Removed the temporary branch-only verifier from the PR diff. No dependency updates are included; existing global style drift and dependency audit findings remain explicitly unresolved pending the separate dependency work.
+**Security Compliance**: Escaped script boundary tested; no added permission, credential or production infrastructure. The original scheduled diagnostic workflow is unchanged.
