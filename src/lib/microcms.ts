@@ -1,12 +1,12 @@
 // src/lib/microcms.ts
-import { createClient } from 'microcms-js-sdk';
+import { createClient } from "microcms-js-sdk";
 import type {
   MicroCMSQueries,
   MicroCMSImage,
   MicroCMSDate,
   MicroCMSListResponse,
-} from 'microcms-js-sdk';
-import { deepCopy, normalizeToArray } from './utils';
+} from "microcms-js-sdk";
+import { deepCopy, normalizeToArray } from "./utils";
 
 // ブログ記事の型定義
 export type Blog = {
@@ -48,13 +48,13 @@ export type Project = {
 // GET 権限のみの API キーを使用することで、microCMS が下書き記事を自動的に除外して返す。
 const serviceDomain = import.meta.env.VITE_MICROCMS_SERVICE_DOMAIN;
 const apiKey = import.meta.env.MICROCMS_READ_API_KEY;
-const isTest = import.meta.env.MODE === 'test';
+const isTest = import.meta.env.MODE === "test";
 
 const readClient =
   (serviceDomain && apiKey) || isTest
     ? createClient({
-        serviceDomain: serviceDomain || 'test',
-        apiKey: apiKey || 'test',
+        serviceDomain: serviceDomain || "test",
+        apiKey: apiKey || "test",
       })
     : null;
 
@@ -72,7 +72,7 @@ export const getBlogs = async (queries?: MicroCMSQueries) => {
   }
 
   const data = await readClient.get({
-    endpoint: 'blogs',
+    endpoint: "blogs",
     queries,
   });
 
@@ -103,7 +103,7 @@ export const getBlogDetail = async (
   }
 
   return await readClient.get<Blog>({
-    endpoint: 'blogs',
+    endpoint: "blogs",
     contentId,
     queries,
   });
@@ -116,10 +116,10 @@ export const getProfile = async (queries?: MicroCMSQueries) => {
   }
 
   try {
-    return await readClient.get<Profile>({ endpoint: 'profile', queries });
+    return await readClient.get<Profile>({ endpoint: "profile", queries });
   } catch {
     console.warn(
-      'microCMS profile could not be loaded. Check the service domain and read-key permissions.'
+      "microCMS profile could not be loaded. Check the service domain and read-key permissions."
     );
     return null;
   }
@@ -132,7 +132,7 @@ export const getProjects = async (queries?: MicroCMSQueries) => {
 
   try {
     const data = await readClient.get<{ contents: Project[] }>({
-      endpoint: 'projects',
+      endpoint: "projects",
       queries,
     });
 
@@ -153,7 +153,7 @@ export const getProjects = async (queries?: MicroCMSQueries) => {
     };
   } catch {
     console.warn(
-      'microCMS projects could not be loaded. Check the service domain and read-key permissions.'
+      "microCMS projects could not be loaded. Check the service domain and read-key permissions."
     );
     return { ...emptyListResponse<Project>(), available: false };
   }

@@ -5,7 +5,10 @@ import EditorialPageHeader from "../components/EditorialPageHeader.astro";
 
 // お問い合わせフォームのエンドポイント
 const formspreeEndpoint = "https://formspree.io/f/mnnvdoag";
-const breadcrumbItems = [{ name: 'ホーム', href: '/' }, { name: 'お問い合わせ' }];
+const breadcrumbItems = [
+  { name: "ホーム", href: "/" },
+  { name: "お問い合わせ" },
+];
 ---
 
 <style>
@@ -35,32 +38,75 @@ const breadcrumbItems = [{ name: 'ホーム', href: '/' }, { name: 'お問い合
   <main class="editorial-page">
     <div class="editorial-page-shell">
       <Breadcrumb items={breadcrumbItems} />
-      <EditorialPageHeader eyebrow="CONTACT" title="お問い合わせ" description="ご意見、ご感想、記事内容に関するご質問などをお送りください。" />
+      <EditorialPageHeader
+        eyebrow="CONTACT"
+        title="お問い合わせ"
+        description="ご意見、ご感想、記事内容に関するご質問などをお送りください。"
+      />
       <form action={formspreeEndpoint} method="POST" class="editorial-form">
         <div>
           <label for="name">お名前</label>
-          <input type="text" name="name" id="name" required autocomplete="name" placeholder="山田 太郎" />
+          <input
+            type="text"
+            name="name"
+            id="name"
+            required
+            autocomplete="name"
+            placeholder="山田 太郎"
+          />
         </div>
         <div>
           <label for="email">メールアドレス</label>
-          <input type="email" name="email" id="email" required autocomplete="email" placeholder="your.email@example.com" />
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            autocomplete="email"
+            placeholder="your.email@example.com"
+          />
         </div>
         <div>
           <label for="subject">件名</label>
-          <input type="text" name="subject" id="subject" required placeholder="お問い合わせの件名" />
+          <input
+            type="text"
+            name="subject"
+            id="subject"
+            required
+            placeholder="お問い合わせの件名"
+          />
         </div>
         <div>
           <label for="message">お問い合わせ内容</label>
-          <textarea name="message" id="message" rows="6" required placeholder="こちらに内容をご記入ください。"></textarea>
+          <textarea
+            name="message"
+            id="message"
+            rows="6"
+            required
+            placeholder="こちらに内容をご記入ください。"></textarea>
         </div>
         <div>
           <button type="submit" id="submit-button" class="editorial-button">
             <span id="button-text">送信する</span>
-            <svg id="button-spinner" class="hidden animate-spin ml-3 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-width="2" /></svg>
+            <svg
+              id="button-spinner"
+              class="hidden animate-spin ml-3 h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              aria-hidden="true"
+              ><circle cx="12" cy="12" r="9" stroke-width="2"></circle></svg
+            >
           </button>
         </div>
       </form>
-      <p id="form-feedback" class="hidden editorial-form__feedback" role="status" aria-live="polite"></p>
+      <p
+        id="form-feedback"
+        class="hidden editorial-form__feedback"
+        role="status"
+        aria-live="polite"
+      >
+      </p>
     </div>
   </main>
 </BaseLayout>
@@ -94,19 +140,26 @@ const breadcrumbItems = [{ name: 'ホーム', href: '/' }, { name: 'お問い合
       if (response.ok) {
         // 成功した場合
         form.reset();
-        formFeedback.textContent = "ありがとうございます！メッセージは正常に送信されました。";
-        formFeedback.className = "editorial-form__feedback editorial-form__feedback--success";
+        formFeedback.textContent =
+          "ありがとうございます！メッセージは正常に送信されました。";
+        formFeedback.className =
+          "editorial-form__feedback editorial-form__feedback--success";
       } else {
         // Formspree側でのバリデーションエラーなど
         const errorData = await response.json();
-        const errorMessage = errorData.errors?.map((err) => err.message).join(", ") || "フォームの送信に失敗しました。";
+        const errorMessage =
+          errorData.errors?.map((err) => err.message).join(", ") ||
+          "フォームの送信に失敗しました。";
         formFeedback.textContent = `エラー: ${errorMessage}`;
-        formFeedback.className = "editorial-form__feedback editorial-form__feedback--error";
+        formFeedback.className =
+          "editorial-form__feedback editorial-form__feedback--error";
       }
     } catch {
       // ネットワークエラーなど
-      formFeedback.textContent = "エラー: ネットワーク接続に問題がある可能性があります。";
-      formFeedback.className = "editorial-form__feedback editorial-form__feedback--error";
+      formFeedback.textContent =
+        "エラー: ネットワーク接続に問題がある可能性があります。";
+      formFeedback.className =
+        "editorial-form__feedback editorial-form__feedback--error";
     } finally {
       // ボタンの状態を元に戻す
       submitButton.disabled = false;
@@ -115,4 +168,4 @@ const breadcrumbItems = [{ name: 'ホーム', href: '/' }, { name: 'お問い合
       formFeedback.classList.remove("hidden");
     }
   });
-</script> 
+</script>

@@ -13,13 +13,16 @@ const giscus = {
   category: import.meta.env.VITE_GISCUS_CATEGORY,
   categoryId: import.meta.env.VITE_GISCUS_CATEGORY_ID,
 };
-
 ---
 
 <div class="comments-container space-y-4">
   <div class="flex items-center gap-2">
-    <h3 class="text-xl font-bold" style="color: var(--color-text-heading);">ディスカッション</h3>
-    <span class="text-xs" style="color: var(--color-text-muted);">（Giscus）</span>
+    <h3 class="text-xl font-bold" style="color: var(--color-text-heading);">
+      ディスカッション
+    </h3>
+    <span class="text-xs" style="color: var(--color-text-muted);"
+      >（Giscus）</span
+    >
   </div>
   <div
     id="giscus-container"
@@ -35,10 +38,17 @@ const giscus = {
   </div>
 
   <details class="group">
-    <summary class="comments-reload-summary cursor-pointer select-none transition-colors">
+    <summary
+      class="comments-reload-summary cursor-pointer select-none transition-colors"
+    >
       うまく表示されない場合（クリックして再読み込み）
     </summary>
-    <button id="reload-giscus" type="button" class="comments-reload-btn mt-2 px-3 py-1.5 text-sm rounded-lg">再読み込み</button>
+    <button
+      id="reload-giscus"
+      type="button"
+      class="comments-reload-btn mt-2 px-3 py-1.5 text-sm rounded-lg"
+      >再読み込み</button
+    >
   </details>
 </div>
 
@@ -54,25 +64,28 @@ const giscus = {
       console.error("Giscus configuration is missing from data attributes.");
       return;
     }
-    
+
     const giscusScript = document.createElement("script");
     giscusScript.src = "https://giscus.app/client.js";
     giscusScript.async = true;
     giscusScript.crossOrigin = "anonymous";
-    
+
     // Giscusの設定をdata-*属性から設定
     giscusScript.setAttribute("data-repo", repo);
     giscusScript.setAttribute("data-repo-id", repoId);
     giscusScript.setAttribute("data-category", category);
     giscusScript.setAttribute("data-category-id", categoryId);
-    
+
     giscusScript.setAttribute("data-mapping", "pathname");
     giscusScript.setAttribute("data-strict", "0");
     giscusScript.setAttribute("data-reactions-enabled", "1");
     giscusScript.setAttribute("data-emit-metadata", "0");
     giscusScript.setAttribute("data-input-position", "top");
     const isDark = document.documentElement.classList.contains("dark");
-    giscusScript.setAttribute("data-theme", isDark ? "transparent_dark" : "light");
+    giscusScript.setAttribute(
+      "data-theme",
+      isDark ? "transparent_dark" : "light"
+    );
     giscusScript.setAttribute("data-lang", "ja");
     giscusScript.setAttribute("crossorigin", "anonymous");
 
@@ -87,36 +100,41 @@ const giscus = {
     createGiscus();
   };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', createGiscus, { once: true });
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", createGiscus, { once: true });
   } else {
     createGiscus();
   }
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
-    if (target && target.id === 'reload-giscus') {
+    if (target && target.id === "reload-giscus") {
       manualReload();
     }
   });
 
   // テーマ切替時に Giscus のテーマも動的に変更
   const sendGiscusTheme = (theme: string) => {
-    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    const iframe = document.querySelector<HTMLIFrameElement>(
+      "iframe.giscus-frame"
+    );
     if (iframe?.contentWindow) {
       iframe.contentWindow.postMessage(
         { giscus: { setConfig: { theme } } },
-        'https://giscus.app'
+        "https://giscus.app"
       );
     }
   };
 
   // html の class 変更を監視してテーマを切り替える
   const observer = new MutationObserver(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-    sendGiscusTheme(isDark ? 'transparent_dark' : 'light');
+    const isDark = document.documentElement.classList.contains("dark");
+    sendGiscusTheme(isDark ? "transparent_dark" : "light");
   });
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
 </script>
 
 <style>

@@ -1,106 +1,118 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getTheme, setTheme, toggleTheme, watchSystemTheme, clearThemePreference } from '../theme';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import {
+  getTheme,
+  setTheme,
+  toggleTheme,
+  watchSystemTheme,
+  clearThemePreference,
+} from "../theme";
 
 // matchMedia のモック
 function createMatchMediaMock(matches: boolean) {
   const listeners: Array<(e: MediaQueryListEvent) => void> = [];
   const mql = {
     matches,
-    media: '(prefers-color-scheme: dark)',
-    addEventListener: vi.fn((_event: string, handler: (e: MediaQueryListEvent) => void) => {
-      listeners.push(handler);
-    }),
-    removeEventListener: vi.fn((_event: string, handler: (e: MediaQueryListEvent) => void) => {
-      const idx = listeners.indexOf(handler);
-      if (idx >= 0) listeners.splice(idx, 1);
-    }),
+    media: "(prefers-color-scheme: dark)",
+    addEventListener: vi.fn(
+      (_event: string, handler: (e: MediaQueryListEvent) => void) => {
+        listeners.push(handler);
+      }
+    ),
+    removeEventListener: vi.fn(
+      (_event: string, handler: (e: MediaQueryListEvent) => void) => {
+        const idx = listeners.indexOf(handler);
+        if (idx >= 0) listeners.splice(idx, 1);
+      }
+    ),
     dispatchChange: (newMatches: boolean) => {
-      listeners.forEach((fn) => fn({ matches: newMatches } as MediaQueryListEvent));
+      listeners.forEach((fn) =>
+        fn({ matches: newMatches } as MediaQueryListEvent)
+      );
     },
   };
   return mql;
 }
 
-describe('theme.ts', () => {
+describe("theme.ts", () => {
   let mockMatchMedia: ReturnType<typeof createMatchMediaMock>;
 
   beforeEach(() => {
     localStorage.clear();
-    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.remove("dark");
     mockMatchMedia = createMatchMediaMock(false);
-    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue(mockMatchMedia));
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue(mockMatchMedia));
   });
 
-  describe('getTheme', () => {
-    it('localStorage に値がなくシステムがライトの場合、light を返す', () => {
-      expect(getTheme()).toBe('light');
+  describe("getTheme", () => {
+    it("localStorage に値がなくシステムがライトの場合、light を返す", () => {
+      expect(getTheme()).toBe("light");
     });
 
     it('localStorage に "dark" がある場合、dark を返す', () => {
-      localStorage.setItem('theme', 'dark');
-      expect(getTheme()).toBe('dark');
+      localStorage.setItem("theme", "dark");
+      expect(getTheme()).toBe("dark");
     });
 
     it('localStorage に "light" がある場合、light を返す', () => {
-      localStorage.setItem('theme', 'light');
-      expect(getTheme()).toBe('light');
+      localStorage.setItem("theme", "light");
+      expect(getTheme()).toBe("light");
     });
 
-    it('localStorage に値がなくシステムがダークの場合、dark を返す', () => {
+    it("localStorage に値がなくシステムがダークの場合、dark を返す", () => {
       mockMatchMedia = createMatchMediaMock(true);
-      vi.stubGlobal('matchMedia', vi.fn().mockReturnValue(mockMatchMedia));
-      expect(getTheme()).toBe('dark');
+      vi.stubGlobal("matchMedia", vi.fn().mockReturnValue(mockMatchMedia));
+      expect(getTheme()).toBe("dark");
     });
 
-    it('localStorage に不正な値がある場合、システム設定にフォールバック', () => {
-      localStorage.setItem('theme', 'invalid');
-      expect(getTheme()).toBe('light');
+    it("localStorage に不正な値がある場合、システム設定にフォールバック", () => {
+      localStorage.setItem("theme", "invalid");
+      expect(getTheme()).toBe("light");
     });
   });
 
-  describe('setTheme', () => {
+  describe("setTheme", () => {
     it('dark を設定すると localStorage に保存され、html に class="dark" が追加される', () => {
-      setTheme('dark');
-      expect(localStorage.getItem('theme')).toBe('dark');
-      expect(document.documentElement.classList.contains('dark')).toBe(true);
+      setTheme("dark");
+      expect(localStorage.getItem("theme")).toBe("dark");
+      expect(document.documentElement.classList.contains("dark")).toBe(true);
     });
 
     it('light を設定すると localStorage に保存され、html から class="dark" が削除される', () => {
-      document.documentElement.classList.add('dark');
-      setTheme('light');
-      expect(localStorage.getItem('theme')).toBe('light');
-      expect(document.documentElement.classList.contains('dark')).toBe(false);
+      document.documentElement.classList.add("dark");
+      setTheme("light");
+      expect(localStorage.getItem("theme")).toBe("light");
+      expect(document.documentElement.classList.contains("dark")).toBe(false);
     });
   });
 
-  describe('toggleTheme', () => {
-    it('light → dark に切り替わる', () => {
-      localStorage.setItem('theme', 'light');
+  describe("toggleTheme", () => {
+    it("light → dark に切り替わる", () => {
+      localStorage.setItem("theme", "light");
       const result = toggleTheme();
-      expect(result).toBe('dark');
-      expect(document.documentElement.classList.contains('dark')).toBe(true);
+      expect(result).toBe("dark");
+      expect(document.documentElement.classList.contains("dark")).toBe(true);
     });
 
-    it('dark → light に切り替わる', () => {
-      localStorage.setItem('theme', 'dark');
-      document.documentElement.classList.add('dark');
+    it("dark → light に切り替わる", () => {
+      localStorage.setItem("theme", "dark");
+      document.documentElement.classList.add("dark");
       const result = toggleTheme();
-      expect(result).toBe('light');
-      expect(document.documentElement.classList.contains('dark')).toBe(false);
+      expect(result).toBe("light");
+      expect(document.documentElement.classList.contains("dark")).toBe(false);
     });
   });
 
-  describe('watchSystemTheme', () => {
-    it('手動選択がない場合、システムテーマ変更時にコールバックが呼ばれる', () => {
+  describe("watchSystemTheme", () => {
+    it("手動選択がない場合、システムテーマ変更時にコールバックが呼ばれる", () => {
       const callback = vi.fn();
       watchSystemTheme(callback);
 
       mockMatchMedia.dispatchChange(true);
-      expect(callback).toHaveBeenCalledWith('dark');
+      expect(callback).toHaveBeenCalledWith("dark");
     });
 
-    it('手動選択がある場合、システムテーマ変更時にコールバックが呼ばれない', () => {
-      localStorage.setItem('theme', 'light');
+    it("手動選択がある場合、システムテーマ変更時にコールバックが呼ばれない", () => {
+      localStorage.setItem("theme", "light");
       const callback = vi.fn();
       watchSystemTheme(callback);
 
@@ -108,7 +120,7 @@ describe('theme.ts', () => {
       expect(callback).not.toHaveBeenCalled();
     });
 
-    it('クリーンアップ関数でリスナーが解除される', () => {
+    it("クリーンアップ関数でリスナーが解除される", () => {
       const callback = vi.fn();
       const cleanup = watchSystemTheme(callback);
 
@@ -117,25 +129,25 @@ describe('theme.ts', () => {
     });
   });
 
-  describe('clearThemePreference', () => {
-    it('localStorage の設定をクリアし、システム設定に戻す', () => {
-      localStorage.setItem('theme', 'dark');
-      document.documentElement.classList.add('dark');
+  describe("clearThemePreference", () => {
+    it("localStorage の設定をクリアし、システム設定に戻す", () => {
+      localStorage.setItem("theme", "dark");
+      document.documentElement.classList.add("dark");
 
       clearThemePreference();
-      expect(localStorage.getItem('theme')).toBeNull();
+      expect(localStorage.getItem("theme")).toBeNull();
       // システムがライトの場合、dark クラスが削除される
-      expect(document.documentElement.classList.contains('dark')).toBe(false);
+      expect(document.documentElement.classList.contains("dark")).toBe(false);
     });
 
-    it('システムがダークの場合、dark クラスが維持される', () => {
-      localStorage.setItem('theme', 'light');
+    it("システムがダークの場合、dark クラスが維持される", () => {
+      localStorage.setItem("theme", "light");
       mockMatchMedia = createMatchMediaMock(true);
-      vi.stubGlobal('matchMedia', vi.fn().mockReturnValue(mockMatchMedia));
+      vi.stubGlobal("matchMedia", vi.fn().mockReturnValue(mockMatchMedia));
 
       clearThemePreference();
-      expect(localStorage.getItem('theme')).toBeNull();
-      expect(document.documentElement.classList.contains('dark')).toBe(true);
+      expect(localStorage.getItem("theme")).toBeNull();
+      expect(document.documentElement.classList.contains("dark")).toBe(true);
     });
   });
 });

@@ -23,35 +23,40 @@ export function calculateReadingTime(
   const {
     wordsPerMinute = 400, // 日本語の平均読解速度（文字/分）
     includeImages = true,
-    imageTime = 12 // 1画像あたり12秒
+    imageTime = 12, // 1画像あたり12秒
   } = options;
 
   if (!content || content.trim().length === 0) {
     return {
       minutes: 1,
       words: 0,
-      text: '1分で読める'
+      text: "1分で読める",
     };
   }
 
   // HTMLタグを除去
-  const cleanText = content.replace(/<[^>]*>/g, '');
-  
+  const cleanText = content.replace(/<[^>]*>/g, "");
+
   // 日本語文字数カウント（ひらがな、カタカナ、漢字、数字、アルファベット）
-  const japaneseChars = cleanText.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF]/g);
+  const japaneseChars = cleanText.match(
+    /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF]/g
+  );
   const japaneseCharCount = japaneseChars ? japaneseChars.length : 0;
-  
+
   // 英語単語数カウント
   const englishWords = cleanText.match(/\b[A-Za-z]+\b/g);
   const englishWordCount = englishWords ? englishWords.length : 0;
-  
+
   // 数字・記号など
-  const otherChars = cleanText.replace(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF\s]/g, '').replace(/\b[A-Za-z]+\b/g, '');
+  const otherChars = cleanText
+    .replace(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF\s]/g, "")
+    .replace(/\b[A-Za-z]+\b/g, "");
   const otherCharCount = otherChars.length;
 
   // 総文字数（日本語文字 + 英語単語×5 + その他文字）
-  const totalCharCount = japaneseCharCount + (englishWordCount * 5) + otherCharCount;
-  
+  const totalCharCount =
+    japaneseCharCount + englishWordCount * 5 + otherCharCount;
+
   // 画像読み取り時間
   let imageMinutes = 0;
   if (includeImages) {
@@ -67,7 +72,7 @@ export function calculateReadingTime(
   return {
     minutes: totalMinutes,
     words: totalCharCount,
-    text: formatReadingTime(totalMinutes)
+    text: formatReadingTime(totalMinutes),
   };
 }
 
@@ -76,15 +81,15 @@ export function calculateReadingTime(
  */
 function formatReadingTime(minutes: number): string {
   if (minutes < 1) {
-    return '1分未満で読める';
+    return "1分未満で読める";
   } else if (minutes === 1) {
-    return '1分で読める';
+    return "1分で読める";
   } else if (minutes < 60) {
     return `${minutes}分で読める`;
   } else {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    
+
     if (remainingMinutes === 0) {
       return `${hours}時間で読める`;
     } else {
@@ -105,14 +110,16 @@ export function calculateReadingTimeSimple(content: string): number {
  * 記事の文字数統計
  */
 export function getContentStats(content: string) {
-  const cleanText = content.replace(/<[^>]*>/g, '');
-  
-  const japaneseChars = cleanText.match(/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF]/g);
+  const cleanText = content.replace(/<[^>]*>/g, "");
+
+  const japaneseChars = cleanText.match(
+    /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\u3400-\u4DBF]/g
+  );
   const englishWords = cleanText.match(/\b[A-Za-z]+\b/g);
   const images = content.match(/<img[^>]*>/gi);
   const links = content.match(/<a[^>]*>/gi);
   const codeBlocks = content.match(/```[\s\S]*?```/g);
-  
+
   return {
     totalCharacters: cleanText.length,
     japaneseCharacters: japaneseChars ? japaneseChars.length : 0,
@@ -120,6 +127,6 @@ export function getContentStats(content: string) {
     images: images ? images.length : 0,
     links: links ? links.length : 0,
     codeBlocks: codeBlocks ? codeBlocks.length : 0,
-    readingTime: calculateReadingTime(content)
+    readingTime: calculateReadingTime(content),
   };
 }

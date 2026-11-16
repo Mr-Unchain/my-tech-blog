@@ -5,8 +5,8 @@
  * ビルド時に使用（サーバーサイドのみ）
  */
 
-import * as cheerio from 'cheerio';
-import { fetchPublicHtml, publicHttpsUrl } from './public-html';
+import * as cheerio from "cheerio";
+import { fetchPublicHtml, publicHttpsUrl } from "./public-html";
 
 /**
  * OGP情報の型定義
@@ -47,29 +47,29 @@ export async function fetchOGP(url: string): Promise<OGPData | null> {
     const ogpData: OGPData = {
       url,
       title:
-        $('meta[property="og:title"]').attr('content') ||
-        $('meta[name="twitter:title"]').attr('content') ||
-        $('title').text() ||
-        '',
+        $('meta[property="og:title"]').attr("content") ||
+        $('meta[name="twitter:title"]').attr("content") ||
+        $("title").text() ||
+        "",
       description:
-        $('meta[property="og:description"]').attr('content') ||
-        $('meta[name="twitter:description"]').attr('content') ||
-        $('meta[name="description"]').attr('content') ||
-        '',
+        $('meta[property="og:description"]').attr("content") ||
+        $('meta[name="twitter:description"]').attr("content") ||
+        $('meta[name="description"]').attr("content") ||
+        "",
       image:
-        $('meta[property="og:image"]').attr('content') ||
-        $('meta[name="twitter:image"]').attr('content') ||
-        '',
+        $('meta[property="og:image"]').attr("content") ||
+        $('meta[name="twitter:image"]').attr("content") ||
+        "",
       siteName:
-        $('meta[property="og:site_name"]').attr('content') ||
+        $('meta[property="og:site_name"]').attr("content") ||
         parsedUrl.hostname,
       favicon: getFaviconUrl(parsedUrl),
     };
 
     // 相対パスの画像URLを絶対パスに変換
     ogpData.image = ogpData.image
-      ? (publicHttpsUrl(ogpData.image, finalUrl)?.href ?? '')
-      : '';
+      ? (publicHttpsUrl(ogpData.image, finalUrl)?.href ?? "")
+      : "";
 
     // タイトルと説明を切り詰め
     ogpData.title = truncateText(ogpData.title, 100);
@@ -97,10 +97,10 @@ function getFaviconUrl(parsedUrl: URL): string {
  * テキストを指定文字数で切り詰め
  */
 function truncateText(text: string, maxLength: number): string {
-  if (!text) return '';
-  text = text.trim().replace(/\s+/g, ' ');
+  if (!text) return "";
+  text = text.trim().replace(/\s+/g, " ");
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength - 1) + '…';
+  return text.slice(0, maxLength - 1) + "…";
 }
 
 /**

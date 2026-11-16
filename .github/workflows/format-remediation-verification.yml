@@ -2,11 +2,12 @@ name: Formatting remediation verification
 on:
   push:
     branches: [codex/format-diagnostics-baseline-20261116]
+permissions:
+  contents: read
+  actions: read
 concurrency:
   group: formatting-remediation-verification
   cancel-in-progress: true
-permissions:
-  contents: read
 jobs:
   verify:
     runs-on: ubuntu-24.04
@@ -20,29 +21,23 @@ jobs:
           node-version: '22.23.4'
           cache: npm
       - run: npm ci
-      - name: Prepare formatting candidate
+      - name: Read original diagnostic artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          node --input-type=module <<'FORMAT_CANDIDATE'
+          gh api repos/Mr-Unchain/my-tech-blog/actions/artifacts/13650912486/zip >/tmp/original-diagnostic.zip
+          echo '94658bad573f2d9dbfc1eced5d28e16f78115b66fca35ac566f922e3ad6d4cd6  /tmp/original-diagnostic.zip' | sha256sum --check --status
+          unzip -p /tmp/original-diagnostic.zip repository-diagnostics.json >/tmp/original-diagnostic.json
+          node --input-type=module <<'BASELINE_CHECK'
           import fs from 'node:fs';
-          import {execFileSync} from 'node:child_process';
-          for(let pass=0;pass<3;pass++)execFileSync('npm',['run','format'],{stdio:'inherit'});
-          execFileSync('npm',['run','format:check'],{stdio:'inherit'});
-          const paths=execFileSync('git',['diff','--name-only'],{encoding:'utf8'}).trim().split('\n').filter(Boolean);
-          for(const path of paths){if(!path.startsWith('src/'))throw Error('Unexpected changed path '+path);const content=fs.readFileSync(path,'utf8');const total=Math.ceil(content.length/12000);for(let index=0;index<total;index++)console.log('CODEX_CHUNK '+JSON.stringify({path,index,total,data:content.slice(index*12000,(index+1)*12000)}));}
-          
-          FORMAT_CANDIDATE
-      - name: Audit details
-        run: npm audit --json
-      - name: Formatting details
-        run: npm run format:check
-      - name: Tests
-        run: npm test -- --run
-      - name: Lint
-        run: npm run lint
-      - name: Build
-        run: npm run build
-      - name: Changed file formatting
-        run: npx --no-install prettier --check src/lib/structured-data.ts tests/lib/structured-data.test.ts src/components/ArticleCard.astro src/layouts/BaseLayout.astro src/pages/index.astro 'src/pages/blog/[id].astro' 'src/pages/category/[categoryName].astro'
+          import assert from 'node:assert/strict';
+          const report = JSON.parse(fs.readFileSync('/tmp/original-diagnostic.json','utf8'));
+          assert.equal(report.overall,'degraded');
+          assert.equal(report.generatedAt,'2026-11-09T05:00:39.802Z');
+          console.log('BASELINE_ARTIFACT',JSON.stringify({runId:42564755361,artifactId:13650912486,overall:report.overall,generatedAt:report.generatedAt,results:report.results.map(({name,status})=>({name,status}))}));
+          BASELINE_CHECK
+      - name: Full repository diagnostics
+        run: node .codex/skills/diagnose-repository/scripts/run-diagnostics.mjs
       - name: Install Chromium
         run: npx --no-install playwright install chromium
       - name: Browser and JSON-LD verification
@@ -86,6 +81,9 @@ jobs:
                 await page.locator('h1').first().waitFor();
                 for (let attempt=0; attempt<30 && !hmrConnected; attempt++) await new Promise(resolve => setTimeout(resolve,100));
                 assert(hmrConnected, 'Development HMR connection did not open');
+                const beforeTheme = await page.evaluate(() => document.documentElement.classList.contains('dark'));
+                await page.locator('[data-testid="theme-toggle-button"]:visible').first().click();
+                await page.waitForFunction(before => document.documentElement.classList.contains('dark') !== before, beforeTheme);
                 const style = await page.evaluate(() => {
                   const probe=document.createElement('div'); probe.className='relative'; document.body.append(probe);
                   const result={position:getComputedStyle(probe).position,margin:getComputedStyle(document.body).margin,boxSizing:getComputedStyle(document.body).boxSizing,overflow:document.documentElement.scrollWidth-window.innerWidth};

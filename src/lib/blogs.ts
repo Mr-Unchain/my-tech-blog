@@ -2,9 +2,9 @@ import {
   getAllValidatedArticles,
   getPublicArticles,
   type ArticleCollectionReader,
-} from './articles/repository';
-import type { Article } from './articles/types';
-import type { Blog } from './microcms';
+} from "./articles/repository";
+import type { Article } from "./articles/types";
+import type { Blog } from "./microcms";
 
 export interface BlogQueries {
   limit?: number;
@@ -18,32 +18,32 @@ export interface BlogQueries {
 const toBlog = async (article: Article): Promise<Blog & { draft: boolean }> => {
   const content = article.renderedHtml;
   if (content === undefined)
-    throw new Error('The article has not been rendered by Astro.');
-  const publishedAt = article.publishedAt ?? '';
+    throw new Error("The article has not been rendered by Astro.");
+  const publishedAt = article.publishedAt ?? "";
   return {
     id: article.id,
     title: article.title,
     description: article.description,
     content,
     category: [...article.category],
-    eyecatch: { url: article.eyecatch?.url ?? '/placeholder.svg' },
+    eyecatch: { url: article.eyecatch?.url ?? "/placeholder.svg" },
     publishedAt,
     updatedAt: article.updatedAt ?? publishedAt,
     createdAt: publishedAt,
     revisedAt: article.updatedAt ?? publishedAt,
-    draft: article.publicationState === 'draft',
+    draft: article.publicationState === "draft",
   };
 };
 
 const matchesFilter = (article: Article, filter: string): boolean => {
-  if (filter.startsWith('category[contains]')) {
-    return article.category.includes(filter.slice('category[contains]'.length));
+  if (filter.startsWith("category[contains]")) {
+    return article.category.includes(filter.slice("category[contains]".length));
   }
-  const terms = filter.split('[or]');
+  const terms = filter.split("[or]");
   if (!terms.every((term) => /^id\[equals\][A-Za-z0-9_-]+$/.test(term))) {
-    throw new Error('Unsupported article filter.');
+    throw new Error("Unsupported article filter.");
   }
-  return terms.some((term) => article.id === term.slice('id[equals]'.length));
+  return terms.some((term) => article.id === term.slice("id[equals]".length));
 };
 
 // All listing surfaces use this public-only boundary, including local dev.
@@ -65,15 +65,15 @@ export const getBlogs = async (
         .includes(query)
     );
   }
-  const order = queries.orders ?? '-publishedAt';
-  const ascending = !order.startsWith('-');
-  const requestedField = order.replace(/^-/, '');
+  const order = queries.orders ?? "-publishedAt";
+  const ascending = !order.startsWith("-");
+  const requestedField = order.replace(/^-/, "");
   const field =
-    requestedField === 'title' || requestedField === 'updatedAt'
+    requestedField === "title" || requestedField === "updatedAt"
       ? requestedField
-      : 'publishedAt';
+      : "publishedAt";
   articles.sort((left, right) => {
-    const comparison = (left[field] ?? '').localeCompare(right[field] ?? '');
+    const comparison = (left[field] ?? "").localeCompare(right[field] ?? "");
     return (
       (ascending ? comparison : -comparison) || left.id.localeCompare(right.id)
     );
@@ -123,6 +123,6 @@ export const getBlogDetail = async (
 export const getLocalDrafts = async () => {
   if (!import.meta.env.DEV) return [];
   return (await getAllValidatedArticles()).filter(
-    (article) => article.publicationState === 'draft'
+    (article) => article.publicationState === "draft"
   );
 };

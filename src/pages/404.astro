@@ -1,6 +1,6 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import EditorialPageHeader from '../components/EditorialPageHeader.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import EditorialPageHeader from "../components/EditorialPageHeader.astro";
 ---
 
 <BaseLayout
@@ -10,10 +10,16 @@ import EditorialPageHeader from '../components/EditorialPageHeader.astro';
 >
   <main class="editorial-page">
     <div class="editorial-page-shell editorial-not-found">
-      <EditorialPageHeader eyebrow="404 / NOT FOUND" title="ページが見つかりませんでした" description="URLをご確認いただくか、記事一覧からお探しください。" />
+      <EditorialPageHeader
+        eyebrow="404 / NOT FOUND"
+        title="ページが見つかりませんでした"
+        description="URLをご確認いただくか、記事一覧からお探しください。"
+      />
       <div class="editorial-not-found__links">
         <a href="/" class="editorial-button">ホームへ戻る</a>
-        <a href="/blog/" class="editorial-button editorial-button--plain">記事を読む →</a>
+        <a href="/blog/" class="editorial-button editorial-button--plain"
+          >記事を読む →</a
+        >
       </div>
     </div>
   </main>

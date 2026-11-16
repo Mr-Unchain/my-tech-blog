@@ -1,5 +1,10 @@
-import { useState, useEffect } from 'react';
-import { getTheme, toggleTheme, watchSystemTheme, type Theme } from '../lib/theme';
+import { useState, useEffect } from "react";
+import {
+  getTheme,
+  toggleTheme,
+  watchSystemTheme,
+  type Theme,
+} from "../lib/theme";
 
 /**
  * テーマ切替トグルボタン（React Island）
@@ -41,19 +46,19 @@ export default function ThemeToggle() {
     );
   }
 
-  const isDark = theme === 'dark';
+  const isDark = theme === "dark";
 
   return (
     <button
       onClick={handleToggle}
       className={[
-        'w-9 h-9 flex items-center justify-center rounded-lg',
-        'transition-all duration-200',
-        'hover:bg-white/20 active:scale-95',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50',
-      ].join(' ')}
-      aria-label={isDark ? 'ライトテーマに切替' : 'ダークテーマに切替'}
-      title={isDark ? 'ライトテーマに切替' : 'ダークテーマに切替'}
+        "w-9 h-9 flex items-center justify-center rounded-lg",
+        "transition-all duration-200",
+        "hover:bg-white/20 active:scale-95",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
+      ].join(" ")}
+      aria-label={isDark ? "ライトテーマに切替" : "ダークテーマに切替"}
+      title={isDark ? "ライトテーマに切替" : "ダークテーマに切替"}
       data-testid="theme-toggle-button"
     >
       {isDark ? (

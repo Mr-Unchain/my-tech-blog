@@ -1,12 +1,12 @@
-import type { Element, ElementContent, Root } from 'hast';
-import { fetchOGP, shouldCreateLinkCard, type OGPData } from '../ogp';
+import type { Element, ElementContent, Root } from "hast";
+import { fetchOGP, shouldCreateLinkCard, type OGPData } from "../ogp";
 
 const element = (
   tagName: string,
-  properties: Element['properties'],
+  properties: Element["properties"],
   children: ElementContent[] = []
-): Element => ({ type: 'element', tagName, properties, children });
-const text = (value: string): ElementContent => ({ type: 'text', value });
+): Element => ({ type: "element", tagName, properties, children });
+const text = (value: string): ElementContent => ({ type: "text", value });
 
 export function spotifyEmbedUrl(
   input: string
@@ -14,8 +14,8 @@ export function spotifyEmbedUrl(
   try {
     const url = new URL(input);
     if (
-      url.protocol !== 'https:' ||
-      url.hostname !== 'open.spotify.com' ||
+      url.protocol !== "https:" ||
+      url.hostname !== "open.spotify.com" ||
       url.username ||
       url.password ||
       url.port
@@ -29,7 +29,7 @@ export function spotifyEmbedUrl(
     return {
       src: `https://open.spotify.com/embed/${type}/${id}`,
       href: `https://open.spotify.com/${type}/${id}`,
-      height: ['track', 'episode', 'show'].includes(type) ? 152 : 352,
+      height: ["track", "episode", "show"].includes(type) ? 152 : 352,
     };
   } catch {
     return null;
@@ -47,9 +47,9 @@ export default function rehypeLinkPreviews(
     const paragraphs: Element[] = [];
     const walk = (node: Root | Element) => {
       for (const child of node.children) {
-        if (child.type !== 'element') continue;
-        if (child.tagName === 'p') paragraphs.push(child);
-        else if (!['pre', 'code', 'a'].includes(child.tagName)) walk(child);
+        if (child.type !== "element") continue;
+        if (child.tagName === "p") paragraphs.push(child);
+        else if (!["pre", "code", "a"].includes(child.tagName)) walk(child);
       }
     };
     walk(tree);
@@ -57,51 +57,51 @@ export default function rehypeLinkPreviews(
     await Promise.all(
       paragraphs.map(async (paragraph) => {
         const nodes = paragraph.children.filter(
-          (node) => node.type !== 'text' || node.value.trim()
+          (node) => node.type !== "text" || node.value.trim()
         );
         const link = nodes[0];
         if (
           nodes.length !== 1 ||
-          link?.type !== 'element' ||
-          link.tagName !== 'a' ||
+          link?.type !== "element" ||
+          link.tagName !== "a" ||
           link.children.some(
-            (child) => child.type === 'element' && child.tagName === 'img'
+            (child) => child.type === "element" && child.tagName === "img"
           )
         )
           return;
         const href =
-          typeof link.properties.href === 'string' ? link.properties.href : '';
+          typeof link.properties.href === "string" ? link.properties.href : "";
         if (!shouldCreateLinkCard(href, options.siteUrl) || count++ >= 8)
           return;
         const spotify = spotifyEmbedUrl(href);
-        paragraph.tagName = 'div';
+        paragraph.tagName = "div";
         paragraph.properties = {
-          className: ['article-link-preview'],
-          'data-link-preview': spotify ? 'spotify' : 'website',
+          className: ["article-link-preview"],
+          "data-link-preview": spotify ? "spotify" : "website",
         };
         if (spotify) {
           paragraph.children = [
-            element('iframe', {
+            element("iframe", {
               src: spotify.src,
-              title: 'Spotify のプレビュー',
-              width: '100%',
+              title: "Spotify のプレビュー",
+              width: "100%",
               height: spotify.height,
               frameBorder: 0,
               allow:
-                'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture',
+                "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
               allowFullScreen: true,
-              loading: 'lazy',
-              referrerPolicy: 'strict-origin-when-cross-origin',
+              loading: "lazy",
+              referrerPolicy: "strict-origin-when-cross-origin",
             }),
             element(
-              'a',
+              "a",
               {
                 href: spotify.href,
-                target: '_blank',
-                rel: ['noopener', 'noreferrer'],
-                className: ['preview-source-link'],
+                target: "_blank",
+                rel: ["noopener", "noreferrer"],
+                className: ["preview-source-link"],
               },
-              [text('Spotify で開く')]
+              [text("Spotify で開く")]
             ),
           ];
           return;
@@ -116,47 +116,47 @@ export default function rehypeLinkPreviews(
         const title =
           data?.title ||
           link.children
-            .filter((node) => node.type === 'text')
+            .filter((node) => node.type === "text")
             .map((node) => node.value)
-            .join('') ||
+            .join("") ||
           href;
         const content = [
-          element('span', { className: ['preview-title'] }, [text(title)]),
+          element("span", { className: ["preview-title"] }, [text(title)]),
         ];
         if (data?.description)
           content.push(
-            element('span', { className: ['preview-description'] }, [
+            element("span", { className: ["preview-description"] }, [
               text(data.description),
             ])
           );
         content.push(
-          element('span', { className: ['preview-hostname'] }, [
+          element("span", { className: ["preview-hostname"] }, [
             text(data?.siteName || hostname),
           ])
         );
         const children: Element[] = [
-          element('span', { className: ['preview-text'] }, content),
+          element("span", { className: ["preview-text"] }, content),
         ];
         if (data?.image)
           children.push(
-            element('img', {
+            element("img", {
               src: data.image,
-              alt: '',
-              className: ['preview-image'],
-              loading: 'lazy',
-              decoding: 'async',
+              alt: "",
+              className: ["preview-image"],
+              loading: "lazy",
+              decoding: "async",
               width: 160,
               height: 110,
             })
           );
         paragraph.children = [
           element(
-            'a',
+            "a",
             {
               href,
-              className: ['article-preview-card'],
-              target: '_blank',
-              rel: ['noopener', 'noreferrer'],
+              className: ["article-preview-card"],
+              target: "_blank",
+              rel: ["noopener", "noreferrer"],
             },
             children
           ),

@@ -1,7 +1,7 @@
-import type { Article, ArticleFrontmatter, ParsedArticleSource } from './types';
+import type { Article, ArticleFrontmatter, ParsedArticleSource } from "./types";
 
 export const mapArticle = (
-  source: Pick<ParsedArticleSource, 'sourcePath' | 'body'>,
+  source: Pick<ParsedArticleSource, "sourcePath" | "body">,
   frontmatter: ArticleFrontmatter
 ): Article => ({
   id: frontmatter.id,
@@ -13,12 +13,12 @@ export const mapArticle = (
   eyecatch: frontmatter.eyecatch
     ? {
         url: frontmatter.eyecatch,
-        sourceType: frontmatter.eyecatch.startsWith('/')
-          ? 'local-path'
-          : 'remote-url',
+        sourceType: frontmatter.eyecatch.startsWith("/")
+          ? "local-path"
+          : "remote-url",
       }
     : undefined,
-  publicationState: frontmatter.draft ? 'draft' : 'published',
+  publicationState: frontmatter.draft ? "draft" : "published",
   publishedAt: frontmatter.publishedAt
     ? new Date(frontmatter.publishedAt).toISOString()
     : undefined,

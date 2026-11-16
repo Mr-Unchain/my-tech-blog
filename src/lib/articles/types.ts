@@ -1,8 +1,8 @@
-export type PublicationState = 'draft' | 'published';
+export type PublicationState = "draft" | "published";
 
 export interface ArticleImageReference {
   url: string;
-  sourceType: 'local-path' | 'remote-url';
+  sourceType: "local-path" | "remote-url";
 }
 
 export interface ArticleFrontmatter {
@@ -32,13 +32,13 @@ export interface Article {
 }
 
 export type ArticleValidationErrorCode =
-  | 'SOURCE_DIRECTORY_READ'
-  | 'SOURCE_FILE_READ'
-  | 'FRONTMATTER_PARSE'
-  | 'FRONTMATTER_INVALID'
-  | 'ARTICLE_BODY_EMPTY'
-  | 'ARTICLE_ID_FILENAME_MISMATCH'
-  | 'ARTICLE_ID_DUPLICATE';
+  | "SOURCE_DIRECTORY_READ"
+  | "SOURCE_FILE_READ"
+  | "FRONTMATTER_PARSE"
+  | "FRONTMATTER_INVALID"
+  | "ARTICLE_BODY_EMPTY"
+  | "ARTICLE_ID_FILENAME_MISMATCH"
+  | "ARTICLE_ID_DUPLICATE";
 
 export interface ArticleValidationError {
   sourcePath: string;

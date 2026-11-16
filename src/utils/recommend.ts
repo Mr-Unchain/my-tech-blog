@@ -36,7 +36,10 @@ function buildWeights(blog: Blog): Map<string, number> {
   return map;
 }
 
-function cosineSimilarity(a: Map<string, number>, b: Map<string, number>): number {
+function cosineSimilarity(
+  a: Map<string, number>,
+  b: Map<string, number>
+): number {
   let dot = 0;
   let a2 = 0;
   let b2 = 0;
@@ -52,13 +55,18 @@ function cosineSimilarity(a: Map<string, number>, b: Map<string, number>): numbe
   return dot / (Math.sqrt(a2) * Math.sqrt(b2));
 }
 
-export function getRelatedPosts(current: Blog, candidates: Blog[], limit = 6): Blog[] {
+export function getRelatedPosts(
+  current: Blog,
+  candidates: Blog[],
+  limit = 6
+): Blog[] {
   const currentW = buildWeights(current);
   const scored = candidates
     .filter((b) => b.id !== current.id)
-    .map((b) => ({ post: b, score: cosineSimilarity(currentW, buildWeights(b)) }))
+    .map((b) => ({
+      post: b,
+      score: cosineSimilarity(currentW, buildWeights(b)),
+    }))
     .sort((x, y) => y.score - x.score);
   return scored.slice(0, limit).map((s) => s.post);
 }
-
-

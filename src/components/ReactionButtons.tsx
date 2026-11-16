@@ -1,7 +1,7 @@
 // src/components/ReactionButtons.tsx
-import React, { useState } from 'react';
-import { useReactions, type ReactionType } from '../hooks/useReactions';
-import { REACTIONS } from '../lib/firebase-collections';
+import React, { useState } from "react";
+import { useReactions, type ReactionType } from "../hooks/useReactions";
+import { REACTIONS } from "../lib/firebase-collections";
 
 interface Props {
   blogId: string;
@@ -12,29 +12,30 @@ interface Props {
 
 export default function ReactionButtons({
   blogId,
-  className = '',
+  className = "",
   showCounts = true,
-  compact = false
+  compact = false,
 }: Props): React.ReactElement | null {
-  const { 
-    reactionCounts, 
-    loading, 
-    toggleReaction, 
-    hasReacted, 
-    getTotalReactions 
+  const {
+    reactionCounts,
+    loading,
+    toggleReaction,
+    hasReacted,
+    getTotalReactions,
   } = useReactions(blogId);
-  
-  const [animatingReaction, setAnimatingReaction] = useState<ReactionType | null>(null);
+
+  const [animatingReaction, setAnimatingReaction] =
+    useState<ReactionType | null>(null);
 
   const handleReactionClick = async (reactionType: ReactionType) => {
     if (loading) return;
 
     setAnimatingReaction(reactionType);
-    
+
     try {
       await toggleReaction(reactionType);
     } catch (error) {
-      console.error('Reaction toggle failed:', error);
+      console.error("Reaction toggle failed:", error);
     } finally {
       // アニメーション完了後にリセット
       setTimeout(() => {
@@ -50,13 +51,15 @@ export default function ReactionButtons({
   }
 
   return (
-    <div className={`reaction-buttons ${compact ? 'compact' : ''} ${className}`}>
+    <div
+      className={`reaction-buttons ${compact ? "compact" : ""} ${className}`}
+    >
       {Object.entries(REACTIONS).map(([reactionKey, reactionConfig]) => {
         const reactionType = reactionKey.toLowerCase() as ReactionType;
         const count = reactionCounts[reactionType] || 0;
         const isReacted = hasReacted(reactionType);
         const isAnimating = animatingReaction === reactionType;
-        
+
         // コンパクトモードでカウント0の場合は非表示
         if (compact && count === 0 && !isReacted) {
           return null;
@@ -67,13 +70,13 @@ export default function ReactionButtons({
             key={reactionType}
             onClick={() => handleReactionClick(reactionType)}
             disabled={loading}
-            className={`reaction-btn ${reactionType} ${isReacted ? 'reacted' : ''} ${isAnimating ? 'animating' : ''}`}
-            aria-label={`${reactionConfig.label} ${isReacted ? '済み' : ''} ${count > 0 ? `(${count})` : ''}`}
-            title={`${reactionConfig.label}${isReacted ? ' - クリックで取り消し' : ''}`}
+            className={`reaction-btn ${reactionType} ${isReacted ? "reacted" : ""} ${isAnimating ? "animating" : ""}`}
+            aria-label={`${reactionConfig.label} ${isReacted ? "済み" : ""} ${count > 0 ? `(${count})` : ""}`}
+            title={`${reactionConfig.label}${isReacted ? " - クリックで取り消し" : ""}`}
           >
             {/* リアクションエモート */}
-            <span 
-              className={`reaction-emoji ${isAnimating ? 'bounce' : ''}`}
+            <span
+              className={`reaction-emoji ${isAnimating ? "bounce" : ""}`}
               aria-hidden="true"
             >
               {reactionConfig.emoji}
@@ -81,7 +84,7 @@ export default function ReactionButtons({
 
             {/* カウント表示 */}
             {showCounts && count > 0 && (
-              <span className={`reaction-count ${isAnimating ? 'pulse' : ''}`}>
+              <span className={`reaction-count ${isAnimating ? "pulse" : ""}`}>
                 {count}
               </span>
             )}
@@ -106,9 +109,7 @@ export default function ReactionButtons({
       {/* 総リアクション数（オプション） */}
       {showCounts && totalReactions > 0 && !compact && (
         <div className="total-reactions">
-          <span className="total-count">
-            {totalReactions} reactions
-          </span>
+          <span className="total-count">{totalReactions} reactions</span>
         </div>
       )}
     </div>
@@ -119,28 +120,30 @@ export default function ReactionButtons({
 export function SingleReactionButton({
   blogId,
   reactionType,
-  className = ''
+  className = "",
 }: {
   blogId: string;
   reactionType: ReactionType;
   className?: string;
 }) {
-  const { reactionCounts, loading, toggleReaction, hasReacted } = useReactions(blogId);
+  const { reactionCounts, loading, toggleReaction, hasReacted } =
+    useReactions(blogId);
   const [isAnimating, setIsAnimating] = useState(false);
-  
-  const reactionConfig = REACTIONS[reactionType.toUpperCase() as keyof typeof REACTIONS];
+
+  const reactionConfig =
+    REACTIONS[reactionType.toUpperCase() as keyof typeof REACTIONS];
   const count = reactionCounts[reactionType] || 0;
   const isReacted = hasReacted(reactionType);
 
   const handleClick = async () => {
     if (loading) return;
-    
+
     setIsAnimating(true);
-    
+
     try {
       await toggleReaction(reactionType);
     } catch (error) {
-      console.error('Single reaction toggle failed:', error);
+      console.error("Single reaction toggle failed:", error);
     } finally {
       setTimeout(() => setIsAnimating(false), 600);
     }
@@ -150,19 +153,19 @@ export function SingleReactionButton({
     <button
       onClick={handleClick}
       disabled={loading}
-      className={`reaction-btn single ${reactionType} ${isReacted ? 'reacted' : ''} ${isAnimating ? 'animating' : ''} ${className}`}
-      aria-label={`${reactionConfig.label} ${isReacted ? '済み' : ''} (${count})`}
+      className={`reaction-btn single ${reactionType} ${isReacted ? "reacted" : ""} ${isAnimating ? "animating" : ""} ${className}`}
+      aria-label={`${reactionConfig.label} ${isReacted ? "済み" : ""} (${count})`}
     >
-      <span className={`reaction-emoji ${isAnimating ? 'bounce' : ''}`}>
+      <span className={`reaction-emoji ${isAnimating ? "bounce" : ""}`}>
         {reactionConfig.emoji}
       </span>
-      
+
       {count > 0 && (
-        <span className={`reaction-count ${isAnimating ? 'pulse' : ''}`}>
+        <span className={`reaction-count ${isAnimating ? "pulse" : ""}`}>
           {count}
         </span>
       )}
-      
+
       {isAnimating && (
         <div className="reaction-effect">
           <span className="effect-emoji">{reactionConfig.emoji}</span>

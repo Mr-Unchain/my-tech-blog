@@ -1,6 +1,6 @@
 // src/hooks/useReactions.ts
-import { useState, useEffect } from 'react';
-import { db } from '../lib/firebase';
+import { useState, useEffect } from "react";
+import { db } from "../lib/firebase";
 import {
   collection,
   doc,
@@ -11,10 +11,15 @@ import {
   getDocs,
   getDoc,
   runTransaction,
-  Timestamp
-} from 'firebase/firestore';
-import { COLLECTIONS, REACTIONS, type Reaction, type BlogStats } from '../lib/firebase-collections';
-import { generateSessionId } from '../lib/utils';
+  Timestamp,
+} from "firebase/firestore";
+import {
+  COLLECTIONS,
+  REACTIONS,
+  type Reaction,
+  type BlogStats,
+} from "../lib/firebase-collections";
+import { generateSessionId } from "../lib/utils";
 
 export type ReactionType = Lowercase<keyof typeof REACTIONS>;
 
@@ -39,9 +44,9 @@ export function useReactions(blogId: string): UseReactionsReturn {
     like: 0,
     helpful: 0,
     insightful: 0,
-    inspiring: 0
+    inspiring: 0,
   });
-  
+
   const [userReactions, setUserReactions] = useState<ReactionType[]>([]);
   const [loading, setLoading] = useState(false);
   const [userId] = useState(() => generateSessionId());
@@ -57,37 +62,36 @@ export function useReactions(blogId: string): UseReactionsReturn {
       loadFromLocalStorage();
       return;
     }
-    
+
     try {
       setLoading(true);
-      
+
       // 1. ブログ統計からカウント取得
       const statsDoc = await getDoc(doc(db, COLLECTIONS.BLOG_STATS, blogId));
       if (statsDoc.exists()) {
         const stats = statsDoc.data() as BlogStats;
         setReactionCounts(stats.reactionCounts);
       }
-      
+
       // 2. ユーザーのリアクション状態取得
       const reactionsRef = collection(db, COLLECTIONS.REACTIONS);
       const q = query(
-        reactionsRef, 
-        where('userId', '==', userId),
-        where('blogId', '==', blogId)
+        reactionsRef,
+        where("userId", "==", userId),
+        where("blogId", "==", blogId)
       );
-      
+
       const querySnapshot = await getDocs(q);
-      const userReactionTypes = querySnapshot.docs.map(doc => 
-        (doc.data() as Reaction).reactionType
+      const userReactionTypes = querySnapshot.docs.map(
+        (doc) => (doc.data() as Reaction).reactionType
       );
-      
+
       setUserReactions(userReactionTypes);
-      
+
       // LocalStorage と同期
       syncToLocalStorage(userReactionTypes, reactionCounts);
-      
     } catch (error) {
-      console.error('Error loading reactions:', error);
+      console.error("Error loading reactions:", error);
       loadFromLocalStorage();
     } finally {
       setLoading(false);
@@ -103,7 +107,7 @@ export function useReactions(blogId: string): UseReactionsReturn {
 
     setLoading(true);
     const hasCurrentReaction = userReactions.includes(reactionType);
-    
+
     try {
       if (hasCurrentReaction) {
         // リアクション削除
@@ -112,16 +116,15 @@ export function useReactions(blogId: string): UseReactionsReturn {
         // リアクション追加
         await addReaction(reactionType);
       }
-      
+
       // 統計更新
       await updateReactionStats(reactionType, hasCurrentReaction ? -1 : 1);
-      
+
       // ローカル状態更新
       await loadReactions();
-      
     } catch (error) {
-      console.error('Error toggling reaction:', error);
-      
+      console.error("Error toggling reaction:", error);
+
       // エラー時はローカルのみで処理
       toggleReactionLocalOnly(reactionType);
     } finally {
@@ -136,9 +139,9 @@ export function useReactions(blogId: string): UseReactionsReturn {
     // 重複チェック
     const existingQuery = query(
       reactionsRef,
-      where('userId', '==', userId),
-      where('blogId', '==', blogId),
-      where('reactionType', '==', reactionType)
+      where("userId", "==", userId),
+      where("blogId", "==", blogId),
+      where("reactionType", "==", reactionType)
     );
 
     const existingDocs = await getDocs(existingQuery);
@@ -147,11 +150,11 @@ export function useReactions(blogId: string): UseReactionsReturn {
     }
 
     // リアクション追加
-    const newReaction: Omit<Reaction, 'id'> = {
+    const newReaction: Omit<Reaction, "id"> = {
       userId,
       blogId,
       reactionType,
-      createdAt: Timestamp.now()
+      createdAt: Timestamp.now(),
     };
 
     await addDoc(reactionsRef, newReaction);
@@ -161,30 +164,33 @@ export function useReactions(blogId: string): UseReactionsReturn {
     const reactionsRef = collection(db!, COLLECTIONS.REACTIONS);
     const q = query(
       reactionsRef,
-      where('userId', '==', userId),
-      where('blogId', '==', blogId),
-      where('reactionType', '==', reactionType)
+      where("userId", "==", userId),
+      where("blogId", "==", blogId),
+      where("reactionType", "==", reactionType)
     );
 
     const querySnapshot = await getDocs(q);
-    const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
     await Promise.all(deletePromises);
   };
 
-  const updateReactionStats = async (reactionType: ReactionType, countChange: number) => {
+  const updateReactionStats = async (
+    reactionType: ReactionType,
+    countChange: number
+  ) => {
     const statsRef = doc(db!, COLLECTIONS.BLOG_STATS, blogId);
 
     await runTransaction(db!, async (transaction) => {
       const statsDoc = await transaction.get(statsRef);
-      
+
       if (statsDoc.exists()) {
         const currentData = statsDoc.data() as BlogStats;
         const currentCount = currentData.reactionCounts?.[reactionType] || 0;
         const newCount = Math.max(0, currentCount + countChange);
-        
+
         transaction.update(statsRef, {
           [`reactionCounts.${reactionType}`]: newCount,
-          lastUpdated: Timestamp.now()
+          lastUpdated: Timestamp.now(),
         });
       } else {
         // 新規統計作成
@@ -193,14 +199,16 @@ export function useReactions(blogId: string): UseReactionsReturn {
           bookmarkCount: 0,
           viewCount: 0,
           reactionCounts: {
-            like: reactionType === 'like' ? Math.max(0, countChange) : 0,
-            helpful: reactionType === 'helpful' ? Math.max(0, countChange) : 0,
-            insightful: reactionType === 'insightful' ? Math.max(0, countChange) : 0,
-            inspiring: reactionType === 'inspiring' ? Math.max(0, countChange) : 0
+            like: reactionType === "like" ? Math.max(0, countChange) : 0,
+            helpful: reactionType === "helpful" ? Math.max(0, countChange) : 0,
+            insightful:
+              reactionType === "insightful" ? Math.max(0, countChange) : 0,
+            inspiring:
+              reactionType === "inspiring" ? Math.max(0, countChange) : 0,
           },
-          lastUpdated: Timestamp.now()
+          lastUpdated: Timestamp.now(),
         };
-        
+
         transaction.set(statsRef, newStats);
       }
     });
@@ -210,13 +218,15 @@ export function useReactions(blogId: string): UseReactionsReturn {
   const toggleReactionLocalOnly = (reactionType: ReactionType) => {
     const storageKey = `reactions_${userId}`;
     const blogReactionsKey = `${storageKey}_${blogId}`;
-    
-    const currentReactions = JSON.parse(localStorage.getItem(blogReactionsKey) || '[]');
+
+    const currentReactions = JSON.parse(
+      localStorage.getItem(blogReactionsKey) || "[]"
+    );
     const hasReaction = currentReactions.includes(reactionType);
-    
+
     let newReactions;
     const newCounts = { ...reactionCounts };
-    
+
     if (hasReaction) {
       // 削除
       newReactions = currentReactions.filter((r: string) => r !== reactionType);
@@ -226,7 +236,7 @@ export function useReactions(blogId: string): UseReactionsReturn {
       newReactions = [...currentReactions, reactionType];
       newCounts[reactionType] = newCounts[reactionType] + 1;
     }
-    
+
     localStorage.setItem(blogReactionsKey, JSON.stringify(newReactions));
     setUserReactions(newReactions);
     setReactionCounts(newCounts);
@@ -235,18 +245,25 @@ export function useReactions(blogId: string): UseReactionsReturn {
   const loadFromLocalStorage = () => {
     const blogReactionsKey = `reactions_${userId}_${blogId}`;
     const countsKey = `reaction_counts_${blogId}`;
-    
-    const storedReactions = JSON.parse(localStorage.getItem(blogReactionsKey) || '[]');
-    const storedCounts = JSON.parse(localStorage.getItem(countsKey) || JSON.stringify(reactionCounts));
-    
+
+    const storedReactions = JSON.parse(
+      localStorage.getItem(blogReactionsKey) || "[]"
+    );
+    const storedCounts = JSON.parse(
+      localStorage.getItem(countsKey) || JSON.stringify(reactionCounts)
+    );
+
     setUserReactions(storedReactions);
     setReactionCounts(storedCounts);
   };
 
-  const syncToLocalStorage = (reactions: ReactionType[], counts: ReactionCounts) => {
+  const syncToLocalStorage = (
+    reactions: ReactionType[],
+    counts: ReactionCounts
+  ) => {
     const blogReactionsKey = `reactions_${userId}_${blogId}`;
     const countsKey = `reaction_counts_${blogId}`;
-    
+
     localStorage.setItem(blogReactionsKey, JSON.stringify(reactions));
     localStorage.setItem(countsKey, JSON.stringify(counts));
   };
@@ -265,6 +282,6 @@ export function useReactions(blogId: string): UseReactionsReturn {
     loading,
     toggleReaction,
     hasReacted,
-    getTotalReactions
+    getTotalReactions,
   };
 }

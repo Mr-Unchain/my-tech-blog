@@ -6,7 +6,7 @@
  * Zenn.devのリンクカードを参考にしたデザイン
  */
 
-import { fetchOGP, type OGPData } from '../lib/ogp';
+import { fetchOGP, type OGPData } from "../lib/ogp";
 
 interface Props {
   url: string;
@@ -23,7 +23,7 @@ try {
 }
 
 // URLからドメイン名を取得
-let hostname = '';
+let hostname = "";
 try {
   hostname = new URL(url).hostname;
 } catch {
@@ -31,49 +31,54 @@ try {
 }
 ---
 
-{ogpData ? (
-  <a href={url} target="_blank" rel="noopener noreferrer" class="link-card">
-    <div class="link-card-content">
-      <div class="link-card-text">
-        <span class="link-card-title">{ogpData.title || hostname}</span>
-        {ogpData.description && (
-          <span class="link-card-description">{ogpData.description}</span>
-        )}
-        <span class="link-card-meta">
-          <img
-            src={ogpData.favicon}
-            alt=""
-            class="link-card-favicon"
-            width="16"
-            height="16"
-            loading="lazy"
-          />
-          <span class="link-card-hostname">{ogpData.siteName || hostname}</span>
-        </span>
-      </div>
-      {ogpData.image && (
-        <div class="link-card-image">
-          <img
-            src={ogpData.image}
-            alt=""
-            loading="lazy"
-          />
+{
+  ogpData ? (
+    <a href={url} target="_blank" rel="noopener noreferrer" class="link-card">
+      <div class="link-card-content">
+        <div class="link-card-text">
+          <span class="link-card-title">{ogpData.title || hostname}</span>
+          {ogpData.description && (
+            <span class="link-card-description">{ogpData.description}</span>
+          )}
+          <span class="link-card-meta">
+            <img
+              src={ogpData.favicon}
+              alt=""
+              class="link-card-favicon"
+              width="16"
+              height="16"
+              loading="lazy"
+            />
+            <span class="link-card-hostname">
+              {ogpData.siteName || hostname}
+            </span>
+          </span>
         </div>
-      )}
-    </div>
-  </a>
-) : (
-  <a href={url} target="_blank" rel="noopener noreferrer" class="link-card link-card-simple">
-    <div class="link-card-content">
-      <div class="link-card-text">
-        <span class="link-card-title">{url}</span>
-        <span class="link-card-meta">
-          <span class="link-card-hostname">{hostname}</span>
-        </span>
+        {ogpData.image && (
+          <div class="link-card-image">
+            <img src={ogpData.image} alt="" loading="lazy" />
+          </div>
+        )}
       </div>
-    </div>
-  </a>
-)}
+    </a>
+  ) : (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="link-card link-card-simple"
+    >
+      <div class="link-card-content">
+        <div class="link-card-text">
+          <span class="link-card-title">{url}</span>
+          <span class="link-card-meta">
+            <span class="link-card-hostname">{hostname}</span>
+          </span>
+        </div>
+      </div>
+    </a>
+  )
+}
 
 <style>
   /* リンクカード */

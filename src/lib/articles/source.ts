@@ -1,24 +1,24 @@
-import { parseFrontmatter } from '@astrojs/markdown-remark';
-import { readdir, readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { parseFrontmatter } from "@astrojs/markdown-remark";
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type {
   ArticleSourceRecord,
   ArticleValidationError,
   ParsedArticleSource,
-} from './types';
+} from "./types";
 
-const defaultSourceRoot = new URL('../../content/blog/', import.meta.url);
+const defaultSourceRoot = new URL("../../content/blog/", import.meta.url);
 
 const toAbsolutePath = (root: string | URL): string =>
   root instanceof URL ? fileURLToPath(root) : path.resolve(root);
 
 const toSafeSourcePath = (absolutePath: string): string => {
   const relativePath = path.relative(process.cwd(), absolutePath);
-  const safePath = relativePath.startsWith('..')
+  const safePath = relativePath.startsWith("..")
     ? path.basename(absolutePath)
     : relativePath;
-  return safePath.replaceAll('\\', '/');
+  return safePath.replaceAll("\\", "/");
 };
 
 export const scanArticleSources = async (
@@ -37,9 +37,9 @@ export const scanArticleSources = async (
       errors: [
         {
           sourcePath: toSafeSourcePath(root),
-          field: 'source',
-          code: 'SOURCE_DIRECTORY_READ',
-          message: 'The article source directory could not be read.',
+          field: "source",
+          code: "SOURCE_DIRECTORY_READ",
+          message: "The article source directory could not be read.",
         },
       ],
     };
@@ -60,14 +60,14 @@ export const scanArticleSources = async (
         absolutePath,
         sourcePath,
         filenameStem: path.basename(filename, path.extname(filename)),
-        content: await readFile(absolutePath, 'utf8'),
+        content: await readFile(absolutePath, "utf8"),
       });
     } catch {
       errors.push({
         sourcePath,
-        field: 'source',
-        code: 'SOURCE_FILE_READ',
-        message: 'The article source file could not be read.',
+        field: "source",
+        code: "SOURCE_FILE_READ",
+        message: "The article source file could not be read.",
       });
     }
   }
@@ -78,7 +78,7 @@ export const scanArticleSources = async (
 export const parseArticleSource = (
   source: ArticleSourceRecord
 ): ParsedArticleSource => {
-  const parsed = parseFrontmatter(source.content, { frontmatter: 'remove' });
+  const parsed = parseFrontmatter(source.content, { frontmatter: "remove" });
   return {
     ...source,
     frontmatter: parsed.frontmatter,

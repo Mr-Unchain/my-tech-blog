@@ -4,10 +4,10 @@
  */
 
 export function setupReadingProgress(): void {
-  const progressBar = document.getElementById('reading-progress');
+  const progressBar = document.getElementById("reading-progress");
   if (!progressBar) return;
 
-  const article = document.querySelector('.blog-article-content');
+  const article = document.querySelector(".blog-article-content");
   if (!article) return;
 
   function updateProgress(): void {
@@ -35,7 +35,7 @@ export function setupReadingProgress(): void {
     progressBar!.style.width = `${Math.min(100, Math.max(0, progress))}%`;
   }
 
-  window.addEventListener('scroll', updateProgress, { passive: true });
-  window.addEventListener('resize', updateProgress, { passive: true });
+  window.addEventListener("scroll", updateProgress, { passive: true });
+  window.addEventListener("resize", updateProgress, { passive: true });
   updateProgress();
 }

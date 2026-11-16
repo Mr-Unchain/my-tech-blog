@@ -1,4 +1,4 @@
-import type { ArticleValidationError } from './types';
+import type { ArticleValidationError } from "./types";
 
 const compareErrors = (
   left: ArticleValidationError,
@@ -15,7 +15,7 @@ export const normalizeValidationErrors = (
   const unique = new Map<string, ArticleValidationError>();
   for (const error of errors) {
     unique.set(
-      [error.sourcePath, error.field, error.code, error.message].join('\0'),
+      [error.sourcePath, error.field, error.code, error.message].join("\0"),
       error
     );
   }
@@ -30,7 +30,7 @@ export const formatValidationErrors = (
       ({ sourcePath, field, code, message }) =>
         `${sourcePath} [${field}] ${code}: ${message}`
     )
-    .join('\n');
+    .join("\n");
 
 export class ArticleValidationAggregateError extends Error {
   readonly errors: ArticleValidationError[];
@@ -40,7 +40,7 @@ export class ArticleValidationAggregateError extends Error {
     super(
       `Article validation failed with ${normalized.length} error(s).\n${formatValidationErrors(normalized)}`
     );
-    this.name = 'ArticleValidationAggregateError';
+    this.name = "ArticleValidationAggregateError";
     this.errors = normalized;
   }
 }

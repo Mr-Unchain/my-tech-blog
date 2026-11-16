@@ -12,10 +12,18 @@ const categoryCountMap = new Map<string, number>();
   let offset = 0;
   let total = 0;
   do {
-    const { contents, totalCount } = await getBlogs({ limit: PAGE_LIMIT, offset, fields: "id,category" });
+    const { contents, totalCount } = await getBlogs({
+      limit: PAGE_LIMIT,
+      offset,
+      fields: "id,category",
+    });
     total = totalCount || contents.length;
     for (const p of contents) {
-      const cats = Array.isArray(p.category) ? p.category : (p.category ? [p.category] : []);
+      const cats = Array.isArray(p.category)
+        ? p.category
+        : p.category
+          ? [p.category]
+          : [];
       for (const c of cats) {
         categoryCountMap.set(c, (categoryCountMap.get(c) || 0) + 1);
       }
@@ -28,33 +36,38 @@ const categories = Array.from(categoryCountMap.entries())
   .map(([name, count]) => ({ name, count }))
   .sort((a, b) => a.name.localeCompare(b.name, "ja"));
 
-const breadcrumbItems = [
-  { name: "ホーム", href: "/" },
-  { name: "カテゴリ" }
-];
+const breadcrumbItems = [{ name: "ホーム", href: "/" }, { name: "カテゴリ" }];
 
 const pageTitle = "カテゴリ一覧";
-const pageDescription = "Monologger のカテゴリ一覧ページです。カテゴリ別に、気づきやメモをサクッと探せます。";
+const pageDescription =
+  "Monologger のカテゴリ一覧ページです。カテゴリ別に、気づきやメモをサクッと探せます。";
 ---
 
 <BaseLayout pageTitle={pageTitle} pageDescription={pageDescription}>
   <main class="editorial-page">
     <div class="editorial-page-shell">
       <Breadcrumb items={breadcrumbItems} />
-      <EditorialPageHeader eyebrow="TOPICS" title="カテゴリ" description="関心のあるテーマから記事を探せます。" />
-      {categories.length > 0 ? (
-        <ul class="editorial-category-list">
-          {categories.map((category) => (
-            <li>
-              <a href={`/category/${encodeURIComponent(category.name)}/`}>
-                <span>{category.name}</span><span>{category.count}件 →</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      ) : <p class="editorial-empty-state">カテゴリはまだありません。</p>}
+      <EditorialPageHeader
+        eyebrow="TOPICS"
+        title="カテゴリ"
+        description="関心のあるテーマから記事を探せます。"
+      />
+      {
+        categories.length > 0 ? (
+          <ul class="editorial-category-list">
+            {categories.map((category) => (
+              <li>
+                <a href={`/category/${encodeURIComponent(category.name)}/`}>
+                  <span>{category.name}</span>
+                  <span>{category.count}件 →</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="editorial-empty-state">カテゴリはまだありません。</p>
+        )
+      }
     </div>
   </main>
 </BaseLayout>
-
-

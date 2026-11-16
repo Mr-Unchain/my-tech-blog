@@ -17,44 +17,44 @@
    */
   function enhanceCodeBlocks() {
     // 既に強化済みのブロックはスキップ
-    const codeBlocks = document.querySelectorAll('pre:not([data-enhanced])');
+    const codeBlocks = document.querySelectorAll("pre:not([data-enhanced])");
 
     codeBlocks.forEach((pre) => {
       // 強化済みマーク
-      pre.setAttribute('data-enhanced', 'true');
+      pre.setAttribute("data-enhanced", "true");
 
       // コードブロックをラッパーで囲む
-      const wrapper = document.createElement('div');
-      wrapper.className = 'code-block-wrapper';
+      const wrapper = document.createElement("div");
+      wrapper.className = "code-block-wrapper";
 
       // ヘッダー部分（言語名 + コピーボタン）
-      const header = document.createElement('div');
-      header.className = 'code-block-header';
+      const header = document.createElement("div");
+      header.className = "code-block-header";
 
       // 言語名を取得（codeタグのclass名から）
-      const codeEl = pre.querySelector('code');
-      let language = '';
+      const codeEl = pre.querySelector("code");
+      let language = "";
       if (codeEl) {
-        const classList = codeEl.className.split(' ');
-        const langClass = classList.find(c => c.startsWith('language-'));
+        const classList = codeEl.className.split(" ");
+        const langClass = classList.find((c) => c.startsWith("language-"));
         if (langClass) {
-          language = langClass.replace('language-', '');
+          language = langClass.replace("language-", "");
         }
       }
 
       // 言語名表示
       if (language) {
-        const langLabel = document.createElement('span');
-        langLabel.className = 'code-block-lang';
+        const langLabel = document.createElement("span");
+        langLabel.className = "code-block-lang";
         langLabel.textContent = getLanguageDisplayName(language);
         header.appendChild(langLabel);
       }
 
       // コピーボタン
-      const copyBtn = document.createElement('button');
-      copyBtn.className = 'code-copy-btn';
-      copyBtn.setAttribute('aria-label', 'コードをコピー');
-      copyBtn.setAttribute('title', 'コードをコピー');
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "code-copy-btn";
+      copyBtn.setAttribute("aria-label", "コードをコピー");
+      copyBtn.setAttribute("title", "コードをコピー");
       copyBtn.innerHTML = `
         <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -67,31 +67,31 @@
       `;
 
       // コピー処理
-      copyBtn.addEventListener('click', async () => {
+      copyBtn.addEventListener("click", async () => {
         const code = codeEl ? codeEl.textContent : pre.textContent;
 
         try {
-          await navigator.clipboard.writeText(code || '');
+          await navigator.clipboard.writeText(code || "");
 
           // 成功表示
-          copyBtn.classList.add('copied');
-          const copyIcon = copyBtn.querySelector('.copy-icon');
-          const checkIcon = copyBtn.querySelector('.check-icon');
-          const copyText = copyBtn.querySelector('.copy-text');
+          copyBtn.classList.add("copied");
+          const copyIcon = copyBtn.querySelector(".copy-icon");
+          const checkIcon = copyBtn.querySelector(".check-icon");
+          const copyText = copyBtn.querySelector(".copy-text");
 
-          if (copyIcon) copyIcon.style.display = 'none';
-          if (checkIcon) checkIcon.style.display = 'block';
-          if (copyText) copyText.textContent = 'コピー完了';
+          if (copyIcon) copyIcon.style.display = "none";
+          if (checkIcon) checkIcon.style.display = "block";
+          if (copyText) copyText.textContent = "コピー完了";
 
           // 2秒後に元に戻す
           setTimeout(() => {
-            copyBtn.classList.remove('copied');
-            if (copyIcon) copyIcon.style.display = 'block';
-            if (checkIcon) checkIcon.style.display = 'none';
-            if (copyText) copyText.textContent = 'コピー';
+            copyBtn.classList.remove("copied");
+            if (copyIcon) copyIcon.style.display = "block";
+            if (checkIcon) checkIcon.style.display = "none";
+            if (copyText) copyText.textContent = "コピー";
           }, 2000);
         } catch (err) {
-          console.error('コピーに失敗しました:', err);
+          console.error("コピーに失敗しました:", err);
         }
       });
 
@@ -109,65 +109,65 @@
    */
   function getLanguageDisplayName(lang) {
     const displayNames = {
-      'js': 'JavaScript',
-      'javascript': 'JavaScript',
-      'ts': 'TypeScript',
-      'typescript': 'TypeScript',
-      'jsx': 'JSX',
-      'tsx': 'TSX',
-      'py': 'Python',
-      'python': 'Python',
-      'rb': 'Ruby',
-      'ruby': 'Ruby',
-      'go': 'Go',
-      'rust': 'Rust',
-      'rs': 'Rust',
-      'java': 'Java',
-      'kotlin': 'Kotlin',
-      'kt': 'Kotlin',
-      'swift': 'Swift',
-      'c': 'C',
-      'cpp': 'C++',
-      'cs': 'C#',
-      'csharp': 'C#',
-      'php': 'PHP',
-      'html': 'HTML',
-      'css': 'CSS',
-      'scss': 'SCSS',
-      'sass': 'Sass',
-      'less': 'Less',
-      'json': 'JSON',
-      'yaml': 'YAML',
-      'yml': 'YAML',
-      'xml': 'XML',
-      'md': 'Markdown',
-      'markdown': 'Markdown',
-      'sh': 'Shell',
-      'bash': 'Bash',
-      'zsh': 'Zsh',
-      'powershell': 'PowerShell',
-      'ps1': 'PowerShell',
-      'sql': 'SQL',
-      'graphql': 'GraphQL',
-      'dockerfile': 'Dockerfile',
-      'docker': 'Docker',
-      'nginx': 'Nginx',
-      'apache': 'Apache',
-      'vim': 'Vim',
-      'diff': 'Diff',
-      'plaintext': 'Text',
-      'text': 'Text',
-      'astro': 'Astro',
-      'vue': 'Vue',
-      'svelte': 'Svelte',
+      js: "JavaScript",
+      javascript: "JavaScript",
+      ts: "TypeScript",
+      typescript: "TypeScript",
+      jsx: "JSX",
+      tsx: "TSX",
+      py: "Python",
+      python: "Python",
+      rb: "Ruby",
+      ruby: "Ruby",
+      go: "Go",
+      rust: "Rust",
+      rs: "Rust",
+      java: "Java",
+      kotlin: "Kotlin",
+      kt: "Kotlin",
+      swift: "Swift",
+      c: "C",
+      cpp: "C++",
+      cs: "C#",
+      csharp: "C#",
+      php: "PHP",
+      html: "HTML",
+      css: "CSS",
+      scss: "SCSS",
+      sass: "Sass",
+      less: "Less",
+      json: "JSON",
+      yaml: "YAML",
+      yml: "YAML",
+      xml: "XML",
+      md: "Markdown",
+      markdown: "Markdown",
+      sh: "Shell",
+      bash: "Bash",
+      zsh: "Zsh",
+      powershell: "PowerShell",
+      ps1: "PowerShell",
+      sql: "SQL",
+      graphql: "GraphQL",
+      dockerfile: "Dockerfile",
+      docker: "Docker",
+      nginx: "Nginx",
+      apache: "Apache",
+      vim: "Vim",
+      diff: "Diff",
+      plaintext: "Text",
+      text: "Text",
+      astro: "Astro",
+      vue: "Vue",
+      svelte: "Svelte",
     };
 
     return displayNames[lang.toLowerCase()] || lang.toUpperCase();
   }
 
   // ページ読み込み時に実行
-  document.addEventListener('DOMContentLoaded', enhanceCodeBlocks);
-  document.addEventListener('astro:page-load', enhanceCodeBlocks);
+  document.addEventListener("DOMContentLoaded", enhanceCodeBlocks);
+  document.addEventListener("astro:page-load", enhanceCodeBlocks);
 </script>
 
 <style is:global>

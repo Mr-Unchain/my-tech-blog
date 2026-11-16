@@ -63,15 +63,21 @@ const hasNextPage = currentPage < totalPages;
 const hasPrevPage = currentPage > 1;
 
 // ページタイトル
-const pageTitle = categoryParam && categoryParam !== "all" 
-  ? `${categoryParam} - ブログ記事一覧` 
-  : "ブログ記事一覧";
+const pageTitle =
+  categoryParam && categoryParam !== "all"
+    ? `${categoryParam} - ブログ記事一覧`
+    : "ブログ記事一覧";
 
 // パンくずリストの定義
 const breadcrumbItems = [
   { name: "ホーム", href: "/" },
-  { name: "ブログ", href: categoryParam && categoryParam !== "all" ? "/blog" : undefined },
-  ...(categoryParam && categoryParam !== "all" ? [{ name: "カテゴリ", href: "/category" }] : [])
+  {
+    name: "ブログ",
+    href: categoryParam && categoryParam !== "all" ? "/blog" : undefined,
+  },
+  ...(categoryParam && categoryParam !== "all"
+    ? [{ name: "カテゴリ", href: "/category" }]
+    : []),
 ];
 
 if (categoryParam && categoryParam !== "all") {
@@ -80,24 +86,26 @@ if (categoryParam && categoryParam !== "all") {
 
 // 正規URL（カノニカル）を計算
 const canonicalUrlForList = (() => {
-  if (categoryParam && categoryParam !== 'all') {
+  if (categoryParam && categoryParam !== "all") {
     const p = `/category/${encodeURIComponent(categoryParam)}/`;
     const url = new URL(p, Astro.site);
-    const pageParamLocal = Astro.url.searchParams.get('page');
-    if (pageParamLocal && pageParamLocal !== '1') url.searchParams.set('page', pageParamLocal);
+    const pageParamLocal = Astro.url.searchParams.get("page");
+    if (pageParamLocal && pageParamLocal !== "1")
+      url.searchParams.set("page", pageParamLocal);
     return url.href;
   }
-  const url = new URL('/blog/', Astro.site);
-  if (currentPage > 1) url.searchParams.set('page', String(currentPage));
+  const url = new URL("/blog/", Astro.site);
+  if (currentPage > 1) url.searchParams.set("page", String(currentPage));
   return url.href;
 })();
 const listHref = (page: number, view = viewParam) => {
   const params = new URLSearchParams();
-  if (sortParam !== '-publishedAt') params.set('sort', sortParam);
-  if (categoryParam && categoryParam !== 'all') params.set('category', categoryParam);
-  if (view !== 'list') params.set('view', view);
-  if (page > 1) params.set('page', String(page));
-  return `/blog/${params.size ? `?${params}` : ''}`;
+  if (sortParam !== "-publishedAt") params.set("sort", sortParam);
+  if (categoryParam && categoryParam !== "all")
+    params.set("category", categoryParam);
+  if (view !== "list") params.set("view", view);
+  if (page > 1) params.set("page", String(page));
+  return `/blog/${params.size ? `?${params}` : ""}`;
 };
 ---
 
@@ -112,26 +120,53 @@ const listHref = (page: number, view = viewParam) => {
       <Breadcrumb items={breadcrumbItems} />
       <EditorialPageHeader
         eyebrow="ARCHIVE"
-        title={categoryParam && categoryParam !== 'all' ? `#${categoryParam}` : '記事一覧'}
+        title={categoryParam && categoryParam !== "all"
+          ? `#${categoryParam}`
+          : "記事一覧"}
         description="つくったもの、試したこと、考えたことを日付順に記録しています。"
       />
 
       <div class="editorial-page-grid">
         <div>
-          <form class="editorial-filter" method="get" action="/blog/" aria-label="記事を絞り込む">
-            <label>カテゴリ
+          <form
+            class="editorial-filter"
+            method="get"
+            action="/blog/"
+            aria-label="記事を絞り込む"
+          >
+            <label
+              >カテゴリ
               <select name="category">
-                <option value="all" selected={!categoryParam || categoryParam === 'all'}>すべて</option>
-                {categories.map((category) => (
-                  <option value={category.name} selected={category.name === categoryParam}>{category.name}</option>
-                ))}
+                <option
+                  value="all"
+                  selected={!categoryParam || categoryParam === "all"}
+                  >すべて</option
+                >
+                {
+                  categories.map((category) => (
+                    <option
+                      value={category.name}
+                      selected={category.name === categoryParam}
+                    >
+                      {category.name}
+                    </option>
+                  ))
+                }
               </select>
             </label>
-            <label>並び順
+            <label
+              >並び順
               <select name="sort">
-                {sortOptions.map((option) => (
-                  <option value={option.value} selected={sortParam === option.value}>{option.label}</option>
-                ))}
+                {
+                  sortOptions.map((option) => (
+                    <option
+                      value={option.value}
+                      selected={sortParam === option.value}
+                    >
+                      {option.label}
+                    </option>
+                  ))
+                }
               </select>
             </label>
             <input type="hidden" name="view" value={viewParam} />
@@ -141,50 +176,98 @@ const listHref = (page: number, view = viewParam) => {
           <div class="editorial-listing-toolbar">
             <p class="editorial-result-count">{totalCount}件の記事</p>
             <nav aria-label="表示形式">
-              <a href={listHref(1, 'list')} aria-current={viewParam === 'list' ? 'page' : undefined}>一覧</a>
-              <a href={listHref(1, 'grid')} aria-current={viewParam === 'grid' ? 'page' : undefined}>タイル</a>
+              <a
+                href={listHref(1, "list")}
+                aria-current={viewParam === "list" ? "page" : undefined}>一覧</a
+              >
+              <a
+                href={listHref(1, "grid")}
+                aria-current={viewParam === "grid" ? "page" : undefined}
+                >タイル</a
+              >
             </nav>
           </div>
 
-          {posts.length > 0 ? (
-            <ol class:list={['editorial-listing', { 'editorial-listing--grid': viewParam === 'grid' }]}>
-              {posts.map((post) => (
-                <li>
-                  <a href={`/blog/${post.id}/`}>
-                    <time datetime={post.publishedAt}>
-                      {new Date(post.publishedAt).toLocaleDateString('ja-JP')}
-                    </time>
-                    <span class="editorial-listing__category">{post.category[0] || 'ブログ'}</span>
-                    <span class="editorial-listing__copy">
-                      <span class="editorial-listing__title">{post.title}</span>
-                      <span class="editorial-listing__description">{post.description}</span>
-                    </span>
-                    <span class="editorial-listing__arrow" aria-hidden="true">↗</span>
-                  </a>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p class="editorial-empty-state">該当する記事はありません。<a href="/blog/">すべての記事を見る →</a></p>
-          )}
+          {
+            posts.length > 0 ? (
+              <ol
+                class:list={[
+                  "editorial-listing",
+                  { "editorial-listing--grid": viewParam === "grid" },
+                ]}
+              >
+                {posts.map((post) => (
+                  <li>
+                    <a href={`/blog/${post.id}/`}>
+                      <time datetime={post.publishedAt}>
+                        {new Date(post.publishedAt).toLocaleDateString("ja-JP")}
+                      </time>
+                      <span class="editorial-listing__category">
+                        {post.category[0] || "ブログ"}
+                      </span>
+                      <span class="editorial-listing__copy">
+                        <span class="editorial-listing__title">
+                          {post.title}
+                        </span>
+                        <span class="editorial-listing__description">
+                          {post.description}
+                        </span>
+                      </span>
+                      <span class="editorial-listing__arrow" aria-hidden="true">
+                        ↗
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p class="editorial-empty-state">
+                該当する記事はありません。
+                <a href="/blog/">すべての記事を見る →</a>
+              </p>
+            )
+          }
 
-          {totalPages > 1 && (
-            <nav class="editorial-pagination" aria-label="記事ページ">
-              {hasPrevPage && <a href={listHref(currentPage - 1)} rel="prev">← 前へ</a>}
-              <span>{currentPage} / {totalPages}</span>
-              {hasNextPage && <a href={listHref(currentPage + 1)} rel="next">次へ →</a>}
-            </nav>
-          )}
+          {
+            totalPages > 1 && (
+              <nav class="editorial-pagination" aria-label="記事ページ">
+                {hasPrevPage && (
+                  <a href={listHref(currentPage - 1)} rel="prev">
+                    ← 前へ
+                  </a>
+                )}
+                <span>
+                  {currentPage} / {totalPages}
+                </span>
+                {hasNextPage && (
+                  <a href={listHref(currentPage + 1)} rel="next">
+                    次へ →
+                  </a>
+                )}
+              </nav>
+            )
+          }
         </div>
 
         <aside class="editorial-page-sidebar" aria-label="カテゴリ">
           <h2>カテゴリ</h2>
           <ul>
-            {categories.map((category) => (
-              <li><a href={`/category/${encodeURIComponent(category.name)}/`}><span>{category.name}</span><span>{category.count}</span></a></li>
-            ))}
+            {
+              categories.map((category) => (
+                <li>
+                  <a href={`/category/${encodeURIComponent(category.name)}/`}>
+                    <>
+                      <span>{category.name}</span>
+                      <span>{category.count}</span>
+                    </>
+                  </a>
+                </li>
+              ))
+            }
           </ul>
-          <p class="editorial-page-sidebar__more"><a href="/category/">カテゴリ一覧 →</a></p>
+          <p class="editorial-page-sidebar__more">
+            <a href="/category/">カテゴリ一覧 →</a>
+          </p>
         </aside>
       </div>
     </div>

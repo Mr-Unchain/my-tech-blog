@@ -14,40 +14,53 @@ const { items, class: className = "" } = Astro.props;
 ---
 
 <nav aria-label="パンくず" class={`breadcrumb ${className}`}>
-  <ol class="breadcrumb__list flex items-center space-x-2 text-sm" itemscope itemtype="https://schema.org/BreadcrumbList">
-    {items.map((item, index) => (
-      <li
-        class="flex items-center"
-        itemprop="itemListElement"
-        itemscope
-        itemtype="https://schema.org/ListItem"
-      >
-        {item.href ? (
-          <a
-            href={item.href}
-            class="breadcrumb__link transition-colors duration-200"
-            itemprop="item"
-          >
-            <span itemprop="name">{item.name}</span>
-          </a>
-        ) : (
-          <span class="breadcrumb__current font-medium" itemprop="name">{item.name}</span>
-        )}
-        <meta itemprop="position" content={String(index + 1)} />
+  <ol
+    class="breadcrumb__list flex items-center space-x-2 text-sm"
+    itemscope
+    itemtype="https://schema.org/BreadcrumbList"
+  >
+    {
+      items.map((item, index) => (
+        <li
+          class="flex items-center"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          {item.href ? (
+            <a
+              href={item.href}
+              class="breadcrumb__link transition-colors duration-200"
+              itemprop="item"
+            >
+              <span itemprop="name">{item.name}</span>
+            </a>
+          ) : (
+            <span class="breadcrumb__current font-medium" itemprop="name">
+              {item.name}
+            </span>
+          )}
+          <meta itemprop="position" content={String(index + 1)} />
 
-        {index < items.length - 1 && (
-          <svg
-            class="breadcrumb__separator w-4 h-4 mx-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-        )}
-      </li>
-    ))}
+          {index < items.length - 1 && (
+            <svg
+              class="breadcrumb__separator w-4 h-4 mx-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          )}
+        </li>
+      ))
+    }
   </ol>
 </nav>
 
@@ -87,4 +100,4 @@ const { items, class: className = "" } = Astro.props;
       margin: 0 0.375rem;
     }
   }
-</style> 
+</style>
