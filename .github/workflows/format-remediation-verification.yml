@@ -45,7 +45,7 @@ jobs:
         run: npx --no-install prettier --check src/lib/structured-data.ts tests/lib/structured-data.test.ts src/components/ArticleCard.astro src/layouts/BaseLayout.astro src/pages/index.astro 'src/pages/blog/[id].astro' 'src/pages/category/[categoryName].astro'
       - name: Rendered JSON-LD
         run: |
-          npm run dev -- --port 4321 >/tmp/diagnostic-remediation-server.log 2>&1 &
+          ./node_modules/.bin/astro dev --host 127.0.0.1 --port 4321 >/tmp/diagnostic-remediation-server.log 2>&1 &
           site_pid=$!
           trap 'kill "$site_pid" 2>/dev/null || true' EXIT
           node --input-type=module <<'JSONLD_CHECK'
@@ -56,6 +56,7 @@ jobs:
             try { if ((await fetch(base)).ok) { ready = true; break; } } catch {}
             await new Promise(resolve => setTimeout(resolve, 1000));
           }
+          if (!ready) console.log((await import('node:fs')).readFileSync('/tmp/diagnostic-remediation-server.log','utf8'));
           assert(ready, 'Development server did not become ready');
           for (const [path, type] of [['/', 'Blog'], ['/blog/docker-intro-part1/', 'BlogPosting'], ['/category/IT/', 'CollectionPage']]) {
             const response = await fetch(base + path);
@@ -72,7 +73,7 @@ jobs:
         run: npx --no-install playwright install chromium
       - name: Browser and CSS verification
         run: |
-          npm run dev -- --port 4322 >/tmp/dependency-remediation-server.log 2>&1 &
+          ./node_modules/.bin/astro dev --host 127.0.0.1 --port 4322 >/tmp/dependency-remediation-server.log 2>&1 &
           site_pid=$!
           trap 'kill "$site_pid" 2>/dev/null || true' EXIT
           node --input-type=module <<'BROWSER_CHECK'
@@ -84,6 +85,7 @@ jobs:
             try { if ((await fetch(base)).ok) { ready=true; break; } } catch {}
             await new Promise(resolve => setTimeout(resolve,1000));
           }
+          if (!ready) console.log((await import('node:fs')).readFileSync('/tmp/dependency-remediation-server.log','utf8'));
           assert(ready, 'Server unavailable');
           const browser = await chromium.launch({headless:true});
           try {
